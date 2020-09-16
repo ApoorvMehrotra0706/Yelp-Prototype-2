@@ -2,16 +2,16 @@ const express = require('express');
 
 const bodyParser = require('body-parser');
 
-const restuarantSignupRoutes = require('./routes/signupRestaurant');
+const restaurantRoutes = require('./routes/restRoutes');
 
-const customerSignupRoutes = require('./routes/signupCustomer');
+const customerRoutes = require('./routes/custRoutes');
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/restaurant', restuarantSignupRoutes);
+app.use('/restaurant', restaurantRoutes);
 
-app.use('/customer', customerSignupRoutes);
+app.use('/customer', customerRoutes);
 
 app.listen(3000);

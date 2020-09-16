@@ -28,8 +28,20 @@ declare exit handler for sqlexception rollback;
 start transaction;
 INSERT INTO LOGIN (EmailID, Password, Role, Name) 
 VALUES(EmailID_check,Password_check,Role_check,Name_check);
-set _custmrId=(SELECT ID FROM LOGIN WHERE Email=EmailID_check and Role="Customer");
+set _custmrId=(SELECT ID FROM LOGIN WHERE EmailID=EmailID_check and Role="Customer");
 INSERT INTO CUSTOMER(ID, GenderID, YelpingSince) VALUES(_custmrId, Gender_check, CURDATE()); 
+commit;
+END$$
+DELIMITER ;
+
+-- Procedure to check if userID is valid
+DELIMITER $$
+CREATE PROCEDURE `validUserID` (IN EmailID_check varchar(60), IN Role_check enum('Restaurant','Customer'))
+BEGIN
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT Password FROM LOGIN 
+WHERE EmailID =  EmailID_check AND Role = Role_check;
 commit;
 END$$
 DELIMITER ;

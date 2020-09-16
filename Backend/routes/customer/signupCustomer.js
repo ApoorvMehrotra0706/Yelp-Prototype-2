@@ -1,9 +1,5 @@
-const express = require('express');
-
-const router = express.Router();
-// const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const mysqlConnection = require('../connection');
+const mysqlConnection = require('../../connection');
 
 const checkEmail = async (emailID, role) => {
   const emailProcedure = 'CALL existingEmail(?,?)';
@@ -19,29 +15,23 @@ const checkEmail = async (emailID, role) => {
   return false;
 };
 
-const userInsert = async (emailID, hashedPassword, role, name) => {
-  const userInsertProcedure = 'CALL userInsert(?,?,?,?)';
+const custInsert = async (emailID, hashedPassword, role, name, genderID) => {
+  const userInsertProcedure = 'CALL custInsert(?,?,?,?,?)';
   const con = await mysqlConnection();
-  // eslint-disable-next-line no-unused-vars
-  const [results, fields] = await con.query(userInsertProcedure, [
-    emailID,
-    hashedPassword,
-    role,
-    name,
-  ]);
+  await con.query(userInsertProcedure, [emailID, hashedPassword, role, name, genderID]);
   con.end();
-  if (results.affectedRows === 1) {
-    return true;
-  }
-  return false;
+  return true;
 };
 
 // console.log(results[0][0].Name);
-router.post('/signupRestaurant', async (req, res) => {
+
+const custSignup = async (req, res) => {
   const { emailID } = req.body;
   const { password } = req.body;
-  const role = 'Restaurant';
-  const name = `${req.body.firstname} ${req.body.lastname}`;
+  const role = 'Customer';
+  // eslint-disable-next-line prefer-template
+  const name = req.body.firstname + ' ' + req.body.lastname;
+  const { gender } = req.body;
 
   if (await checkEmail(emailID, role)) {
     res.writeHead(401, { 'content-type': 'text/json' });
@@ -49,7 +39,10 @@ router.post('/signupRestaurant', async (req, res) => {
   } else {
     const hashedPassword = await bcrypt.hash(password, 10);
     // console.log('Password length is ', hashedPassword.length);
-    const insertStatus = await userInsert(emailID, hashedPassword, role, name);
+    let genderID = null;
+    if (gender === 'Male') genderID = 1;
+    else genderID = 2;
+    const insertStatus = await custInsert(emailID, hashedPassword, role, name, genderID);
     if (insertStatus) {
       res.writeHead(200, { 'content-type': 'text/json' });
       res.end(JSON.stringify({ message: 'Insertion successful' }));
@@ -59,6 +52,6 @@ router.post('/signupRestaurant', async (req, res) => {
     }
   }
   return res;
-});
+};
 
-module.exports = router;
+module.exports = custSignup;
