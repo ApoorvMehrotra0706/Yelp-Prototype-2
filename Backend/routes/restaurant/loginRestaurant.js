@@ -12,10 +12,9 @@ const checkValidID = async (emailID, role) => {
   // eslint-disable-next-line no-unused-vars
   const [results, fields] = await con.query(userIDValidCheck, [emailID, role]);
   con.end();
-  let value = false;
-
-  if (results[0][0].Password) {
-    value = results[0][0].Password;
+  const value = false;
+  if (results[0][0]) {
+    return results[0][0];
   }
   return value;
 };
@@ -26,7 +25,9 @@ const restLogin = async (req, res) => {
   const role = 'Restaurant';
   const value = await checkValidID(emailID, role);
   if (value) {
-    if (await bcrypt.compare(password, value)) {
+    const passwordFromDB = value.Password;
+    console.log('This is ', passwordFromDB, ' and ', password);
+    if (await bcrypt.compare(password, passwordFromDB)) {
       const token = genRandom.generate();
       res.cookie('cookie', token, { maxAge: 900000, httpOnly: false, path: '/' });
       res.cookie('Restaurant', role, { maxAge: 900000, httpOnly: false, path: '/' });
