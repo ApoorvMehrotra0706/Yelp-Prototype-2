@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import CustomerLogin from './LoginPage/CustomerLogin';
 import RestaurantLogin from './LoginPage/RestaurantLogin';
-import Home from './Home/Home';
+// import Home from './Home/Home';
 import CustomerSignup from './Signup/CustomerSignup';
 import RestaurantSignup from './Signup/RestaurantSignup';
 // import Delete from "./Delete/Delete";
@@ -16,6 +16,7 @@ class Main extends Component {
     return (
       <div>
         {/* Render Different Component based on Route */}
+
         <Route path="/" component={Navbar} />
         <Route path="/customerLogin" component={CustomerLogin} />
         <Route path="/restaurantLogin" component={RestaurantLogin} />

@@ -5,7 +5,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 
 // Define a Login Component
-class Login extends Component {
+class RestaurantSignup extends Component {
   // call the constructor method
   constructor(props) {
     //Call the constrictor of Super class i.e The Component
@@ -200,4 +200,4 @@ class Login extends Component {
   }
 }
 //export Login Component
-export default Login;
+export default RestaurantSignup;

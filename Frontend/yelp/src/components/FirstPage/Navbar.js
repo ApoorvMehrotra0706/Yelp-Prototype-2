@@ -82,10 +82,10 @@ class Navbar extends Component {
             </div>
             <ul class="nav navbar-nav">
               <li class="active">
-                <Link to="/home">Write a Review</Link>
+                <Link to="/restaurantLogin">Write a Review</Link>
               </li>
               <li>
-                <Link to="/create">Events</Link>
+                <Link to="/restaurantLogin">Events</Link>
               </li>
             </ul>
             {navLogin}

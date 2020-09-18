@@ -5,7 +5,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 
 // Define a Login Component
-class Login extends Component {
+class CustomerSignup extends Component {
   // call the constructor method
   constructor(props) {
     //Call the constrictor of Super class i.e The Component
@@ -24,6 +24,7 @@ class Login extends Component {
     this.emailIDChangeHandler = this.emailIDChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
     this.submitLogin = this.submitLogin.bind(this);
+    this.onGenderChangeValue = this.onGenderChangeValue.bind(this);
   }
   //Call the Will Mount to set the auth Flag to false
   componentWillMount() {
@@ -77,6 +78,12 @@ class Login extends Component {
     }
   };
 
+  onGenderChangeValue = (e) => {
+    this.setState({
+      gender: e.target.value,
+    });
+  };
+
   // submit Login handler to send a request to the node backend
   submitLogin = (e) => {
     var headers = new Headers();
@@ -122,6 +129,7 @@ class Login extends Component {
   };
 
   render() {
+    console.log('inside signup');
     //redirect based on successful login
     let redirectVar = null;
     if (cookie.load('cookie')) {
@@ -186,14 +194,15 @@ class Login extends Component {
                 {this.state.lastNameError === 1 && (
                   <p style={{ color: 'red' }}>It can only have letters.</p>
                 )}
-                <div onChange={this.onGenderChangeValue}>
+                <div>
                   Male
                   <input
                     type="radio"
                     // class="form-control"
                     name="gender"
                     value="Male"
-                    checked={true}
+                    checked={this.state.gender === 'Male'}
+                    onClick={this.onGenderChangeValue}
                     required
                   />
                   Female
@@ -202,15 +211,17 @@ class Login extends Component {
                     //class="form-control"
                     name="gender"
                     value="Female"
-                    checked={this.state.selectedOption === 'Female'}
+                    checked={this.state.gender === 'Female'}
+                    onClick={this.onGenderChangeValue}
                   />
                   Perfer Not to Say
                   <input
                     type="radio"
                     //class="form-control"
                     name="gender"
-                    checked={this.state.selectedOption === 'Other'}
-                    value="Perfer Not to Say"
+                    checked={this.state.gender === 'Other'}
+                    onClick={this.onGenderChangeValue}
+                    value="Other"
                   />
                 </div>
 
@@ -227,4 +238,4 @@ class Login extends Component {
   }
 }
 //export Login Component
-export default Login;
+export default CustomerSignup;

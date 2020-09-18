@@ -5,7 +5,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 
 // Define a Login Component
-class Login extends Component {
+class RestaurantLogin extends Component {
   // call the constructor method
   constructor(props) {
     //Call the constrictor of Super class i.e The Component
@@ -91,7 +91,7 @@ class Login extends Component {
             <div class="login-form">
               <div class="main-div">
                 <div class="panel">
-                  <h2>Login Page</h2>
+                  <h2>Business Login Page</h2>
                   <p>Please enter your username and password</p>
                 </div>
 
@@ -129,4 +129,4 @@ class Login extends Component {
   }
 }
 //export Login Component
-export default Login;
+export default RestaurantLogin;
