@@ -26,7 +26,7 @@ const restLogin = async (req, res) => {
   const value = await checkValidID(emailID, role);
   if (value) {
     const passwordFromDB = value.Password;
-    console.log('This is ', passwordFromDB, ' and ', password);
+    // console.log('This is ', passwordFromDB, ' and ', password);
     if (await bcrypt.compare(password, passwordFromDB)) {
       const token = genRandom.generate();
       res.cookie('cookie', token, { maxAge: 900000, httpOnly: false, path: '/' });

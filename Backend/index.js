@@ -32,4 +32,4 @@ app.use('/restaurant', restaurantRoutes);
 
 app.use('/customer', customerRoutes);
 
-app.listen(3000);
+app.listen(3004);
