@@ -15,8 +15,19 @@ const checkEmail = async (emailID, role) => {
   return false;
 };
 
-const userInsert = async (emailID, hashedPassword, role, name) => {
-  const userInsertProcedure = 'CALL userInsert(?,?,?,?)';
+const userInsert = async (
+  emailID,
+  hashedPassword,
+  role,
+  name,
+  contact,
+  streetAddress,
+  city,
+  state,
+  country,
+  zip
+) => {
+  const userInsertProcedure = 'CALL userInsert(?,?,?,?,?,?,?,?,?,?)';
   const con = await mysqlConnection();
   // eslint-disable-next-line no-unused-vars
   const [results, fields] = await con.query(userInsertProcedure, [
@@ -24,6 +35,12 @@ const userInsert = async (emailID, hashedPassword, role, name) => {
     hashedPassword,
     role,
     name,
+    contact,
+    streetAddress,
+    city,
+    state,
+    country,
+    zip,
   ]);
   con.end();
   if (results.affectedRows === 1) {
@@ -36,8 +53,10 @@ const userInsert = async (emailID, hashedPassword, role, name) => {
 const restSignUp = async (req, res) => {
   const { emailID } = req.body;
   const { password } = req.body;
+  const { contact, city, country, state, streetAddress, zip } = req.body;
   const role = 'Restaurant';
-  const name = `${req.body.firstname} ${req.body.lastname}`;
+  // eslint-disable-next-line prefer-template
+  const name = req.body.firstName + ' ' + req.body.lastName;
 
   if (await checkEmail(emailID, role)) {
     res.writeHead(401, { 'content-type': 'text/json' });
@@ -45,7 +64,18 @@ const restSignUp = async (req, res) => {
   } else {
     const hashedPassword = await bcrypt.hash(password, 10);
     // console.log('Password length is ', hashedPassword.length);
-    const insertStatus = await userInsert(emailID, hashedPassword, role, name);
+    const insertStatus = await userInsert(
+      emailID,
+      hashedPassword,
+      role,
+      name,
+      contact,
+      streetAddress,
+      city,
+      state,
+      country,
+      zip
+    );
     if (insertStatus) {
       res.writeHead(200, { 'content-type': 'text/json' });
       res.end(JSON.stringify({ message: 'Insertion successful' }));

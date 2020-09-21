@@ -3,6 +3,8 @@ import '../../App.css';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
+import loginHandlingReducer from '../../reducer/loginHandlingReducer';
+import { connect } from 'react-redux';
 
 // Define a Login Component
 class CustomerLogin extends Component {
@@ -62,13 +64,19 @@ class CustomerLogin extends Component {
     axios.defaults.withCredentials = true;
     // make a post request with the user data
     axios
-      .post('http://localhost:3001/login', data)
+      .post('http://localhost:3004/customer/loginCustomer', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
           this.setState({
             authFlag: true,
           });
+          let payload = {
+            emailID: this.state.emailID,
+            role: cookie.load('role'),
+            loginStatus: 'true',
+          };
+          this.props.updateLoginInfo(payload);
         } else {
           this.setState({
             authFlag: false,
@@ -86,7 +94,7 @@ class CustomerLogin extends Component {
     //redirect based on successful login
     let redirectVar = null;
     if (cookie.load('cookie')) {
-      redirectVar = <Redirect to="/home" />;
+      redirectVar = <Redirect to="/webPage" />;
     }
     return (
       <div>
@@ -130,5 +138,16 @@ class CustomerLogin extends Component {
     );
   }
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateLoginInfo: (payload) => {
+      dispatch({
+        type: 'update-login-field',
+        payload,
+      });
+    },
+  };
+};
 //export Login Component
-export default CustomerLogin;
+export default connect(null, mapDispatchToProps)(CustomerLogin);

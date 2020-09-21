@@ -15,10 +15,35 @@ const checkEmail = async (emailID, role) => {
   return false;
 };
 
-const custInsert = async (emailID, hashedPassword, role, name, genderID) => {
-  const userInsertProcedure = 'CALL custInsert(?,?,?,?,?)';
+const custInsert = async (
+  emailID,
+  hashedPassword,
+  role,
+  name,
+  genderID,
+  contact,
+  streetAddress,
+  city,
+  stateName,
+  country,
+  zip
+) => {
+  const userInsertProcedure = 'CALL custInsert(?,?,?,?,?,?,?,?,?,?,?)';
   const con = await mysqlConnection();
-  await con.query(userInsertProcedure, [emailID, hashedPassword, role, name, genderID]);
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(userInsertProcedure, [
+    emailID,
+    hashedPassword,
+    role,
+    name,
+    genderID,
+    contact,
+    streetAddress,
+    city,
+    stateName,
+    country,
+    zip,
+  ]);
   con.end();
   return true;
 };
@@ -28,9 +53,11 @@ const custInsert = async (emailID, hashedPassword, role, name, genderID) => {
 const custSignup = async (req, res) => {
   const { emailID } = req.body;
   const { password } = req.body;
+  const { contact, country, stateName, streetAddress, city, zip } = req.body;
   const role = 'Customer';
+
   // eslint-disable-next-line prefer-template
-  const name = req.body.firstname + ' ' + req.body.lastname;
+  const name = req.body.firstName + ' ' + req.body.lastName;
   const { gender } = req.body;
 
   if (await checkEmail(emailID, role)) {
@@ -41,8 +68,21 @@ const custSignup = async (req, res) => {
     // console.log('Password length is ', hashedPassword.length);
     let genderID = null;
     if (gender === 'Male') genderID = 1;
-    else genderID = 2;
-    const insertStatus = await custInsert(emailID, hashedPassword, role, name, genderID);
+    else if (gender === 'Female') genderID = 2;
+    else genderID = 3;
+    const insertStatus = await custInsert(
+      emailID,
+      hashedPassword,
+      role,
+      name,
+      genderID,
+      contact,
+      streetAddress,
+      city,
+      stateName,
+      country,
+      zip
+    );
     if (insertStatus) {
       res.writeHead(200, { 'content-type': 'text/json' });
       res.end(JSON.stringify({ message: 'Insertion successful' }));

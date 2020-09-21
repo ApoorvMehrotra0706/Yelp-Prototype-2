@@ -8,12 +8,27 @@ import { Redirect } from 'react-router';
 class CustomerSignup extends Component {
   // call the constructor method
   constructor(props) {
-    //Call the constrictor of Super class i.e The Component
+    //Call the constructor of Super class i.e The Component
     super(props);
     // maintain the state required for this component
     this.state = {
       emailID: '',
       password: '',
+      firstName: '',
+      lastName: '',
+      contact: null,
+      country: '',
+      countryError: 0,
+      stateName: '',
+      stateNames: [],
+      city: '',
+      cityError: '',
+      streetAddress: '',
+      streetAddressError: '',
+      zip: '',
+      zipError: '',
+      stateNameError: 0,
+      contactError: 0,
       errorFlag: 0,
       authFlag: false,
       emailIDerror: 0,
@@ -23,13 +38,33 @@ class CustomerSignup extends Component {
     //Bind the handlers to this class
     this.emailIDChangeHandler = this.emailIDChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
+    this.firstNameChangeHandler = this.firstNameChangeHandler.bind(this);
+    this.lastNameChangeHandler = this.lastNameChangeHandler.bind(this);
     this.submitLogin = this.submitLogin.bind(this);
     this.onGenderChangeValue = this.onGenderChangeValue.bind(this);
+    this.contactChangeHandler = this.contactChangeHandler.bind(this);
+    this.onStateSelect = this.onStateSelect.bind(this);
+    this.countryChangeHandler = this.countryChangeHandler.bind(this);
+    this.streetAddressChangeHandler = this.streetAddressChangeHandler.bind(this);
+    this.cityChangeHandler = this.cityChangeHandler.bind(this);
+    this.zipChangeHandler = this.zipChangeHandler.bind(this);
   }
   //Call the Will Mount to set the auth Flag to false
   componentWillMount() {
     this.setState({
       authFlag: false,
+    });
+  }
+
+  componentDidMount() {
+    axios.get('http://localhost:3004/customer/stateNames').then((response) => {
+      //update the state with the response data
+      let stateDetails = response.data[0].map((state) => {
+        return { key: state.StateID, value: state.State_Name };
+      });
+      this.setState({
+        stateNames: this.state.stateNames.concat(stateDetails),
+      });
     });
   }
   // emailID change handler to update state variable with the text entered by the user
@@ -63,7 +98,7 @@ class CustomerSignup extends Component {
     }
   };
 
-  lasttNameChangeHandler = (e) => {
+  lastNameChangeHandler = (e) => {
     let pattern = /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?@0123456789]+/g;
     if (e.target.value.match(pattern)) {
       this.setState({
@@ -84,13 +119,97 @@ class CustomerSignup extends Component {
     });
   };
 
+  contactChangeHandler = (e) => {
+    if (isNaN(e.target.value)) {
+      this.setState({
+        contactError: 1,
+      });
+    } else {
+      this.setState({
+        contact: e.target.value,
+        contactError: 0,
+      });
+    }
+  };
+
+  onStateSelect = (e) => {
+    if (e.target.value === 'Select State') {
+      this.setState({
+        stateNameError: 1,
+      });
+    } else {
+      this.setState({
+        stateName: e.target.value,
+        stateNameError: 0,
+      });
+    }
+  };
+
+  countryChangeHandler = (e) => {
+    let pattern = /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?@0123456789]+/g;
+    if (e.target.value.match(pattern)) {
+      this.setState({
+        countryError: 1,
+      });
+    } else {
+      this.setState({
+        countryError: 0,
+        errorFlag: 0,
+        country: e.target.value,
+      });
+    }
+  };
+
+  streetAddressChangeHandler = (e) => {
+    this.setState({
+      streetAddress: e.target.value,
+    });
+  };
+
+  cityChangeHandler = (e) => {
+    let pattern = /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?@0123456789]+/g;
+    if (e.target.value.match(pattern)) {
+      this.setState({
+        cityError: 1,
+      });
+    } else {
+      this.setState({
+        cityError: 0,
+        errorFlag: 0,
+        city: e.target.value,
+      });
+    }
+  };
+
+  zipChangeHandler = (e) => {
+    if (isNaN(e.target.value)) {
+      this.setState({
+        zipError: 1,
+      });
+    } else {
+      this.setState({
+        zip: e.target.value,
+        zipError: 0,
+      });
+    }
+  };
   // submit Login handler to send a request to the node backend
   submitLogin = (e) => {
     var headers = new Headers();
     // prevent page from refresh
     e.preventDefault();
     let pattern = /[@]/;
-    if (this.state.emailID.match(pattern)) {
+    if (
+      this.state.emailID.match(pattern) &&
+      this.state.firstNameError == 0 &&
+      this.state.lastNameError == 0 &&
+      this.state.contactError == 0 &&
+      this.state.stateNameError == 0 &&
+      this.state.countryError == 0 &&
+      this.state.streetAddressError == 0 &&
+      this.state.cityError == 0 &&
+      this.state.zipError == 0
+    ) {
       const data = {
         emailID: this.state.emailID,
         password: this.state.password,
@@ -98,6 +217,12 @@ class CustomerSignup extends Component {
         lastName: this.state.lastName,
         role: this.state.role,
         gender: this.state.gender,
+        contact: this.state.contact,
+        country: this.state.country,
+        stateName: this.state.stateName,
+        streetAddress: this.state.streetAddress,
+        city: this.state.city,
+        zip: this.state.zip,
       };
       // set the with credentials to true
       axios.defaults.withCredentials = true;
@@ -130,11 +255,12 @@ class CustomerSignup extends Component {
 
   render() {
     console.log('inside signup');
-    //redirect based on successful login
+    //redirect based on successful signup
     let redirectVar = null;
-    if (cookie.load('cookie')) {
-      redirectVar = <Redirect to="/login" />;
+    if (this.state.authFlag) {
+      redirectVar = <Redirect to="/customerLogin" />;
     }
+
     return (
       <div>
         {redirectVar}
@@ -184,6 +310,7 @@ class CustomerSignup extends Component {
                 <div class="form-group">
                   <input
                     onChange={this.lastNameChangeHandler}
+                    lasttNameChangeHandler
                     type="text"
                     class="form-control"
                     name="lastName"
@@ -225,10 +352,90 @@ class CustomerSignup extends Component {
                   />
                 </div>
 
-                {this.state.errorFlag === 1 && (
-                  <p style={{ color: 'red' }}>Signup failed.ID already in use</p>
+                <div class="form-group">
+                  <input
+                    onChange={this.contactChangeHandler}
+                    type="number"
+                    class="form-control"
+                    name="contactNo"
+                    placeholder="Contact Number"
+                    required
+                  />
+                </div>
+                {this.state.contactError === 1 && (
+                  <p style={{ color: 'red' }}>Incorrect entry for phone number</p>
                 )}
-                <button class="btn btn-primary">Login</button>
+
+                <div class="form-group">
+                  <input
+                    onChange={this.streetAddressChangeHandler}
+                    type="text"
+                    class="form-control"
+                    name="streetAddress"
+                    placeholder="Street Address"
+                    required
+                  />
+                </div>
+                {this.state.streetAddressError === 1 && (
+                  <p style={{ color: 'red' }}>Invalid entry for address</p>
+                )}
+
+                <div class="form-group">
+                  <input
+                    onChange={this.cityChangeHandler}
+                    type="text"
+                    class="form-control"
+                    name="city"
+                    placeholder="city"
+                    required
+                  />
+                </div>
+                {this.state.cityError === 1 && <p style={{ color: 'red' }}>Only letter allowed</p>}
+
+                <div class="form-group">
+                  <input
+                    onChange={this.zipChangeHandler}
+                    type="number"
+                    class="form-control"
+                    name="zip"
+                    placeholder="Zip Code"
+                    maxLength="5"
+                    onInput={this.maxLengthCheck}
+                    required
+                  />
+                </div>
+                {this.state.zipError === 1 && (
+                  <p style={{ color: 'red' }}>Invalid entry for Zip code</p>
+                )}
+                <div class="form-group">
+                  <select
+                    className="form-control"
+                    value={this.state.stateName}
+                    onChange={this.onStateSelect}
+                  >
+                    {this.state.stateNames.map((states) => (
+                      <option className="Dropdown-menu" key={states.key} value={states.value}>
+                        {states.value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <input
+                    onChange={this.countryChangeHandler}
+                    type="text"
+                    class="form-control"
+                    name="country"
+                    placeholder="Country"
+                    required
+                  />
+                  {this.state.countryError === 1 && <p style={{ color: 'red' }}>Invalid entry</p>}
+                  {this.state.errorFlag === 1 && (
+                    <p style={{ color: 'red' }}>Signup failed.ID already in use</p>
+                  )}
+                </div>
+                <button class="btn btn-primary">Register</button>
               </div>
             </div>
           </form>

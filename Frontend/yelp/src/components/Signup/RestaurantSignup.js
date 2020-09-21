@@ -14,6 +14,21 @@ class RestaurantSignup extends Component {
     this.state = {
       emailID: '',
       password: '',
+      firstName: '',
+      lastName: '',
+      contact: null,
+      contactError: 0,
+      streetAddress: '',
+      streetAddressError: 0,
+      city: '',
+      cityError: 0,
+      stateName: '',
+      stateNames: [],
+      stateNameError: 0,
+      country: '',
+      countryError: 0,
+      zip: '',
+      zipError: '',
       errorFlag: 0,
       authFlag: false,
       emailIDerror: 0,
@@ -23,12 +38,32 @@ class RestaurantSignup extends Component {
     //Bind the handlers to this class
     this.emailIDChangeHandler = this.emailIDChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
+    this.firstNameChangeHandler = this.firstNameChangeHandler.bind(this);
+    this.lastNameChangeHandler = this.lastNameChangeHandler.bind(this);
+    this.contactChangeHandler = this.contactChangeHandler.bind(this);
+    this.streetAddressChangeHandler = this.streetAddressChangeHandler.bind(this);
+    this.cityChangeHandler = this.cityChangeHandler.bind(this);
+    this.onStateSelect = this.onStateSelect.bind(this);
+    this.countryChangeHandler = this.countryChangeHandler.bind(this);
+    this.zipChangeHandler = this.zipChangeHandler.bind(this);
     this.submitLogin = this.submitLogin.bind(this);
   }
   //Call the Will Mount to set the auth Flag to false
   componentWillMount() {
     this.setState({
       authFlag: false,
+    });
+  }
+
+  componentDidMount() {
+    axios.get('http://localhost:3004/customer/stateNames').then((response) => {
+      //update the state with the response data
+      let stateDetails = response.data[0].map((state) => {
+        return { key: state.StateID, value: state.State_Name };
+      });
+      this.setState({
+        stateNames: this.state.stateNames.concat(stateDetails),
+      });
     });
   }
   // emailID change handler to update state variable with the text entered by the user
@@ -62,7 +97,7 @@ class RestaurantSignup extends Component {
     }
   };
 
-  lasttNameChangeHandler = (e) => {
+  lastNameChangeHandler = (e) => {
     let pattern = /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?@0123456789]+/g;
     if (e.target.value.match(pattern)) {
       this.setState({
@@ -77,13 +112,97 @@ class RestaurantSignup extends Component {
     }
   };
 
+  contactChangeHandler = (e) => {
+    if (isNaN(e.target.value)) {
+      this.setState({
+        contactError: 1,
+      });
+    } else {
+      this.setState({
+        contact: e.target.value,
+        contactError: 0,
+      });
+    }
+  };
+
+  onStateSelect = (e) => {
+    if (e.target.value === 'Select State') {
+      this.setState({
+        stateNameError: 1,
+      });
+    } else {
+      this.setState({
+        stateName: e.target.value,
+        stateNameError: 0,
+      });
+    }
+  };
+
+  countryChangeHandler = (e) => {
+    let pattern = /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?@0123456789]+/g;
+    if (e.target.value.match(pattern)) {
+      this.setState({
+        countryError: 1,
+      });
+    } else {
+      this.setState({
+        countryError: 0,
+        errorFlag: 0,
+        country: e.target.value,
+      });
+    }
+  };
+
+  streetAddressChangeHandler = (e) => {
+    this.setState({
+      streetAddress: e.target.value,
+    });
+  };
+
+  cityChangeHandler = (e) => {
+    let pattern = /[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?@0123456789]+/g;
+    if (e.target.value.match(pattern)) {
+      this.setState({
+        cityError: 1,
+      });
+    } else {
+      this.setState({
+        cityError: 0,
+        errorFlag: 0,
+        city: e.target.value,
+      });
+    }
+  };
+
+  zipChangeHandler = (e) => {
+    if (isNaN(e.target.value)) {
+      this.setState({
+        zipError: 1,
+      });
+    } else {
+      this.setState({
+        zip: e.target.value,
+        zipError: 0,
+      });
+    }
+  };
   // submit Login handler to send a request to the node backend
   submitLogin = (e) => {
     var headers = new Headers();
     // prevent page from refresh
     e.preventDefault();
     let pattern = /[@]/;
-    if (this.state.emailID.match(pattern)) {
+    if (
+      this.state.emailID.match(pattern) &&
+      this.state.firstNameError === 0 &&
+      this.state.lastNameError === 0 &&
+      this.state.streetAddressError === 0 &&
+      this.state.cityError === 0 &&
+      this.state.stateNameError === 0 &&
+      this.state.contactError === 0 &&
+      this.state.zipError === 0 &&
+      this.state.contactError === 0
+    ) {
       const data = {
         emailID: this.state.emailID,
         password: this.state.password,
@@ -91,6 +210,12 @@ class RestaurantSignup extends Component {
         lastName: this.state.lastName,
         role: this.state.role,
         gender: this.state.gender,
+        contact: this.state.contact,
+        streetAddress: this.state.streetAddress,
+        city: this.state.city,
+        state: this.state.stateName,
+        country: this.state.country,
+        zip: this.state.zip,
       };
       // set the with credentials to true
       axios.defaults.withCredentials = true;
@@ -124,8 +249,8 @@ class RestaurantSignup extends Component {
   render() {
     //redirect based on successful login
     let redirectVar = null;
-    if (cookie.load('cookie')) {
-      redirectVar = <Redirect to="/login" />;
+    if (this.state.authFlag) {
+      redirectVar = <Redirect to="/restaurantlogin" />;
     }
     return (
       <div>
@@ -138,7 +263,6 @@ class RestaurantSignup extends Component {
                   <h2>Business Sign Up</h2>
                   <p>Please enter the asked details</p>
                 </div>
-
                 <div class="form-group">
                   <input
                     onChange={this.emailIDChangeHandler}
@@ -186,11 +310,84 @@ class RestaurantSignup extends Component {
                 {this.state.lastNameError === 1 && (
                   <p style={{ color: 'red' }}>It can only have letters.</p>
                 )}
-
-                {this.state.errorFlag === 1 && (
-                  <p style={{ color: 'red' }}>Signup failed.ID already in use</p>
+                <div class="form-group">
+                  <input
+                    onChange={this.contactChangeHandler}
+                    type="number"
+                    class="form-control"
+                    name="contact"
+                    placeholder="Contact Number"
+                    required
+                  />
+                </div>
+                {this.state.contactError === 1 && (
+                  <p style={{ color: 'red' }}>Invalid input for contact number.</p>
                 )}
-                <button class="btn btn-primary">Login</button>
+                <div class="form-group">
+                  <input
+                    onChange={this.streetAddressChangeHandler}
+                    type="text"
+                    class="form-control"
+                    name="streetAddress"
+                    placeholder="Street Address"
+                    required
+                  />
+                </div>
+                {this.state.streetAddressError === 1 && (
+                  <p style={{ color: 'red' }}>Invalid input for street address.</p>
+                )}
+                <div class="form-group">
+                  <input
+                    onChange={this.cityChangeHandler}
+                    type="text"
+                    class="form-control"
+                    name="city"
+                    placeholder="City"
+                    required
+                  />
+                </div>
+                {this.state.cityError === 1 && <p style={{ color: 'red' }}>Only letters allowed</p>}
+
+                <div class="form-group">
+                  <select
+                    className="form-control"
+                    value={this.state.stateName}
+                    onChange={this.onStateSelect}
+                  >
+                    {this.state.stateNames.map((states) => (
+                      <option className="Dropdown-menu" key={states.key} value={states.value}>
+                        {states.value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <input
+                    onChange={this.countryChangeHandler}
+                    type="text"
+                    class="form-control"
+                    name="country"
+                    placeholder="Country"
+                    required
+                  />
+                </div>
+                {this.state.countryError === 1 && (
+                  <p style={{ color: 'red' }}>Only letters allowed</p>
+                )}
+                <div class="form-group">
+                  <input
+                    onChange={this.zipChangeHandler}
+                    type="number"
+                    class="form-control"
+                    name="zip"
+                    placeholder="Zip Code"
+                    required
+                  />
+                </div>
+                {this.state.zipError === 1 && (
+                  <p style={{ color: 'red' }}>Invalid input for Zip Code.</p>
+                )}
+                <button class="btn btn-primary">Register</button>
               </div>
             </div>
           </form>

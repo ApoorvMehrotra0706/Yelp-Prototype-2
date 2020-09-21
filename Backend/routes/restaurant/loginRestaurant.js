@@ -12,9 +12,11 @@ const checkValidID = async (emailID, role) => {
   // eslint-disable-next-line no-unused-vars
   const [results, fields] = await con.query(userIDValidCheck, [emailID, role]);
   con.end();
-  const value = false;
+  const value = [];
   if (results[0][0]) {
-    return results[0][0];
+    value.push(results[0][0].Password);
+    value.push(results[0][0].ID);
+    return value;
   }
   return value;
 };
@@ -24,15 +26,16 @@ const restLogin = async (req, res) => {
   const { password } = req.body;
   const role = 'Restaurant';
   const value = await checkValidID(emailID, role);
-  if (value) {
-    const passwordFromDB = value.Password;
+  if (value.length !== 0) {
+    const passwordFromDB = value[0];
     // console.log('This is ', passwordFromDB, ' and ', password);
     if (await bcrypt.compare(password, passwordFromDB)) {
       const token = genRandom.generate();
+      const ID = value[1];
       res.cookie('cookie', token, { maxAge: 900000, httpOnly: false, path: '/' });
-      res.cookie('Restaurant', role, { maxAge: 900000, httpOnly: false, path: '/' });
-      UserTokens.push({ userId: emailID, role, Token: token });
-      req.session.user = req.body.emailID;
+      res.cookie('role', role, { maxAge: 900000, httpOnly: false, path: '/' });
+      UserTokens.push({ userId: ID, emailID, role, Token: token });
+      // req.session.user = req.body.emailID;
       res.writeHead(200, {
         'Content-Type': 'text/plain',
       });
@@ -44,4 +47,26 @@ const restLogin = async (req, res) => {
   }
 };
 
-module.exports = restLogin;
+const logoutRest = async (req, res) => {
+  let isTokenDeleted = false;
+  // eslint-disable-next-line array-callback-return
+  UserTokens.filter(function (user) {
+    if (user.Token === req.body.token) {
+      UserTokens.splice(UserTokens.indexOf(user), 1);
+      isTokenDeleted = true;
+    }
+  });
+  if (isTokenDeleted) {
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('User Token Deleted');
+  } else {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('User Token Not Found');
+  }
+};
+
+module.exports = { restLogin, logoutRest };

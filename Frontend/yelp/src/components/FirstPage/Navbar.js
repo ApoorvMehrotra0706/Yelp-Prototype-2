@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
+import { connect } from 'react-redux';
 
 // create the Navbar Component
 class Navbar extends Component {
@@ -12,18 +13,38 @@ class Navbar extends Component {
   }
   // handle logout to destroy the cookie
   handleLogout = () => {
-    axios.delete('http://localhost:3001/logout').then((response) => {
-      console.log('Status Code : ', response.status);
-      if (response.status === 200) {
+    const data = {
+      token: cookie.load('cookie'),
+      role: cookie.load('role'),
+    };
+    let url = '';
+    if (data.role === 'Customer') url = 'http://localhost:3004/customer/logoutCustomer';
+    else url = 'http://localhost:3004/restaurant/logoutRestaurant';
+    axios
+      .post(url, data)
+      .then((response) => {
+        console.log('Status Code : ', response.status);
+        if (response.status === 200) {
+          this.setState({
+            authFlag: false,
+          });
+          let payload = {
+            emailID: '',
+            role: '',
+            loginStatus: 'false',
+          };
+          this.props.updateLoginInfo(payload);
+        } else {
+          this.setState({
+            authFlag: true,
+          });
+        }
+      })
+      .catch((error) => {
         this.setState({
-          authFlag: false,
+          errorFlag: 1,
         });
-      } else {
-        this.setState({
-          authFlag: true,
-        });
-      }
-    });
+      });
     cookie.remove('cookie', { path: '/' });
   };
   render() {
@@ -72,6 +93,7 @@ class Navbar extends Component {
     if (cookie.load('cookie') && this.props.location.pathname === '/login') {
       redirectVar = <Redirect to="/home" />;
     }
+    if (!cookie.load('cookie')) redirectVar = <Redirect to="/webPage" />;
     return (
       <div>
         {redirectVar}
@@ -96,4 +118,15 @@ class Navbar extends Component {
   }
 }
 
-export default Navbar;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateLoginInfo: (payload) => {
+      dispatch({
+        type: 'update-login-field',
+        payload,
+      });
+    },
+  };
+};
+
+export default connect(null, mapDispatchToProps)(Navbar);

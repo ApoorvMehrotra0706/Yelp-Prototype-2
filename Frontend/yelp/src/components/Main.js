@@ -8,6 +8,7 @@ import RestaurantSignup from './Signup/RestaurantSignup';
 // import Delete from "./Delete/Delete";
 // import Create from "./Create/Create";
 import Navbar from './FirstPage/Navbar';
+import WebPage from './FirstPage/WebPage';
 
 // Create a Main Component
 // eslint-disable-next-line react/prefer-stateless-function
@@ -18,6 +19,7 @@ class Main extends Component {
         {/* Render Different Component based on Route */}
 
         <Route path="/" component={Navbar} />
+        <Route path="/webPage" component={WebPage} />
         <Route path="/customerLogin" component={CustomerLogin} />
         <Route path="/restaurantLogin" component={RestaurantLogin} />
         <Route path="/customerSignup" component={CustomerSignup} />

@@ -1,0 +1,44 @@
+.homepage-hero {
+  padding-top: 30px;
+  height: 650px;
+  background-color: #333;
+  background-size: cover;
+  background-position: 50%;
+}
+
+.y-container {
+  background-color: #fff;
+  min-width: 1020px;
+}
+
+.homepage-hero_inner {
+  padding-top: 80px;
+}
+
+.u-text-centered {
+  text-align: center !important;
+}
+
+.homepage-hero_logo a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-indent: -1000em;
+}
+
+a {
+  color: #0073bb;
+  text-decoration: none;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .homepage-hero_logo {
+    background-image: url(https://s3-media0.fl.yelpcdn.com/assets/public/default@2x.yji-3e0b6fdd67576efda4390daddc35c8f1.png);
+  }
+}
+
+.homepage-hero_logo {
+  background-size: 80px 40px;
+  background-repeat: no-repeat;
+  margin-left: 750;
+}
