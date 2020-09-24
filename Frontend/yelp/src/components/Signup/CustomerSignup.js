@@ -3,6 +3,8 @@ import '../../App.css';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
+import '../FirstPage/WebPage.css';
+import { connect } from 'react-redux';
 
 // Define a Login Component
 class CustomerSignup extends Component {
@@ -235,6 +237,12 @@ class CustomerSignup extends Component {
             this.setState({
               authFlag: true,
             });
+            let payload = {
+              emailID: this.state.emailID,
+              role: 'Customer',
+              loginStatus: 'true',
+            };
+            this.props.updateSignupInfo(payload);
           } else {
             this.setState({
               authFlag: false,
@@ -264,185 +272,212 @@ class CustomerSignup extends Component {
     return (
       <div>
         {redirectVar}
-        <div class="container">
-          <form onSubmit={this.submitLogin}>
-            <div class="login-form">
-              <div class="main-div">
-                <div class="panel">
-                  <h2>User Signup Page</h2>
-                  <p>Please enter the asked details</p>
-                </div>
+        <div
+          class="y-container homepage-hero"
+          style={{
+            backgroundImage: `url(https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_large_assets/252051bf4fce/assets/img/home/hero_photos/oYJx-YOK9dqe0F56bS2tDQ.jpg)`,
+          }}
+        >
+          <div class="container">
+            <div class="signup-flow on-flow-start">
+              <form onSubmit={this.submitLogin}>
+                <div class="flow-start signup-visible">
+                  <div class="main-div">
+                    <div class="panel">
+                      <h2>User Signup Page</h2>
+                      <p>Please enter the asked details</p>
+                    </div>
 
-                <div class="form-group">
-                  <input
-                    onChange={this.emailIDChangeHandler}
-                    type="text"
-                    class="form-control"
-                    name="emailID"
-                    placeholder="emailID"
-                    required
-                  />
-                </div>
-                {this.state.emailIDerror === 1 && <p style={{ color: 'red' }}>Invalid email id.</p>}
-                <div class="form-group">
-                  <input
-                    onChange={this.passwordChangeHandler}
-                    type="password"
-                    class="form-control"
-                    name="password"
-                    placeholder="Password"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <input
-                    onChange={this.firstNameChangeHandler}
-                    type="text"
-                    class="form-control"
-                    name="firstName"
-                    placeholder="First Name"
-                    required
-                  />
-                </div>
-                {this.state.firstNameError === 1 && (
-                  <p style={{ color: 'red' }}>It can only have letters.</p>
-                )}
-                <div class="form-group">
-                  <input
-                    onChange={this.lastNameChangeHandler}
-                    lasttNameChangeHandler
-                    type="text"
-                    class="form-control"
-                    name="lastName"
-                    placeholder="Last Name"
-                    required
-                  />
-                </div>
-                {this.state.lastNameError === 1 && (
-                  <p style={{ color: 'red' }}>It can only have letters.</p>
-                )}
-                <div>
-                  Male
-                  <input
-                    type="radio"
-                    // class="form-control"
-                    name="gender"
-                    value="Male"
-                    checked={this.state.gender === 'Male'}
-                    onClick={this.onGenderChangeValue}
-                    required
-                  />
-                  Female
-                  <input
-                    type="radio"
-                    //class="form-control"
-                    name="gender"
-                    value="Female"
-                    checked={this.state.gender === 'Female'}
-                    onClick={this.onGenderChangeValue}
-                  />
-                  Perfer Not to Say
-                  <input
-                    type="radio"
-                    //class="form-control"
-                    name="gender"
-                    checked={this.state.gender === 'Other'}
-                    onClick={this.onGenderChangeValue}
-                    value="Other"
-                  />
-                </div>
+                    <div class="form-group">
+                      <input
+                        onChange={this.emailIDChangeHandler}
+                        type="text"
+                        class="form-control"
+                        name="emailID"
+                        placeholder="emailID"
+                        required
+                      />
+                    </div>
+                    {this.state.emailIDerror === 1 && (
+                      <p style={{ color: 'red' }}>Invalid email id.</p>
+                    )}
+                    <div class="form-group">
+                      <input
+                        onChange={this.passwordChangeHandler}
+                        type="password"
+                        class="form-control"
+                        name="password"
+                        placeholder="Password"
+                        required
+                      />
+                    </div>
+                    <div class="form-group">
+                      <input
+                        onChange={this.firstNameChangeHandler}
+                        type="text"
+                        class="form-control"
+                        name="firstName"
+                        placeholder="First Name"
+                        placeholderTextColor={'red'}
+                        required
+                      />
+                    </div>
+                    {this.state.firstNameError === 1 && (
+                      <p style={{ color: 'red' }}>It can only have letters.</p>
+                    )}
+                    <div class="form-group">
+                      <input
+                        onChange={this.lastNameChangeHandler}
+                        lasttNameChangeHandler
+                        type="text"
+                        class="form-control"
+                        name="lastName"
+                        placeholder="Last Name"
+                        required
+                      />
+                    </div>
+                    {this.state.lastNameError === 1 && (
+                      <p style={{ color: 'red' }}>It can only have letters.</p>
+                    )}
+                    <div>
+                      Male
+                      <input
+                        type="radio"
+                        // class="form-control"
+                        name="gender"
+                        value="Male"
+                        checked={this.state.gender === 'Male'}
+                        onClick={this.onGenderChangeValue}
+                        required
+                      />
+                      Female
+                      <input
+                        type="radio"
+                        //class="form-control"
+                        name="gender"
+                        value="Female"
+                        checked={this.state.gender === 'Female'}
+                        onClick={this.onGenderChangeValue}
+                      />
+                      Perfer Not to Say
+                      <input
+                        type="radio"
+                        //class="form-control"
+                        name="gender"
+                        checked={this.state.gender === 'Other'}
+                        onClick={this.onGenderChangeValue}
+                        value="Other"
+                      />
+                    </div>
 
-                <div class="form-group">
-                  <input
-                    onChange={this.contactChangeHandler}
-                    type="number"
-                    class="form-control"
-                    name="contactNo"
-                    placeholder="Contact Number"
-                    required
-                  />
-                </div>
-                {this.state.contactError === 1 && (
-                  <p style={{ color: 'red' }}>Incorrect entry for phone number</p>
-                )}
+                    <div class="form-group">
+                      <input
+                        onChange={this.contactChangeHandler}
+                        type="number"
+                        class="form-control"
+                        name="contactNo"
+                        placeholder="Contact Number"
+                        required
+                      />
+                    </div>
+                    {this.state.contactError === 1 && (
+                      <p style={{ color: 'red' }}>Incorrect entry for phone number</p>
+                    )}
 
-                <div class="form-group">
-                  <input
-                    onChange={this.streetAddressChangeHandler}
-                    type="text"
-                    class="form-control"
-                    name="streetAddress"
-                    placeholder="Street Address"
-                    required
-                  />
-                </div>
-                {this.state.streetAddressError === 1 && (
-                  <p style={{ color: 'red' }}>Invalid entry for address</p>
-                )}
+                    <div class="form-group">
+                      <input
+                        onChange={this.streetAddressChangeHandler}
+                        type="text"
+                        class="form-control"
+                        name="streetAddress"
+                        placeholder="Street Address"
+                        required
+                      />
+                    </div>
+                    {this.state.streetAddressError === 1 && (
+                      <p style={{ color: 'red' }}>Invalid entry for address</p>
+                    )}
 
-                <div class="form-group">
-                  <input
-                    onChange={this.cityChangeHandler}
-                    type="text"
-                    class="form-control"
-                    name="city"
-                    placeholder="city"
-                    required
-                  />
-                </div>
-                {this.state.cityError === 1 && <p style={{ color: 'red' }}>Only letter allowed</p>}
+                    <div class="form-group">
+                      <input
+                        onChange={this.cityChangeHandler}
+                        type="text"
+                        class="form-control"
+                        name="city"
+                        placeholder="city"
+                        required
+                      />
+                    </div>
+                    {this.state.cityError === 1 && (
+                      <p style={{ color: 'red' }}>Only letter allowed</p>
+                    )}
 
-                <div class="form-group">
-                  <input
-                    onChange={this.zipChangeHandler}
-                    type="number"
-                    class="form-control"
-                    name="zip"
-                    placeholder="Zip Code"
-                    maxLength="5"
-                    onInput={this.maxLengthCheck}
-                    required
-                  />
-                </div>
-                {this.state.zipError === 1 && (
-                  <p style={{ color: 'red' }}>Invalid entry for Zip code</p>
-                )}
-                <div class="form-group">
-                  <select
-                    className="form-control"
-                    value={this.state.stateName}
-                    onChange={this.onStateSelect}
-                  >
-                    {this.state.stateNames.map((states) => (
-                      <option className="Dropdown-menu" key={states.key} value={states.value}>
-                        {states.value}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <div class="form-group">
+                      <input
+                        onChange={this.zipChangeHandler}
+                        type="number"
+                        class="form-control"
+                        name="zip"
+                        placeholder="Zip Code"
+                        maxLength="5"
+                        onInput={this.maxLengthCheck}
+                        required
+                      />
+                    </div>
+                    {this.state.zipError === 1 && (
+                      <p style={{ color: 'red' }}>Invalid entry for Zip code</p>
+                    )}
+                    <div class="form-group">
+                      <select
+                        className="form-control"
+                        value={this.state.stateName}
+                        onChange={this.onStateSelect}
+                      >
+                        {this.state.stateNames.map((states) => (
+                          <option className="Dropdown-menu" key={states.key} value={states.value}>
+                            {states.value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div class="form-group">
-                  <input
-                    onChange={this.countryChangeHandler}
-                    type="text"
-                    class="form-control"
-                    name="country"
-                    placeholder="Country"
-                    required
-                  />
-                  {this.state.countryError === 1 && <p style={{ color: 'red' }}>Invalid entry</p>}
-                  {this.state.errorFlag === 1 && (
-                    <p style={{ color: 'red' }}>Signup failed.ID already in use</p>
-                  )}
+                    <div class="form-group">
+                      <input
+                        onChange={this.countryChangeHandler}
+                        type="text"
+                        class="form-control"
+                        name="country"
+                        placeholder="Country"
+                        required
+                      />
+                      {this.state.countryError === 1 && (
+                        <p style={{ color: 'red' }}>Invalid entry</p>
+                      )}
+                      {this.state.errorFlag === 1 && (
+                        <p style={{ color: 'red' }}>Signup failed.ID already in use</p>
+                      )}
+                    </div>
+                    <button class="btn btn-primary">Register</button>
+                  </div>
                 </div>
-                <button class="btn btn-primary">Register</button>
-              </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     );
   }
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateSignupInfo: (payload) => {
+      dispatch({
+        type: 'signup-field-update',
+        payload,
+      });
+    },
+  };
+};
 //export Login Component
-export default CustomerSignup;
+export default connect(null, mapDispatchToProps)(CustomerSignup);

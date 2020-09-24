@@ -14,6 +14,12 @@ const LoginHandlingReducer = (state = defaultState, action) => {
         login: { ...state.login, ...action.payload },
       };
     }
+    case 'signup-field-update': {
+      return {
+        ...state,
+        signup: { ...state.signup, ...action.payload },
+      };
+    }
     default: {
       return { ...state };
     }
