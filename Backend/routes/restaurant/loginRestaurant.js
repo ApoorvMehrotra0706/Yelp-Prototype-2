@@ -1,6 +1,9 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable func-names */
 // const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const genRandom = require('randomstring');
+const url = require('url');
 const mysqlConnection = require('../../connection');
 
 // eslint-disable-next-line prefer-const
@@ -34,6 +37,7 @@ const restLogin = async (req, res) => {
       const ID = value[1];
       res.cookie('cookie', token, { maxAge: 900000, httpOnly: false, path: '/' });
       res.cookie('role', role, { maxAge: 900000, httpOnly: false, path: '/' });
+
       UserTokens.push({ userId: ID, emailID, role, Token: token });
       // req.session.user = req.body.emailID;
       res.writeHead(200, {
@@ -69,4 +73,256 @@ const logoutRest = async (req, res) => {
   }
 };
 
-module.exports = { restLogin, logoutRest };
+const getUserIdFromToken = (token, userRole) => {
+  let User = null;
+  User = UserTokens.filter((user) => user.Token === token && user.role === userRole);
+
+  let userID = null;
+  if (User) {
+    userID = User[0].userId;
+  }
+  return userID;
+};
+
+const menuFetch = async (req, res) => {
+  const { category } = url.parse(req.url, true).query;
+  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  let items = null;
+  if (category === 'APPETIZERS') {
+    items = 'CALL fetchAppetizerItems(?)';
+  } else if (category === 'BEVERAGESs') {
+    items = 'CALL fetchBeveragesItems(?)';
+  } else if (category === 'DESSERTS') {
+    items = 'CALL fetchDessertsItems(?)';
+  } else if (category === 'MAIN_COURSE') {
+    items = 'CALL fetchMainCourseItems(?)';
+  } else {
+    items = 'CALL fetchSaladsItems(?)';
+  }
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(items, id);
+  con.end();
+  res.end(JSON.stringify(results));
+};
+
+const menuInsert = async (req, res) => {
+  const { category, name, price, cuisine, ingredients, description } = req.body;
+  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  let items = null;
+  if (category === 'APPETIZERS') {
+    items = 'CALL insertAppetizerItems(?,?,?,?,?,?)';
+  } else if (category === 'BEVERAGES') {
+    items = 'CALL insertBeveragesItems(?,?,?,?,?,?)';
+  } else if (category === 'DESSERTS') {
+    items = 'CALL insertDessertsItems(?,?,?,?,?,?)';
+  } else if (category === 'MAIN_COURSE') {
+    items = 'CALL insertMainCourseItems(?,?,?,?,?,?)';
+  } else {
+    items = 'CALL insertSaladsItems(?,?,?,?,?,?)';
+  }
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(items, [
+    id,
+    name,
+    price,
+    cuisine,
+    ingredients,
+    description,
+  ]);
+  console.log(results);
+  con.end();
+  res.end(JSON.stringify(results));
+};
+
+const menuItemDeletion = async (req, res) => {
+  const { category, foodId } = req.body;
+  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  let items = null;
+  if (category === 'APPETIZERS') {
+    items = 'CALL deleteAppetizerItems(?,?)';
+  } else if (category === 'BEVERAGES') {
+    items = 'CALL deleteBeveragesItems(?,?)';
+  } else if (category === 'DESSERTS') {
+    items = 'CALL deleteDessertsItems(?,?)';
+  } else if (category === 'MAIN_COURSE') {
+    items = 'CALL deleteMainCourseItems(?,?)';
+  } else {
+    items = 'CALL deleteSaladsItems(?,?)';
+  }
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(items, [id, foodId]);
+  con.end();
+  res.end('Deletion successful');
+};
+
+const reviewFetch = async (req, res) => {
+  const id = getUserIdFromToken(req.cookie.cookie, req.cookie.role);
+  const items = 'CALL fetchReviews(?)';
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(items, id);
+  con.end();
+  res.end(JSON.stringify(results));
+};
+
+// Fetching Restaurant Details
+const getRestaurantCompleteInfo = async (request, response) => {
+  try {
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    if (userID) {
+      const getRestaurantCompleteInfoQuery = 'CALL getRestaurantCompleteInfoQuery(?)';
+
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(getRestaurantCompleteInfoQuery, userID);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+// Update Restaurant Profile
+const updateRestaurantProfile = async (restaurant, response) => {
+  try {
+    const {
+      Name,
+      // eslint-disable-next-line camelcase
+      Country,
+      // eslint-disable-next-line camelcase
+      StateName,
+      City,
+      Zip,
+      Street,
+      // eslint-disable-next-line camelcase
+      Contact,
+      // eslint-disable-next-line camelcase
+      Opening_Time,
+      // eslint-disable-next-line camelcase
+      Closing_Time,
+    } = restaurant.body;
+    const restroID = getUserIdFromToken(restaurant.body.token, restaurant.body.role);
+    if (restroID) {
+      const updateRestaurantProfileQuery = 'CALL updateRestPrfile(?,?,?,?,?,?,?,?,?,?)';
+
+      const connection = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await connection.query(updateRestaurantProfileQuery, [
+        Name,
+        // eslint-disable-next-line camelcase
+        Country,
+        // eslint-disable-next-line camelcase
+        StateName,
+        City,
+        Number(Zip),
+        Street,
+        // eslint-disable-next-line camelcase
+        Number(Contact),
+        // eslint-disable-next-line camelcase
+        Opening_Time,
+        // eslint-disable-next-line camelcase
+        Closing_Time,
+        restroID,
+      ]);
+      console.log(connection);
+      connection.end();
+      console.log(results);
+      console.log(results);
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+};
+
+const updateMenu = async (req, res) => {
+  try {
+    // eslint-disable-next-line camelcase
+    const { category, Name, MainIngredients, CuisineID, Description, Price, ID } = req.body;
+
+    const restroID = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+    if (restroID) {
+      let updateRestaurantMenuQuery = null;
+      if (category === 'APPETIZERS') {
+        updateRestaurantMenuQuery = 'CALL updateAppetizerMenu(?,?,?,?,?,?,?)';
+      } else if (category === 'BEVERAGES') {
+        updateRestaurantMenuQuery = 'CALL updateBeveragesMenu(?,?,?,?,?,?,?)';
+      } else if (category === 'DESSERTS') {
+        updateRestaurantMenuQuery = 'CALL updateDessertsMenu(?,?,?,?,?,?,?)';
+      } else if (category === 'MAIN_COURSE') {
+        updateRestaurantMenuQuery = 'CALL updateMainCourseMenu(?,?,?,?,?,?,?)';
+      } else {
+        updateRestaurantMenuQuery = 'CALL updateSaladsMenu(?,?,?,?,?,?,?)';
+      }
+      const connection = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await connection.query(updateRestaurantMenuQuery, [
+        restroID,
+        Name,
+        // eslint-disable-next-line camelcase
+        MainIngredients,
+        CuisineID,
+        Description,
+        Price,
+        ID,
+      ]);
+      console.log(connection);
+      connection.end();
+      console.log(results);
+      console.log(results);
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      res.end(JSON.stringify(results));
+    } else {
+      res.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Invalid User');
+    }
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Network Error');
+  }
+};
+module.exports = {
+  restLogin,
+  logoutRest,
+  menuFetch,
+  menuInsert,
+  menuItemDeletion,
+  reviewFetch,
+  getRestaurantCompleteInfo,
+  updateRestaurantProfile,
+  updateMenu,
+};

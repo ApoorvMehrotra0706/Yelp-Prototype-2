@@ -94,22 +94,60 @@ class Navbar extends Component {
       redirectVar = <Redirect to="/home" />;
     }
     if (!cookie.load('cookie')) redirectVar = <Redirect to="/webPage" />;
+
+    let options = null;
+    if (!cookie.load('cookie')) {
+      options = (
+        <ul class="nav navbar-nav">
+          <li class={this.props.location.pathname === '/restaurantLogin' && 'active'}>
+            <Link to="/restaurantLogin">Write a Review</Link>
+          </li>
+          <li class={this.props.location.pathname === '/restaurantLogin' && 'active'}>
+            <Link to="/restaurantLogin">Events</Link>
+          </li>
+        </ul>
+      );
+    } else if (cookie.load('cookie') && cookie.load('role') === 'Restaurant') {
+      options = (
+        <ul class="nav navbar-nav">
+          <li class={this.props.location.pathname === '/home' && 'active'}>
+            <Link to="/restaurantLandingPage">Home</Link>
+          </li>
+          <li class={this.props.location.pathname === '/restaurantProfile' && 'active'}>
+            <Link to="/restaurantProfile">Profile</Link>
+          </li>
+          <li class={this.props.location.pathname === '/restaurantMenu' && 'active'}>
+            <Link to="/restaurantMenu">Food Menu</Link>
+          </li>
+          <li class={this.props.location.pathname === '/restaurantOrders' && 'active'}>
+            <Link to="/restaurantOrders">Orders</Link>
+          </li>
+          <li class={this.props.location.pathname === '/restaurantReview' && 'active'}>
+            <Link to="/restaurantReview">Review</Link>
+          </li>
+        </ul>
+      );
+    } else {
+      options = (
+        <ul class="nav navbar-nav">
+          <li class={this.props.location.pathname === '/restaurantProfile' && 'active'}>
+            <Link to="/restaurantProfile">Profile</Link>
+          </li>
+        </ul>
+      );
+    }
     return (
       <div>
         {redirectVar}
         <nav class="navbar navbar-inverse">
           <div class="container-fluid">
             <div class="navbar-header">
-              <a className="navbar-brand">Yelp</a>
+              <a className="navbar-brand">
+                <Link to="/WebPage">Yelp</Link>
+              </a>
             </div>
-            <ul class="nav navbar-nav">
-              <li class="active">
-                <Link to="/restaurantLogin">Write a Review</Link>
-              </li>
-              <li>
-                <Link to="/restaurantLogin">Events</Link>
-              </li>
-            </ul>
+
+            {options}
             {navLogin}
           </div>
         </nav>
