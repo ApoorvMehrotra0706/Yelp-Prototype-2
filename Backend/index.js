@@ -3,7 +3,7 @@ if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line global-require
   require('dotenv').config();
 }
-
+const cookieParser = require('cookie-parser');
 const express = require('express');
 
 const bodyParser = require('body-parser');
@@ -16,13 +16,14 @@ const customerRoutes = require('./routes/custRoutes');
 
 const app = express();
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.use(
   session({
     secret: process.env.SESSION_YELP,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     duration: 60 * 60 * 1000,
     activeDuration: 5 * 60 * 1000,
   })

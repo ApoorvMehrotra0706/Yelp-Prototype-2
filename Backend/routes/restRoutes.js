@@ -1,7 +1,17 @@
 const express = require('express');
 
 // eslint-disable-next-line no-unused-vars
-const { restLogin, logoutRest } = require('./restaurant/loginRestaurant');
+const {
+  restLogin,
+  logoutRest,
+  menuFetch,
+  menuInsert,
+  menuItemDeletion,
+  reviewFetch,
+  getRestaurantCompleteInfo,
+  updateRestaurantProfile,
+  updateMenu,
+} = require('./restaurant/loginRestaurant');
 const signupRestaurant = require('./restaurant/signupRestaurant');
 
 const Router = express.Router();
@@ -21,6 +31,45 @@ Router.post('/signupRestaurant', async (req, res) => {
 // Logout for the Restaurant
 Router.post('/logoutRestaurant', async (req, res) => {
   const value = await logoutRest(req, res);
+  return value;
+});
+
+// Fetching items from menu
+Router.get('/menuFetch', async (req, res) => {
+  const value = await menuFetch(req, res);
+  return value;
+});
+
+// Inserting items in the menu
+Router.post('/menuInsert', async (req, res) => {
+  const value = await menuInsert(req, res);
+  return value;
+});
+
+// Deleting items in the menu
+Router.post('/menuDelete', async (req, res) => {
+  const value = await menuItemDeletion(req, res);
+  return value;
+});
+
+// Fetch reviews for the restaurant
+Router.get('/fetchReview', async (req, res) => {
+  const value = await reviewFetch(req, res);
+  return value;
+});
+
+Router.get('/restaurantProfile', async (req, res) => {
+  const value = await getRestaurantCompleteInfo(req, res);
+  return value;
+});
+
+Router.post('/updateRestProfile', async (req, res) => {
+  const value = await updateRestaurantProfile(req, res);
+  return value;
+});
+
+Router.post('/updateMenu', async (req, res) => {
+  const value = await updateMenu(req, res);
   return value;
 });
 
