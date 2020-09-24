@@ -1,0 +1,66 @@
+.job-form-section-group-styles__group--ArVfo:first-of-type {
+  margin-bottom: 12px;
+}
+
+.job-form-section-group-styles__header--2Z5fi {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.job-form-section-group-styles__header--2Z5fi p {
+  font-weight: 600;
+}
+
+._-_-shared-ui-atoms-button-secondary-___secondary__default:not([aria-disabled*='true']),
+._-_-shared-ui-atoms-button-secondary-___secondary__success:not([aria-disabled*='true']) {
+  color: #00756a;
+  color: var(--color-default, #00756a);
+}
+
+label,
+p,
+ul,
+ol {
+  color: #333e49;
+  font-size: 14px;
+  letter-spacing: normal;
+  line-height: 1.5;
+}
+ol,
+ul {
+  list-style: none;
+}
+
+.job-form-section-group-viewer-styles__viewer--2SPgS {
+  position: relative;
+  margin-bottom: 4px;
+  padding: 16px 110px 16px 24px;
+  word-wrap: break-word;
+  word-break: break-word;
+  background-color: #f2f4f5;
+  border-radius: 4px;
+}
+
+.job-form-section-group-viewer-styles__viewer--2SPgS
+  .job-form-section-group-viewer-styles__title--1J0du {
+  box-sizing: border-box;
+}
+.job-form-section-group-viewer-styles__viewer--2SPgS dd {
+  color: #333e49;
+}
+
+.job-form-section-group-viewer-styles__viewer--2SPgS
+  .job-form-section-group-viewer-styles__dotsWrapper--Jt82u {
+  position: absolute;
+  top: 16px;
+  right: 10px;
+}
+
+.job-form-section-group-viewer-styles__viewer--2SPgS a {
+  color: #88929e;
+}
+._-_-shared-ui-atoms-icon-actionable-___styles__actionable-icon {
+  pointer-events: auto !important;
+  cursor: pointer;
+}

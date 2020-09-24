@@ -26,9 +26,9 @@ State VARCHAR(20) NOT NULL,
 Country VARCHAR(20) NOT NULL,
 Zip_Code INT NOT NULL,
 Picture VARCHAR(100),
-Description VARCHAR(100) NOT NULL,
-Open_Time TIME NOT NULL,
-Closing_Time TIME NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
+Open_Time TIME DEFAULT NULL,
+Closing_Time TIME DEFAULT NULL,
 PRIMARY KEY(RestaurantID)
 );
 
@@ -68,11 +68,11 @@ CREATE TABLE APPETIZER (
 AppetizerID BIGINT NOT NULL AUTO_INCREMENT,
 RestaurantID BIGINT NOT NULL,
 Dishname VARCHAR(60) NOT NULL,
-Price DECIMAL NOT NULL,
+Price DECIMAL(10,2) NOT NULL,
 CuisineID BIGINT NOT NULL,
 Main_Ingredients VARCHAR(150) NOT NULL,
-Description VARCHAR(100) NOT NULL,
-ImageURL VARCHAR(100) NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
+ImageURL VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(AppetizerID)
 );
 
@@ -81,11 +81,11 @@ CREATE TABLE SALADS (
 SaladsID BIGINT NOT NULL AUTO_INCREMENT ,
 RestaurantID BIGINT NOT NULL,
 Dishname VARCHAR(60) NOT NULL,
-Price DECIMAL NOT NULL,
+Price DECIMAL(10,2)  NOT NULL,
 CuisineID BIGINT NOT NULL,
 Main_Ingredients VARCHAR(150) NOT NULL,
-Description VARCHAR(100) NOT NULL,
-ImageURL VARCHAR(100) NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
+ImageURL VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(SaladsID)
 );
 
@@ -94,11 +94,11 @@ CREATE TABLE MAIN_COURSE (
 MainCourseID BIGINT NOT NULL AUTO_INCREMENT,
 RestaurantID BIGINT NOT NULL,
 Dishname VARCHAR(60) NOT NULL,
-Price DECIMAL NOT NULL,
+Price DECIMAL(10,2) NOT NULL,
 CuisineID BIGINT NOT NULL,
 Main_Ingredients VARCHAR(150) NOT NULL,
-Description VARCHAR(100) NOT NULL,
-ImageURL VARCHAR(100) NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
+ImageURL VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(MainCourseID)
 );
 
@@ -107,11 +107,11 @@ CREATE TABLE DESSERTS (
 DessertsID BIGINT NOT NULL AUTO_INCREMENT,
 RestaurantID BIGINT NOT NULL,
 Dishname VARCHAR(60) NOT NULL,
-Price DECIMAL NOT NULL,
+Price DECIMAL(10,2) NOT NULL,
 CuisineID BIGINT NOT NULL,
 Main_Ingredients VARCHAR(150) NOT NULL,
-Description VARCHAR(100) NOT NULL,
-ImageURL VARCHAR(100) NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
+ImageURL VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(DessertsID)
 );
 
@@ -119,11 +119,11 @@ CREATE TABLE BEVERAGES (
 BeveragesID BIGINT NOT NULL AUTO_INCREMENT,
 RestaurantID BIGINT NOT NULL,
 Dishname VARCHAR(60) NOT NULL,
-Price DECIMAL NOT NULL,
+Price DECIMAL(10,2) NOT NULL,
 CuisineID BIGINT NOT NULL,
 Main_Ingredients VARCHAR(150) NOT NULL,
-Description VARCHAR(100) NOT NULL,
-ImageURL VARCHAR(100) NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
+ImageURL VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(BeveragesID)
 );
 
@@ -133,8 +133,8 @@ RestaurantID BIGINT NOT NULL,
 CustomerID BIGINT NOT NULL,
 Ratings ENUM('1', '2', '3', '4', '5') NOT NULL,
 Date DATETIME NOT NULL,
+Review VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(ReviewID)
-
 );
 
 CREATE TABLE ORDERS (
@@ -144,7 +144,7 @@ CustomerID BIGINT NOT NULL,
 DeliveryMode ENUM('Delivery','Pickup') NOT NULL,
 StatusID BIGINT NOT NULL,
 State ENUM('New','Delvered','Cancelled'),
-BILL DECIMAL NOT NULL,
+BILL DECIMAL DEFAULT NULL,
 PRIMARY KEY(OrderID)
 );
 
@@ -157,9 +157,10 @@ PRIMARY KEY(DeliveryID)
 CREATE TABLE CUSTOMER (
 ID BIGINT NOT NULL,
 CustomerID BIGINT NOT NULL AUTO_INCREMENT,
+GenderID INT, 
 DOB DATE DEFAULT NULL,
 NickName VARCHAR(20) DEFAULT NULL,
-Contact BIGINT NOT NULL,
+Contact BIGINT DEFAULT NULL,
 Street_Address VARCHAR(60) NOT NULL,
 City VARCHAR(20) NOT NULL,
 State VARCHAR(20) NOT NULL,
@@ -173,6 +174,12 @@ Things_Customer_Love VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY (CustomerID)
 );
 
+
+CREATE TABLE GENDER (
+GenderID INT NOT NULL AUTO_INCREMENT,
+GenderName ENUM('Male','Female','Other'),
+PRIMARY KEY (GenderID)
+);
 
 CREATE TABLE CUSTOMER_FAVORITES (
 CustomerID BIGINT NOT NULL,
@@ -196,11 +203,11 @@ CREATE TABLE EVENTS (
 EventID BIGINT NOT NULL AUTO_INCREMENT,
 EventName VARCHAR(60) NOT NULL,
 RestaurantID BIGINT NOT NULL,
-Description VARCHAR(100) NOT NULL,
+Description VARCHAR(100) DEFAULT NULL,
 EventTime TIME NOT NULL,
 EventDate DATE NOT NULL,
 Location VARCHAR(100) NOT NULL,
-Hashtags VARCHAR(100) NOT NULL,
+Hashtags VARCHAR(100) DEFAULT NULL,
 PRIMARY KEY(EventID)
 );
 
@@ -296,6 +303,14 @@ ADD FOREIGN KEY (RestaurantID)
   REFERENCES RESTAURANT (RestaurantID)
   ON DELETE CASCADE
   ON UPDATE CASCADE;
+  
+ALTER TABLE REVIEWS
+ADD FOREIGN KEY (CustomerID)
+  REFERENCES CUSTOMER (CustomerID)
+  ON DELETE NO ACTION
+  ON UPDATE CASCADE;
+  
+  
 
 
 ALTER TABLE ORDERS
@@ -321,6 +336,12 @@ ADD FOREIGN KEY (CustomerID)
 ALTER TABLE CUSTOMER
 ADD FOREIGN KEY (ID)
   REFERENCES LOGIN (ID)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE;
+  
+ALTER TABLE CUSTOMER
+ADD FOREIGN KEY (GenderID)
+  REFERENCES GENDER (GenderID)
   ON DELETE CASCADE
   ON UPDATE CASCADE;
 
@@ -382,6 +403,7 @@ INSERT INTO COUNTRY(Country_Name) VALUES ('United States of America');
 
 select * from COUNTRY;
 
+INSERT INTO STATE(CountryID,State_Name) VALUES (1,'--Select-State--');
 INSERT INTO STATE(CountryID,State_Name) VALUES (1,'Alabama');
 INSERT INTO STATE(CountryID,State_Name) VALUES (1,'Alaska');
 INSERT INTO STATE(CountryID,State_Name) VALUES (1,'Arizona');
@@ -455,6 +477,59 @@ INSERT INTO CUISINE(Cuisine_Name) VALUES ('Thai');
 INSERT INTO CUISINE(Cuisine_Name) VALUES ('Spanish');
 INSERT INTO CUISINE(Cuisine_Name) VALUES ('Mediterranean');
 
+INSERT INTO GENDER(GenderName) VALUES ('Male');
+INSERT INTO GENDER(GenderName) VALUES ('Female');
+INSERT INTO GENDER(GenderName) VALUES ('Other');
+
+INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Apricot Ricotta Honey Basil Bites", 6.99, 3, "Apricot, Honey, Mint, Mayo", " Best from the rest");
+
+INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Grilled Salmon Lemon Kebobs", 5.59, 2 , "Lemon, Salmon, oregano, cumin", "Yummy for thr tummy");
+
+INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Shrimp Taco Bites", 7.59, 4, "Shrimp, Taco, Ranch", "Mouth Watering");
+
+INSERT INTO BEVERAGES (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Filter coffee", 6.00, 1, "coffee, milk", "Keeps you calm");
+
+INSERT INTO BEVERAGES (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Unsweetend Tea", 5.99, 1, "tea, milk", "Rejuvenating and healthy");
+
+INSERT INTO BEVERAGES (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Hot chocolate", 8.99, 1, "chocolate,milk", "Hot and the spot");
 
 
 
+INSERT INTO DESSERTS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Chocolate fudge fountain", 12.99, 7, "chocolate, ice, vanila", "treat for the eyes and mouth");
+
+INSERT INTO DESSERTS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Gulab Jamun", 10.99, 1, "White Flour, Sugar", "Sweetend fried balls");
+
+INSERT INTO DESSERTS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "S'mores", 14.99, 3, "marshmallow, graham cracker", "Campfire treat");
+
+INSERT INTO MAIN_COURSE (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Lasagna", 15.99, 4, "Veggies, cheese", "Flavoury treat");
+
+INSERT INTO MAIN_COURSE (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Macaroni and Cheese", 10.99, 3, "macroni,  cheese", "Cheesy and easy");
+
+INSERT INTO MAIN_COURSE (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Burgers", 12.99, 2, "Buns, pork, bacon ", "Yumilicious and compact");
+
+INSERT INTO SALADS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Veg Bowl", 8.99, 2, "Lettuce, Spinach , Bell Peppers ", "vegan style");
+
+INSERT INTO SALADS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Non-Veg Bowl", 9.99, 6, "Bacon, sausage, chicken", "healthy and crunchy");
+
+INSERT INTO SALADS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
+VALUES(1, "Light Bowl", 7.99, 4, "Onion, carrots, red bell peppers", "Burger without a bun");
+
+ALTER TABLE RESTAURANT
+MODIFY Open_Time varchar(40);
+
+ALTER TABLE RESTAURANT
+MODIFY Closing_Time varchar(40);

@@ -99,40 +99,49 @@ class CustomerLogin extends Component {
     return (
       <div>
         {redirectVar}
-        <div class="container">
-          <form onSubmit={this.submitLogin}>
-            <div class="login-form">
-              <div class="main-div">
-                <div class="panel">
-                  <h2>User Login Page</h2>
-                  <p>Please enter your username and password</p>
-                </div>
+        <div
+          class="y-container homepage-hero"
+          style={{
+            backgroundImage: `url(https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_large_assets/e456d8b923f5/assets/img/home/hero_photos/DLIUyjgS7v50YRV2xfNquA.jpg)`,
+          }}
+        >
+          <div class="container">
+            <div class="signup-flow on-flow-start">
+              <form onSubmit={this.submitLogin}>
+                <div class="flow-start signup-visible">
+                  <div class="main-div">
+                    <div class="panel">
+                      <h2>User Login Page</h2>
+                      <p>Please enter your username and password</p>
+                    </div>
 
-                <div class="form-group">
-                  <input
-                    onChange={this.emailIDChangeHandler}
-                    type="text"
-                    class="form-control"
-                    name="emailID"
-                    placeholder="Email Address"
-                  />
+                    <div class="form-group">
+                      <input
+                        onChange={this.emailIDChangeHandler}
+                        type="text"
+                        class="form-control"
+                        name="emailID"
+                        placeholder="Email Address"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <input
+                        onChange={this.passwordChangeHandler}
+                        type="password"
+                        class="form-control"
+                        name="password"
+                        placeholder="Password"
+                      />
+                    </div>
+                    {this.state.errorFlag === 1 && (
+                      <p style={{ color: 'red' }}>Invalid credentails, please try again.</p>
+                    )}
+                    <button class="btn btn-primary">Login</button>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <input
-                    onChange={this.passwordChangeHandler}
-                    type="password"
-                    class="form-control"
-                    name="password"
-                    placeholder="Password"
-                  />
-                </div>
-                {this.state.errorFlag === 1 && (
-                  <p style={{ color: 'red' }}>Invalid credentails, please try again.</p>
-                )}
-                <button class="btn btn-primary">Login</button>
-              </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     );

@@ -24,6 +24,8 @@
   width: 100%;
   height: 100%;
   text-indent: -1000em;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 a {
@@ -40,5 +42,58 @@ a {
 .homepage-hero_logo {
   background-size: 80px 40px;
   background-repeat: no-repeat;
-  margin-left: 750;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.layout-block {
+  *zoom: 1;
+  margin: 0 -15px;
+}
+
+.signup-wrapper {
+  padding: 30px;
+  overflow: hidden;
+}
+
+.signup-wrapper .signup-flow {
+  margin: auto;
+  padding: 0 18px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.flow-start,
+.external-auth,
+.login {
+  max-width: 350px;
+  margin-right: auto;
+}
+
+.layout-h .column {
+  float: right;
+  padding: 0 15px;
+  min-height: 1px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 50%;
+  *width: 459px;
+}
+
+.picture-container {
+  margin-top: 1px;
+  padding-bottom: 12px;
+  text-align: center;
+  margin-left: 700px;
+}
+
+.back-image {
+  background-repeat: no-repeat;
+  margin-left: 100px;
+}
+
+.form-page-signup {
+  margin-left: auto;
 }
