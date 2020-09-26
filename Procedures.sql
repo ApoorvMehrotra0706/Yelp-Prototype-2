@@ -92,12 +92,13 @@ start transaction;
 INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
 VALUES (ID_check,Dishname_check, Price_check, Cuisine_check , ingredients_check, description_check);
 set newID =(SELECT LAST_INSERT_ID());
-SELECT * FROM SALADS WHERE AppetizerID=newID;
+SELECT * FROM APPETIZER WHERE AppetizerID=newID;
 commit;
 END$$
 DELIMITER ;
 
-CALL `yelp`.`insertAppetizerItems`('1', 'Momos', '12.99', 'Japanese', 'White flour', 'Tasty Meal');
+CALL `yelp`.`insertAppetizerItems`('1', 'Momos1', '14.99', '5','Wheat Flour', 'Very Tasty');
+
 SELECT * FROM APPETIZER;
 
 DELETE FROM APPETIZER 
@@ -342,7 +343,7 @@ BEGIN
 declare exit handler for sqlexception rollback;
 start transaction;
 SELECT R.ReviewID, R.CustomerID, L.Name, R.Ratings, R.Date, R.Review
-FROM REVIEWS R JOIN CUSTOMER C on R.CustomerID = C.CustomerID
+FROM order_cartREVIEWS R JOIN CUSTOMER C on R.CustomerID = C.CustomerID
 JOIN LOGIN L ON C.ID = L.ID
 WHERE R.RestaurantID = ID_check;
 commit;
@@ -357,12 +358,14 @@ declare exit handler for sqlexception rollback;
 start transaction;
 SELECT Name ,Country,State,City,Zip_Code,Street_Address,Contact,Country,Open_Time,
 Closing_Time ,EmailID FROM RESTAURANT  JOIN LOGIN  ON UserID = ID 
-WHERE RestaurantID= ID_check;
+WHERE UserID= ID_check;
 commit;
 end $$
 delimiter ;
 
-
+SELECT Name ,Country,State,City,Zip_Code,Street_Address,Contact,Country,Open_Time,
+Closing_Time ,EmailID FROM RESTAURANT  JOIN LOGIN  ON UserID = ID 
+WHERE UserID = 8;
 -- Procedure to fetch country
 DELIMITER $$
 CREATE  PROCEDURE `countryFetch`()
@@ -378,12 +381,19 @@ IN _city varchar(20), IN _Zip int, IN _street varchar(60), IN _contact bigint,
 IN _open varchar(20),IN _close varchar(20),
 IN _restID bigint)
 BEGIN
-UPDATE LOGIN, RESTAURANT
-SET Name = _Name, Country = _country, Contact = _contact, Street_Address = _street, City = _city, 
+declare newID int;
+UPDATE RESTAURANT
+SET  Country = _country, Contact = _contact, Street_Address = _street, City = _city, 
 State = _State, Open_Time= _open, Closing_Time = _close, Zip_Code = _Zip
-WHERE RestaurantID= _restID; 
+WHERE RestaurantID= _restID;
+set newID =(SELECT UserID FROM RESTAURANT WHERE RestaurantID = _restID);
+UPDATE LOGIN
+SET Name = _Name
+WHERE ID = newID;
 END$$
 DELIMITER ;
+
+SELECT * FROM LOGIN;
 
 -- Procedure to fetch cuisines
 DELIMITER $$
@@ -458,3 +468,65 @@ Description = _Description, Price = _Price
 WHERE RestaurantID = _id AND DESSERTS = _did;
 END$$
 DELIMITER ;
+
+-- Procedure to extract Order details
+delimiter $$
+CREATE procedure `getOrderDetails`(IN _state varchar(25), IN _ID bigint )
+begin
+declare newID int;
+declare exit handler for sqlexception rollback;
+start transaction;
+set newID =(SELECT RestaurantID
+FROM RESTAURANT JOIN  LOGIN ON ID = UserID
+WHERE ID = _ID);
+SELECT L.Name, O.CustomerID, O.Date, O.DeliveryMode, O.StatusID, O.State, O.Bill, O.OrderID
+FROM ORDERS O JOIN CUSTOMER C on O.CustomerID = C.CustomerID
+JOIN LOGIN L ON L.ID = C. ID
+WHERE O.State LIKE _state AND O.RestaurantID = newID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Person Order details
+delimiter $$
+CREATE procedure `getPersonOrderDetails` (IN _orderID bigint, IN userID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT * 
+FROM ORDER_CART JOIN RESTAURANT ON ORDER_CART.RestaurantID = RESTAURANT.RestaurantID
+JOIN LOGIN ON  RESTAURANT.UserID = LOGIN.ID
+WHERE OrderID = _orderID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to update Delivery Status
+delimiter $$
+CREATE procedure `updateDelivery` (IN _deliveryStatus bigint, IN _orderID bigint,
+ IN _state varchar(20))
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+UPDATE ORDERS
+SET StatusID = _deliveryStatus, State = _state
+WHERE OrderID = _orderID;
+commit;
+end $$
+delimiter ;
+
+SELECT * FROM ORDERS;
+
+CALL `yelp`.`updateDelivery`(5, 3);
+
+
+-- Procedure to fetch delivery states
+delimiter $$
+CREATE procedure `fetchDeliveryState` ()
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT * FROM DELIVERY_STATE
+commit;
+end $$
+delimiter ;
