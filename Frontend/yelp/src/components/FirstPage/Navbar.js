@@ -28,12 +28,23 @@ class Navbar extends Component {
           this.setState({
             authFlag: false,
           });
+          localStorage.clear();
           let payload = {
             emailID: '',
             role: '',
             loginStatus: 'false',
           };
           this.props.updateLoginInfo(payload);
+          payload = {
+            emailID: '',
+            role: '',
+            signupStatus: '',
+          };
+          this.props.updateSignUpInfo(payload);
+          payload = {
+            Name: '',
+          };
+          this.props.updateNameInfo(payload);
         } else {
           this.setState({
             authFlag: true,
@@ -161,6 +172,18 @@ const mapDispatchToProps = (dispatch) => {
     updateLoginInfo: (payload) => {
       dispatch({
         type: 'update-login-field',
+        payload,
+      });
+    },
+    updateSignUpInfo: (payload) => {
+      dispatch({
+        type: 'signup-field-update',
+        payload,
+      });
+    },
+    updateNameInfo: (payload) => {
+      dispatch({
+        type: 'update-name-field',
         payload,
       });
     },

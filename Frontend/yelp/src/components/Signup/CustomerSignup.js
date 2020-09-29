@@ -240,7 +240,7 @@ class CustomerSignup extends Component {
             let payload = {
               emailID: this.state.emailID,
               role: 'Customer',
-              loginStatus: 'true',
+              signupStatus: 'true',
             };
             this.props.updateSignupInfo(payload);
           } else {

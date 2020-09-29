@@ -155,5 +155,6 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
 //export Login Component
 export default connect(null, mapDispatchToProps)(RestaurantLogin);

@@ -131,7 +131,6 @@ const menuInsert = async (req, res) => {
     ingredients,
     description,
   ]);
-  console.log(results);
   con.end();
   res.end(JSON.stringify(results));
 };
@@ -159,7 +158,7 @@ const menuItemDeletion = async (req, res) => {
 };
 
 const reviewFetch = async (req, res) => {
-  const id = getUserIdFromToken(req.cookie.cookie, req.cookie.role);
+  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
   const items = 'CALL fetchReviews(?)';
   const con = await mysqlConnection();
   // eslint-disable-next-line no-unused-vars
@@ -241,10 +240,9 @@ const updateRestaurantProfile = async (restaurant, response) => {
         Closing_Time,
         restroID,
       ]);
-      console.log(connection);
+
       connection.end();
-      console.log(results);
-      console.log(results);
+
       response.writeHead(200, {
         'Content-Type': 'text/plain',
       });
@@ -294,10 +292,8 @@ const updateMenu = async (req, res) => {
         Price,
         ID,
       ]);
-      console.log(connection);
+
       connection.end();
-      console.log(results);
-      console.log(results);
       res.writeHead(200, {
         'Content-Type': 'text/plain',
       });
@@ -315,6 +311,106 @@ const updateMenu = async (req, res) => {
     res.end('Network Error');
   }
 };
+
+// restaurant/orderFetch from ORDERS
+const getRestaurantOrders = async (request, response) => {
+  try {
+    const { sortValue } = url.parse(request.url, true).query;
+    let state = null;
+    if (sortValue === 'All') state = '%';
+    else if (sortValue === 'New') state = 'New';
+    else if (sortValue === 'Delivered') state = 'Delivered';
+    else state = 'Canceled';
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    if (userID) {
+      const getRestaurantOdersQuery = 'CALL getOrderDetails(?,?)';
+
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(getRestaurantOdersQuery, [state, userID]);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+const getPersonOrder = async (request, response) => {
+  try {
+    const { orderID } = url.parse(request.url, true).query;
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    if (userID) {
+      const getRestaurantOdersQuery = 'CALL getPersonOrderDetails(?,?)';
+
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(getRestaurantOdersQuery, [orderID, userID]);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+const updateDeliveryStatus = async (req, res) => {
+  try {
+    // eslint-disable-next-line camelcase
+    const { deliveryStatus, orderID } = req.body;
+
+    const updateDelivery = 'CALL updateDelivery(?,?,?)';
+
+    let state = null;
+    if (deliveryStatus === '5') state = 'Delivered';
+    else if (deliveryStatus === '7') state = 'Canceled';
+    else state = 'New';
+
+    const connection = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await connection.query(updateDelivery, [
+      deliveryStatus,
+      orderID,
+      state,
+    ]);
+    connection.end();
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Network Error');
+  }
+};
 module.exports = {
   restLogin,
   logoutRest,
@@ -325,4 +421,7 @@ module.exports = {
   getRestaurantCompleteInfo,
   updateRestaurantProfile,
   updateMenu,
+  getRestaurantOrders,
+  getPersonOrder,
+  updateDeliveryStatus,
 };

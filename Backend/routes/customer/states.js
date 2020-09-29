@@ -29,4 +29,14 @@ const cuisineFetch = async (req, res) => {
 
   res.end(JSON.stringify(results));
 };
-module.exports = { statesName, countryName, cuisineFetch };
+
+const deliveryStatus = async (req, res) => {
+  const deliveryFetchProcedure = 'CALL fetchDeliveryState()';
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(deliveryFetchProcedure);
+  con.end();
+
+  res.end(JSON.stringify(results));
+};
+module.exports = { statesName, countryName, cuisineFetch, deliveryStatus };

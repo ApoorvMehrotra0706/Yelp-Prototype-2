@@ -4,6 +4,7 @@ import axios from 'axios';
 import serverUrl from '../../config';
 import cookie from 'react-cookies';
 import '../FirstPage/RestaurantHome.css';
+import { connect } from 'react-redux';
 
 class Profile extends Component {
   constructor(props) {
@@ -43,6 +44,11 @@ class Profile extends Component {
             Closing_Time: response.data[0][0].Closing_Time,
             isFormDisable: true,
           });
+          let payload = {
+            Name: this.state.Name,
+          };
+          this.props.updateNameInfo(payload);
+
           console.log(this.state);
           console.log(response.data);
         }
@@ -72,10 +78,18 @@ class Profile extends Component {
   };
 
   onChangeHandlerName = (e) => {
-    this.setState({
-      Name: e.target.value,
-      submitError: false,
-    });
+    this.setState(
+      {
+        Name: e.target.value,
+        submitError: false,
+      },
+      () => {
+        let payload = {
+          Name: this.state.Name,
+        };
+        this.props.updateNameInfo(payload);
+      }
+    );
   };
 
   onChangeHandlerEmail = (e) => {
@@ -230,6 +244,8 @@ class Profile extends Component {
     }
     return (
       <div style={{ marginTop: '3%' }}>
+        <h2> Welcome {this.props.Name.Name}</h2>
+        {/* <h2> {JSON.stringify(this.props)}</h2> */}
         <div class={errorClass}>
           <a onClick={this.removeError} class="js-alert-dismiss dismiss-link" href="#">
             ×
@@ -451,4 +467,18 @@ class Profile extends Component {
   }
 }
 
-export default Profile;
+const mapStateToProps = (state) => {
+  return { Name: state.nameInfo.name };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateNameInfo: (payload) => {
+      dispatch({
+        type: 'update-name-field',
+        payload,
+      });
+    },
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

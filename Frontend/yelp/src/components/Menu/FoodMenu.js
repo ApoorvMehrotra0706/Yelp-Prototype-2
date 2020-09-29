@@ -245,7 +245,7 @@ class FoodMenu extends Component {
       case 'DESSERTS':
         if (this.state.DESSERTS.length === 0) {
           axios
-            .get(serverUrl + 'biz/menuFetch', {
+            .get(serverUrl + 'restaurant/menuFetch', {
               params: { category: menuCategory },
               withCredentials: true,
             })
@@ -712,7 +712,7 @@ class FoodMenu extends Component {
         foodItem = { ...foodItem, ...this.state.tmpFood };
         APPETIZERS[index] = foodItem;
         this.setState({ APPETIZERS, tmpFood, editableId: null });
-        console.log('Cance Update, orignal food item', foodItem);
+        console.log('Cancel Update, orignal food item', foodItem);
         break;
       case 'SALADS':
         index = this.state.SALADS.findIndex((x) => x.ID === FoodId);
@@ -721,7 +721,7 @@ class FoodMenu extends Component {
         foodItem = { ...foodItem, ...this.state.tmpFood };
         SALADS[index] = foodItem;
         this.setState({ SALADS, tmpFood, editableId: null });
-        console.log('Cance Update, orignal food item', foodItem);
+        console.log('Cancel Update, orignal food item', foodItem);
         break;
       case 'MAIN_COURSE':
         index = this.state.MAIN_COURSE.findIndex((x) => x.ID === FoodId);
@@ -730,7 +730,7 @@ class FoodMenu extends Component {
         foodItem = { ...foodItem, ...this.state.tmpFood };
         MAIN_COURSE[index] = foodItem;
         this.setState({ MAIN_COURSE, tmpFood, editableId: null });
-        console.log('Cance Update, orignal food item', foodItem);
+        console.log('Cancel Update, orignal food item', foodItem);
         break;
       case 'BEVERAGES':
         index = this.state.BEVERAGES.findIndex((x) => x.ID === FoodId);
@@ -739,7 +739,7 @@ class FoodMenu extends Component {
         foodItem = { ...foodItem, ...this.state.tmpFood };
         BEVERAGES[index] = foodItem;
         this.setState({ BEVERAGES, tmpFood, editableId: null });
-        console.log('Cance Update, orignal food item', foodItem);
+        console.log('Cancel Update, orignal food item', foodItem);
         break;
       case 'DESSERTS':
         index = this.state.DESSERTS.findIndex((x) => x.ID === FoodId);
@@ -748,7 +748,7 @@ class FoodMenu extends Component {
         foodItem = { ...foodItem, ...this.state.tmpFood };
         DESSERTS[index] = foodItem;
         this.setState({ DESSERTS, tmpFood, editableId: null });
-        console.log('Cance Update, orignal food item', foodItem);
+        console.log('Cancel Update, orignal food item', foodItem);
         break;
     }
   };

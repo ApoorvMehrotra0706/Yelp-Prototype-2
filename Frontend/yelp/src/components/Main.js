@@ -9,6 +9,9 @@ import RestaurantProfile from './Profile/Profile';
 import Navbar from './FirstPage/Navbar';
 import WebPage from './FirstPage/WebPage';
 import FoodMenu from './Menu/FoodMenu';
+import ReviewList from './Reviews/ReviewList';
+import OrderList from './Orders/OrdersList';
+
 // import MenuMain from './Menu/MenuMain';
 // Create a Main Component
 // eslint-disable-next-line react/prefer-stateless-function
@@ -25,7 +28,9 @@ class Main extends Component {
         <Route path="/restaurantSignup" component={RestaurantSignup} />
         <Route path="/restaurantLandingPage" component={RestaurantLandingPage} />
         <Route path="/restaurantProfile" component={RestaurantProfile} />
-        <Route path="/restaurantMenu" component={FoodMenu} />;
+        <Route path="/restaurantMenu" component={FoodMenu} />
+        <Route path="/restaurantReview" component={ReviewList} />
+        <Route path="/restaurantOrders" component={OrderList} />
       </div>
     );
   }

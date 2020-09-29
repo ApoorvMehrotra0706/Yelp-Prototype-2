@@ -232,7 +232,7 @@ class RestaurantSignup extends Component {
             });
             let payload = {
               emailID: this.state.emailID,
-              role: 'Customer',
+              role: 'Restaurant',
               signupStatus: 'true',
             };
             this.props.updateSignupInfo(payload);

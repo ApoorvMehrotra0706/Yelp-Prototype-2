@@ -1,4 +1,5 @@
-import loginHandlingReducer from './loginHandlingReducer';
+// import loginHandlingReducer from './loginHandlingReducer';
+import combReducer from './combineReducer';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
 import { createStore, applyMiddleware, compose } from 'redux';
@@ -9,7 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const store = createStore(
-  loginHandlingReducer,
+  combReducer,
   compose(
     applyMiddleware(...middleware),
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()

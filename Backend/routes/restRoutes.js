@@ -11,6 +11,9 @@ const {
   getRestaurantCompleteInfo,
   updateRestaurantProfile,
   updateMenu,
+  getRestaurantOrders,
+  getPersonOrder,
+  updateDeliveryStatus,
 } = require('./restaurant/loginRestaurant');
 const signupRestaurant = require('./restaurant/signupRestaurant');
 
@@ -70,6 +73,21 @@ Router.post('/updateRestProfile', async (req, res) => {
 
 Router.post('/updateMenu', async (req, res) => {
   const value = await updateMenu(req, res);
+  return value;
+});
+
+Router.get('/orderFetch', async (req, res) => {
+  const value = await getRestaurantOrders(req, res);
+  return value;
+});
+
+Router.get('/fetchPersonOrder', async (req, res) => {
+  const value = await getPersonOrder(req, res);
+  return value;
+});
+
+Router.post('/updateDeliveryStatus', async (req, res) => {
+  const value = await updateDeliveryStatus(req, res);
   return value;
 });
 

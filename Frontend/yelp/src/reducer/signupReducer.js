@@ -1,17 +1,17 @@
 const defaultState = {
-  login: {
+  signup: {
     emailID: '',
     role: '',
-    loginStatus: '',
+    signupStatus: '',
   },
 };
 
 const LoginHandlingReducer = (state = defaultState, action) => {
   switch (action.type) {
-    case 'update-login-field': {
+    case 'signup-field-update': {
       return {
         ...state,
-        login: { ...state.login, ...action.payload },
+        signup: { ...state.signup, ...action.payload },
       };
     }
     default: {
