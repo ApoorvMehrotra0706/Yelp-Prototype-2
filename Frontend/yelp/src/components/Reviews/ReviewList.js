@@ -23,7 +23,7 @@ class ReviewList extends Component {
           Description: Review.Review,
           CustomerId: Review.CustomerID,
           CustomerName: Review.Name,
-          // CustomerAddr: Review.CustomerAddr, // Ask
+          ImageUrl: Review.ImageURL,
         };
       });
 

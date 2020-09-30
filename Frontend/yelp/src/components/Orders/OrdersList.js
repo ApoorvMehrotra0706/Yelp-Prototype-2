@@ -42,6 +42,7 @@ class ordersList extends Component {
             DeliverStatusValue: order.State,
             Bill: order.Bill,
             tmpStatus: order.StatusID,
+            ImageUrl: order.ImageURL,
           };
         });
 

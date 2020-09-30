@@ -7,57 +7,69 @@ class NewFoodForm extends Component {
   }
   render() {
     return (
-      <li class="job-form-section-group-viewer-styles__viewer--2SPgS">
+      <li
+        class="job-form-section-group-viewer-styles__viewer--2SPgS"
+        style={{
+          background: 'right',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+          width: '100%',
+          backgroundImage: `url(${this.props.food.ImageUrl})`,
+        }}
+      >
         <div data-ui="group">
           <form
             onSubmit={this.props.onSaveCreateNew}
             class="yform signup-form  city-hidden"
             id="signup-form"
           >
-            <div class="signup-flow on-flow-start">
-              <div clas="panel">
-                <ul class="inline-layout clearfix">
-                  <li style={{ width: '48%' }}>
-                    <label class="placeholder-sub">Name </label>
-                    <input
-                      maxLength="50"
-                      id="Name"
-                      name="Name"
-                      placeholder="Name"
-                      required="required"
-                      type="text"
-                      onChange={(event) => this.props.onNameChangeHandler(event.target.value)}
-                      value={this.props.food.Name}
-                    />
-                  </li>
-                  <li style={{ width: '5%' }}></li>
-                  <li style={{ width: '10%' }}>
-                    <p style={{ margin: '5px' }}></p>
-                  </li>
-                  <li style={{ width: '22%' }}>
-                    <label class="placeholder-sub">Price $</label>{' '}
-                    <input
-                      id="Price"
-                      name="Price"
-                      placeholder="Price"
-                      required="required"
-                      type="text"
-                      onChange={(event) => this.props.onPriceChangeHandler(event.target.value)}
-                      value={this.props.food.Price}
-                    />
-                  </li>
-                  <li style={{ width: '8%' }}>
-                    <p style={{ margin: '10px' }}></p>
-                  </li>
-                </ul>
-              </div>
+            <div class="js-password-meter-container">
+              <ul class="inline-layout clearfix">
+                <li style={{ width: '12%' }}>
+                  <p style={{ margin: '5px' }}>Name</p>
+                </li>
+                <li style={{ width: '38%' }}>
+                  <label class="placeholder-sub">Name</label>
+                  <input
+                    maxLength="50"
+                    id="Name"
+                    name="Name"
+                    placeholder="Name"
+                    required="required"
+                    type="text"
+                    onChange={(event) => this.props.onNameChangeHandler(event.target.value)}
+                    value={this.props.food.Name}
+                  />
+                </li>
+                <li style={{ width: '5%' }}></li>
+                <li style={{ width: '10%' }}>
+                  <p style={{ margin: '5px' }}>Price</p>
+                </li>
+                <li style={{ width: '22%' }}>
+                  <label class="placeholder-sub">Price</label>
+                  <input
+                    id="Price"
+                    name="Price"
+                    placeholder="Price"
+                    required="required"
+                    type="number"
+                    step="0.01"
+                    onChange={(event) => this.props.onPriceChangeHandler(event.target.value)}
+                    value={this.props.food.Price}
+                  />
+                </li>
+                <li style={{ width: '8%' }}>
+                  <p style={{ margin: '10px' }}>'$'</p>
+                </li>
+              </ul>
+
               <ul class="inline-layout clearfix">
                 <li style={{ width: '13%' }}>
-                  <p style={{ margin: '4px' }}></p>
+                  <p style={{ margin: '4px' }}>Cusine:</p>
                 </li>
 
                 <li style={{ width: '22%' }}>
-                  <label class="placeholder-sub">Cuisine:</label>
+                  <label class="placeholder-sub">CUISINE</label>
                   <select
                     placeholder="CUISINE"
                     className="form-control"
@@ -76,15 +88,15 @@ class NewFoodForm extends Component {
                   </select>
                 </li>
                 <li style={{ width: '23%' }}>
-                  <p style={{ margin: '5px' }}></p>
+                  <p style={{ margin: '5px' }}>Main Ingredients</p>
                 </li>
                 <li style={{ width: '40%' }}>
-                  <label class="placeholder-sub">Main Ingredients</label>
+                  <label class="placeholder-sub"></label>
                   <input
                     maxLength="100"
                     id="MainIngredents"
                     name="MainIngredents"
-                    placeholder="Ingredients"
+                    placeholder="Ingredents"
                     type="text"
                     onChange={(event) => this.props.onIngredentsChangeHandler(event.target.value)}
                     value={this.props.food.MainIngredients}
@@ -94,7 +106,7 @@ class NewFoodForm extends Component {
 
               <ul class="inline-layout clearfix">
                 <li style={{ width: '17%' }}>
-                  <p style={{ margin: '5px' }}></p>
+                  <p style={{ margin: '5px' }}>Description</p>
                 </li>
 
                 <li style={{ width: '81%' }}>
@@ -107,6 +119,20 @@ class NewFoodForm extends Component {
                     type="text"
                     onChange={(event) => this.props.onDescriptionChangeHandler(event.target.value)}
                     value={this.props.food.Description}
+                  />
+                </li>
+                <li>
+                  <label for="image">Update Image</label>
+                  <input
+                    style={{ cursor: 'pointer' }}
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => this.props.onChangeFileHandler(event)}
+                    //onChange={this.onChangeFileHandler}
+                    name="image"
+                    id="image"
+                    multiple
+                    placeholder="update Profile Pic"
                   />
                 </li>
               </ul>
@@ -123,28 +149,6 @@ class NewFoodForm extends Component {
               </button>
             </div>
           </form>
-          <div class="job-form-section-group-viewer-styles__dotsWrapper--Jt82u">
-            <span aria-hidden="true" class="icon--24-deal-v2 css-1mpk29p">
-              {
-                <a onClick={() => this.props.cancelAddition()} style={{ cursor: 'pointer' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="icon_svg">
-                    {/*<img
-                      class="icon_svg"
-                      alt="Delete icon"
-                      src="https://img.icons8.com/fluent-systems-regular/2x/delete-sign.png"
-                      lazy="loaded"
-                    ></img>*/}
-                    {
-                      <path
-                        fill="none"
-                        d="M14.776,10c0,0.239-0.195,0.434-0.435,0.434H5.658c-0.239,0-0.434-0.195-0.434-0.434s0.195-0.434,0.434-0.434h8.684C14.581,9.566,14.776,9.762,14.776,10 M18.25,10c0,4.558-3.693,8.25-8.25,8.25c-4.557,0-8.25-3.691-8.25-8.25c0-4.557,3.693-8.25,8.25-8.25C14.557,1.75,18.25,5.443,18.25,10 M17.382,10c0-4.071-3.312-7.381-7.382-7.381C5.929,2.619,2.619,5.93,2.619,10c0,4.07,3.311,7.382,7.381,7.382C14.07,17.383,17.382,14.07,17.382,10"
-                      ></path>
-                    }
-                  </svg>
-                </a>
-              }
-            </span>
-          </div>
         </div>
       </li>
     );

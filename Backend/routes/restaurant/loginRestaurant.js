@@ -4,10 +4,26 @@
 const bcrypt = require('bcrypt');
 const genRandom = require('randomstring');
 const url = require('url');
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
 const mysqlConnection = require('../../connection');
 
 // eslint-disable-next-line prefer-const
 let UserTokens = [];
+const { BUCKET_NAME } = process.env;
+const s3Storage = new AWS.S3({
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+});
+
+const getRestroID = async (userID) => {
+  const restroIDFetchQuery = 'CALL restroIDFetch(?)';
+  const con = await mysqlConnection();
+  const [results, fields] = await con.query(restroIDFetchQuery, userID);
+  con.end();
+  return results[0][0].RestaurantID;
+};
 
 const checkValidID = async (emailID, role) => {
   const userIDValidCheck = 'CALL validUserID(?,?)';
@@ -87,6 +103,7 @@ const getUserIdFromToken = (token, userRole) => {
 const menuFetch = async (req, res) => {
   const { category } = url.parse(req.url, true).query;
   const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const restroID = await getRestroID(id);
   let items = null;
   if (category === 'APPETIZERS') {
     items = 'CALL fetchAppetizerItems(?)';
@@ -101,25 +118,26 @@ const menuFetch = async (req, res) => {
   }
   const con = await mysqlConnection();
   // eslint-disable-next-line no-unused-vars
-  const [results, fields] = await con.query(items, id);
+  const [results, fields] = await con.query(items, restroID);
   con.end();
   res.end(JSON.stringify(results));
 };
 
 const menuInsert = async (req, res) => {
-  const { category, name, price, cuisine, ingredients, description } = req.body;
-  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const { category, name, price, cuisine, ingredients, description, ImageUrl } = req.body;
+  const userid = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const id = await getRestroID(userid);
   let items = null;
   if (category === 'APPETIZERS') {
-    items = 'CALL insertAppetizerItems(?,?,?,?,?,?)';
+    items = 'CALL insertAppetizerItems(?,?,?,?,?,?,?)';
   } else if (category === 'BEVERAGES') {
-    items = 'CALL insertBeveragesItems(?,?,?,?,?,?)';
+    items = 'CALL insertBeveragesItems(?,?,?,?,?,?,?)';
   } else if (category === 'DESSERTS') {
-    items = 'CALL insertDessertsItems(?,?,?,?,?,?)';
+    items = 'CALL insertDessertsItems(?,?,?,?,?,?,?)';
   } else if (category === 'MAIN_COURSE') {
-    items = 'CALL insertMainCourseItems(?,?,?,?,?,?)';
+    items = 'CALL insertMainCourseItems(?,?,?,?,?,?,?)';
   } else {
-    items = 'CALL insertSaladsItems(?,?,?,?,?,?)';
+    items = 'CALL insertSaladsItems(?,?,?,?,?,?,?)';
   }
   const con = await mysqlConnection();
   // eslint-disable-next-line no-unused-vars
@@ -130,6 +148,7 @@ const menuInsert = async (req, res) => {
     cuisine,
     ingredients,
     description,
+    ImageUrl,
   ]);
   con.end();
   res.end(JSON.stringify(results));
@@ -158,7 +177,8 @@ const menuItemDeletion = async (req, res) => {
 };
 
 const reviewFetch = async (req, res) => {
-  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const userid = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const id = await getRestroID(userid);
   const items = 'CALL fetchReviews(?)';
   const con = await mysqlConnection();
   // eslint-disable-next-line no-unused-vars
@@ -216,10 +236,14 @@ const updateRestaurantProfile = async (restaurant, response) => {
       Opening_Time,
       // eslint-disable-next-line camelcase
       Closing_Time,
+      CurbsidePickup,
+      DineIn,
+      YelpDelivery,
     } = restaurant.body;
-    const restroID = getUserIdFromToken(restaurant.body.token, restaurant.body.role);
+    const userID = getUserIdFromToken(restaurant.body.token, restaurant.body.role);
+    const restroID = await getRestroID(userID);
     if (restroID) {
-      const updateRestaurantProfileQuery = 'CALL updateRestPrfile(?,?,?,?,?,?,?,?,?,?)';
+      const updateRestaurantProfileQuery = 'CALL updateRestPrfile(?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
       const connection = await mysqlConnection();
       // eslint-disable-next-line no-unused-vars
@@ -239,6 +263,9 @@ const updateRestaurantProfile = async (restaurant, response) => {
         // eslint-disable-next-line camelcase
         Closing_Time,
         restroID,
+        CurbsidePickup,
+        DineIn,
+        YelpDelivery,
       ]);
 
       connection.end();
@@ -264,21 +291,31 @@ const updateRestaurantProfile = async (restaurant, response) => {
 const updateMenu = async (req, res) => {
   try {
     // eslint-disable-next-line camelcase
-    const { category, Name, MainIngredients, CuisineID, Description, Price, ID } = req.body;
+    const {
+      category,
+      Name,
+      MainIngredients,
+      CuisineID,
+      Description,
+      Price,
+      ID,
+      ImageUrl,
+    } = req.body;
 
-    const restroID = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+    const userID = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+    const restroID = await getRestroID(userID);
     if (restroID) {
       let updateRestaurantMenuQuery = null;
       if (category === 'APPETIZERS') {
-        updateRestaurantMenuQuery = 'CALL updateAppetizerMenu(?,?,?,?,?,?,?)';
+        updateRestaurantMenuQuery = 'CALL updateAppetizerMenu(?,?,?,?,?,?,?,?)';
       } else if (category === 'BEVERAGES') {
-        updateRestaurantMenuQuery = 'CALL updateBeveragesMenu(?,?,?,?,?,?,?)';
+        updateRestaurantMenuQuery = 'CALL updateBeveragesMenu(?,?,?,?,?,?,?,?)';
       } else if (category === 'DESSERTS') {
-        updateRestaurantMenuQuery = 'CALL updateDessertsMenu(?,?,?,?,?,?,?)';
+        updateRestaurantMenuQuery = 'CALL updateDessertsMenu(?,?,?,?,?,?,?,?)';
       } else if (category === 'MAIN_COURSE') {
-        updateRestaurantMenuQuery = 'CALL updateMainCourseMenu(?,?,?,?,?,?,?)';
+        updateRestaurantMenuQuery = 'CALL updateMainCourseMenu(?,?,?,?,?,?,?,?)';
       } else {
-        updateRestaurantMenuQuery = 'CALL updateSaladsMenu(?,?,?,?,?,?,?)';
+        updateRestaurantMenuQuery = 'CALL updateSaladsMenu(?,?,?,?,?,?,?,?)';
       }
       const connection = await mysqlConnection();
       // eslint-disable-next-line no-unused-vars
@@ -291,6 +328,7 @@ const updateMenu = async (req, res) => {
         Description,
         Price,
         ID,
+        ImageUrl,
       ]);
 
       connection.end();
@@ -312,7 +350,6 @@ const updateMenu = async (req, res) => {
   }
 };
 
-// restaurant/orderFetch from ORDERS
 const getRestaurantOrders = async (request, response) => {
   try {
     const { sortValue } = url.parse(request.url, true).query;
@@ -411,6 +448,59 @@ const updateDeliveryStatus = async (req, res) => {
     res.end('Network Error');
   }
 };
+
+const imageUpload = multer({
+  storage: multerS3({
+    s3: s3Storage,
+    bucket: BUCKET_NAME,
+    acl: 'public-read',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    // eslint-disable-next-line func-names
+    // eslint-disable-next-line object-shorthand
+    key: function (req, file, cb) {
+      console.log(req.body);
+      const folderName = 'yelp-rest-';
+      console.log('Multer Called', folderName);
+      cb(null, `${folderName}/${Date.now().toString()}${file.originalname}`);
+    },
+  }),
+}).single('file');
+
+// restaurant/foodImageU=pload
+const foodImageUpload = async (req, res) => {
+  try {
+    const userID = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+    const restroID = await getRestroID(userID);
+    if (restroID) {
+      imageUpload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+          res.json({ status: 400, error: err.message });
+        } else if (err) {
+          res.json({ status: 400, error: err.message });
+        } else {
+          console.log(req.file.location);
+
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+          });
+          res.end(req.file.location);
+        }
+      });
+    } else {
+      res.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Invalid User');
+    }
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Network Error');
+  }
+  return res;
+};
+
 module.exports = {
   restLogin,
   logoutRest,
@@ -424,4 +514,5 @@ module.exports = {
   getRestaurantOrders,
   getPersonOrder,
   updateDeliveryStatus,
+  foodImageUpload,
 };

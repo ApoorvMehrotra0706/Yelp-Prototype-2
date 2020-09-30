@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import serverUrl from '../../config';
-import cookie from 'react-cookies';
 import './FoodMenu.css';
 import Food from './Food';
 import NewFoodForm from './NewFoodForm';
@@ -24,6 +23,7 @@ class FoodMenu extends Component {
         CuisineID: null,
         Description: '',
         Price: null,
+        ImageUrl: '',
       },
       tmpFood: {
         ID: null,
@@ -86,6 +86,9 @@ class FoodMenu extends Component {
         foodItem = { ...this.state.DESSERTS[index], category: this.state.showFoodCategory };
 
         break;
+      default:
+        console.log('wrong Input');
+        break;
     }
 
     let newFood = {
@@ -95,6 +98,7 @@ class FoodMenu extends Component {
       CuisineID: null,
       Description: '',
       Price: null,
+      ImageUrl: '',
     };
     this.setState({
       editableId: FoodId,
@@ -152,6 +156,7 @@ class FoodMenu extends Component {
                   CuisineID: Appetizer.CuisineID,
                   Description: Appetizer.Description,
                   Price: Appetizer.Price,
+                  ImageUrl: Appetizer.ImageURL,
                 };
               });
 
@@ -179,6 +184,7 @@ class FoodMenu extends Component {
                   CuisineID: Salad.CuisineID,
                   Description: Salad.Description,
                   Price: Salad.Price,
+                  ImageUrl: Salad.ImageURL,
                 };
               });
 
@@ -206,6 +212,7 @@ class FoodMenu extends Component {
                   CuisineID: MainCourse.CuisineID,
                   Description: MainCourse.Description,
                   Price: MainCourse.Price,
+                  ImageUrl: MainCourse.ImageURL,
                 };
               });
 
@@ -233,6 +240,7 @@ class FoodMenu extends Component {
                   CuisineID: Beverage.CuisineID,
                   Description: Beverage.Description,
                   Price: Beverage.Price,
+                  ImageUrl: Beverage.ImageURL,
                 };
               });
 
@@ -259,6 +267,7 @@ class FoodMenu extends Component {
                   CuisineID: Dessert.CuisineID,
                   Description: Dessert.Description,
                   Price: Dessert.Price,
+                  ImageUrl: Dessert.ImageURL,
                 };
               });
 
@@ -268,10 +277,13 @@ class FoodMenu extends Component {
             });
         }
         break;
+      default:
+        console.log('Incorrect ask');
+        break;
     }
   };
 
-  //on successfull delete remove from state also
+  // on successful delete remove from state also
   deleteFoodItem = (foodId) => {
     let category = this.state.showFoodCategory;
     const data = {
@@ -330,6 +342,9 @@ class FoodMenu extends Component {
                 DESSERTS: tmpDESSERTS,
               });
               break;
+            default:
+              console.log('Bad ask');
+              break;
           }
         }
       },
@@ -339,7 +354,7 @@ class FoodMenu extends Component {
     );
   };
 
-  //Open or close Food Addition FOrm
+  // Open or close Food Addition FOrm
   openFoodForm = () => {
     if (this.state.addFoodItemForm) {
       let tmp = {
@@ -348,6 +363,7 @@ class FoodMenu extends Component {
         CuisineID: null,
         Description: '',
         Price: null,
+        ImageUrl: '',
       };
       this.setState({
         newFood: { ...this.state.newFood, ...tmp },
@@ -360,7 +376,7 @@ class FoodMenu extends Component {
     });
   };
 
-  // onChange Handeler for new food item form
+  // onChange Handler for new food item form
   onNameChangeHandler = (value, menuCategory) => {
     let tmp = { Name: value, category: menuCategory };
     this.setState({
@@ -442,8 +458,12 @@ class FoodMenu extends Component {
         DESSERTS[index] = food;
         this.setState({ DESSERTS });
         break;
+      default:
+        console.log('Out of bounds');
+        break;
     }
   };
+
   onPriceChangeHandlerUpdate = (value, id, menuCategory) => {
     let tmp = { Price: value };
     let index = null;
@@ -489,8 +509,12 @@ class FoodMenu extends Component {
         DESSERTS[index] = food;
         this.setState({ DESSERTS });
         break;
+      default:
+        console.log('Incorrect option');
+        break;
     }
   };
+
   onCusineChangeHandlerUpdate = (value, id, menuCategory) => {
     let tmp = { CuisineID: value };
     let index = null;
@@ -536,8 +560,12 @@ class FoodMenu extends Component {
         DESSERTS[index] = food;
         this.setState({ DESSERTS });
         break;
+      default:
+        console.log('Uh oh!!! invalid request');
+        break;
     }
   };
+
   onIngredentsChangeHandlerUpdate = (value, id, menuCategory) => {
     let tmp = { MainIngredients: value };
     let index = null;
@@ -583,8 +611,12 @@ class FoodMenu extends Component {
         DESSERTS[index] = food;
         this.setState({ DESSERTS });
         break;
+      default:
+        console.log('Incorrect choice');
+        break;
     }
   };
+
   onDescriptionChangeHandlerUpdate = (value, id, menuCategory) => {
     let index = null;
     let food = null;
@@ -629,6 +661,9 @@ class FoodMenu extends Component {
         DESSERTS[index] = food;
         this.setState({ DESSERTS });
         break;
+      default:
+        console.log('Unavailable choice');
+        break;
     }
   };
 
@@ -661,6 +696,9 @@ class FoodMenu extends Component {
         index = this.state.DESSERTS.findIndex((x) => x.ID === FoodId);
         foodItem = { ...this.state.DESSERTS[index] };
         console.log('Update food item', foodItem);
+        break;
+      default:
+        console.log('That is a bad chocie');
         break;
     }
 
@@ -750,6 +788,121 @@ class FoodMenu extends Component {
         this.setState({ DESSERTS, tmpFood, editableId: null });
         console.log('Cancel Update, orignal food item', foodItem);
         break;
+      default:
+        console.log('Incorrect choice');
+        break;
+    }
+  };
+
+  onChangeFileHandlerOld = (event, id) => {
+    if (event.target.files.length === 1) {
+      event.preventDefault();
+      let formData = new FormData();
+      formData.append('file', event.target.files[0], event.target.files[0].name);
+      axios({
+        method: 'post',
+        url: serverUrl + 'restaurant/foodImageUpload',
+        data: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+        .then((response) => {
+          console.log('Status Code : ', response.status);
+          if (parseInt(response.status) === 200) {
+            console.log('Product Saved');
+            let tmp = { ImageUrl: response.data };
+            this.updateImageUrl(response.data, id);
+          } else if (parseInt(response.status) === 400) {
+            console.log(response.data);
+          }
+        })
+        .catch((error) => {
+          this.setState({
+            errorMsg: error.message,
+            authFlag: false,
+          });
+        });
+    }
+  };
+
+  updateImageUrl = (value, id) => {
+    let index = null;
+    let food = null;
+    switch (this.state.showFoodCategory) {
+      case 'APPETIZERS':
+        index = this.state.APPETIZERS.findIndex((x) => x.ID === id);
+        let APPETIZERS = [...this.state.APPETIZERS];
+        food = { ...APPETIZERS[index] };
+        food.ImageUrl = value;
+        APPETIZERS[index] = food;
+        this.setState({ APPETIZERS });
+        break;
+      case 'SALADS':
+        index = this.state.SALADS.findIndex((x) => x.ID === id);
+        let SALADS = [...this.state.SALADS];
+        food = { ...SALADS[index] };
+        food.ImageUrl = value;
+        SALADS[index] = food;
+        this.setState({ SALADS });
+        break;
+      case 'MAIN_COURSE':
+        index = this.state.MAIN_COURSE.findIndex((x) => x.ID === id);
+        let MAIN_COURSE = [...this.state.MAIN_COURSE];
+        food = { ...MAIN_COURSE[index] };
+        food.ImageUrl = value;
+        MAIN_COURSE[index] = food;
+        this.setState({ MAIN_COURSE });
+        break;
+      case 'BEVERAGES':
+        index = this.state.BEVERAGES.findIndex((x) => x.ID === id);
+        let BEVERAGES = [...this.state.BEVERAGES];
+        food = { ...BEVERAGES[index] };
+        food.ImageUrl = value;
+        BEVERAGES[index] = food;
+        this.setState({ BEVERAGES });
+        break;
+      case 'DESSERTS':
+        index = this.state.DESSERTS.findIndex((x) => x.ID === id);
+        let DESSERTS = [...this.state.DESSERTS];
+        food = { ...DESSERTS[index] };
+        food.ImageUrl = value;
+        DESSERTS[index] = food;
+        this.setState({ DESSERTS });
+        break;
+      default:
+        console.log('That is incorrect');
+        break;
+    }
+  };
+
+  onChangeFileHandler = (event) => {
+    if (event.target.files.length === 1) {
+      event.preventDefault();
+      let formData = new FormData();
+      formData.append('file', event.target.files[0], event.target.files[0].name);
+      axios({
+        method: 'post',
+        url: serverUrl + 'restaurant/foodImageUpload',
+        data: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+        .then((response) => {
+          console.log('Status Code : ', response.status);
+          if (parseInt(response.status) === 200) {
+            console.log('Product Saved');
+            let tmp = { ImageUrl: response.data };
+            this.setState({
+              newFood: { ...this.state.newFood, ...tmp },
+            });
+          } else if (parseInt(response.status) === 400) {
+            console.log(response.data);
+          }
+        })
+        .catch((error) => {
+          this.setState({
+            errorMsg: error.message,
+            authFlag: false,
+          });
+        });
     }
   };
 
@@ -761,6 +914,7 @@ class FoodMenu extends Component {
       cuisine: this.state.newFood.CuisineID,
       ingredients: this.state.newFood.MainIngredients,
       description: this.state.newFood.Description,
+      ImageUrl: this.state.newFood.ImageUrl,
     };
     //set the with credentials to true
     axios.defaults.withCredentials = true;
@@ -777,6 +931,7 @@ class FoodMenu extends Component {
             CuisineID: response.data[0][0].CuisineID,
             Description: response.data[0][0].Description,
             Price: response.data[0][0].Price,
+            ImageUrl: response.data[0][0].ImageURL,
           };
 
           // newFoodId = { ...newFoodId, ...this.state.newFood };
@@ -805,6 +960,9 @@ class FoodMenu extends Component {
               this.setState({
                 DESSERTS: this.state.DESSERTS.concat(newFood),
               });
+              break;
+            default:
+              console.log('Sorry, bad choice');
               break;
           }
         }
@@ -893,6 +1051,7 @@ class FoodMenu extends Component {
                     onDescriptionChangeHandler={(evt) => this.onDescriptionChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
                     food={this.state.newFood}
+                    onChangeFileHandler={(event) => this.onChangeFileHandler(event)}
                     onSaveCreateNew={() => this.onSaveCreateNew()}
                   ></NewFoodForm>
                 </div>
@@ -919,6 +1078,9 @@ class FoodMenu extends Component {
                         }
                         onDescriptionChangeHandler={(evt, id) =>
                           this.onDescriptionChangeHandlerUpdate(evt, id)
+                        }
+                        onChangeFileHandlerOld={(event) =>
+                          this.onChangeFileHandlerOld(event, food.ID)
                         }
                       />
                     ))}
@@ -981,6 +1143,7 @@ class FoodMenu extends Component {
                     onIngredentsChangeHandler={(evt) => this.onIngredentsChangeHandler(evt)}
                     onDescriptionChangeHandler={(evt) => this.onDescriptionChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
+                    onChangeFileHandler={(event) => this.onChangeFileHandler(event)}
                     food={this.state.newFood}
                     onSaveCreateNew={() => this.onSaveCreateNew()}
                   ></NewFoodForm>
@@ -1008,6 +1171,9 @@ class FoodMenu extends Component {
                         }
                         onDescriptionChangeHandler={(evt, id) =>
                           this.onDescriptionChangeHandlerUpdate(evt, id)
+                        }
+                        onChangeFileHandlerOld={(event) =>
+                          this.onChangeFileHandlerOld(event, food.ID)
                         }
                       />
                     ))}
@@ -1070,6 +1236,7 @@ class FoodMenu extends Component {
                     onIngredentsChangeHandler={(evt) => this.onIngredentsChangeHandler(evt)}
                     onDescriptionChangeHandler={(evt) => this.onDescriptionChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
+                    onChangeFileHandler={(event) => this.onChangeFileHandler(event)}
                     food={this.state.newFood}
                     onSaveCreateNew={() => this.onSaveCreateNew()}
                   ></NewFoodForm>
@@ -1097,6 +1264,9 @@ class FoodMenu extends Component {
                         }
                         onDescriptionChangeHandler={(evt, id) =>
                           this.onDescriptionChangeHandlerUpdate(evt, id)
+                        }
+                        onChangeFileHandlerOld={(event) =>
+                          this.onChangeFileHandlerOld(event, food.ID)
                         }
                       />
                     ))}
@@ -1159,6 +1329,7 @@ class FoodMenu extends Component {
                     onIngredentsChangeHandler={(evt) => this.onIngredentsChangeHandler(evt)}
                     onDescriptionChangeHandler={(evt) => this.onDescriptionChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
+                    onChangeFileHandler={(event) => this.onChangeFileHandler(event)}
                     food={this.state.newFood}
                     onSaveCreateNew={() => this.onSaveCreateNew()}
                   ></NewFoodForm>
@@ -1186,6 +1357,9 @@ class FoodMenu extends Component {
                         }
                         onDescriptionChangeHandler={(evt, id) =>
                           this.onDescriptionChangeHandlerUpdate(evt, id)
+                        }
+                        onChangeFileHandlerOld={(event) =>
+                          this.onChangeFileHandlerOld(event, food.ID)
                         }
                       />
                     ))}
@@ -1248,6 +1422,7 @@ class FoodMenu extends Component {
                     onIngredentsChangeHandler={(evt) => this.onIngredentsChangeHandler(evt)}
                     onDescriptionChangeHandler={(evt) => this.onDescriptionChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
+                    onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
                     food={this.state.newFood}
                     onSaveCreateNew={() => this.onSaveCreateNew()}
                   ></NewFoodForm>
@@ -1275,6 +1450,9 @@ class FoodMenu extends Component {
                         }
                         onDescriptionChangeHandler={(evt, id) =>
                           this.onDescriptionChangeHandlerUpdate(evt, id)
+                        }
+                        onChangeFileHandlerOld={(event) =>
+                          this.onChangeFileHandlerOld(event, food.ID)
                         }
                       />
                     ))}

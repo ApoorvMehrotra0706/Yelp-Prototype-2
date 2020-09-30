@@ -6,6 +6,8 @@ class Review extends Component {
     this.state = {};
   }
   render() {
+    const defaultImage =
+      'https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png';
     let rating = { backgroundPosition: '0 -320px' };
     switch (this.props.review.Rating) {
       case '1':
@@ -47,8 +49,20 @@ class Review extends Component {
                         >
                           <img
                             class="lemon--img__373c0__3GQUb photo-box-img__373c0__35y5v"
-                            src="https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/60s.jpg"
-                            srcset="https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/90s.jpg 1.50x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/168s.jpg 2.80x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/ms.jpg 1.67x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/180s.jpg 3.00x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/120s.jpg 2.00x"
+                            // src="https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/60s.jpg"
+                            // srcset="https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/90s.jpg 1.50x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/168s.jpg 2.80x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/ms.jpg 1.67x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/180s.jpg 3.00x,https://s3-media0.fl.yelpcdn.com/photo/9mASYcGE_pmhSwscsapTrQ/120s.jpg 2.00x"
+                            src={
+                              this.props.review.ImageUrl !== null &&
+                              this.props.review.ImageUrl.length > 0
+                                ? this.props.review.ImageUrl
+                                : defaultImage
+                            }
+                            srcset={
+                              this.props.review.ImageUrl !== null &&
+                              this.props.review.ImageUrl.length > 0
+                                ? this.props.review.ImageUrl
+                                : defaultImage
+                            }
                             alt="Photo of Onelia D."
                             height="60"
                             width="60"

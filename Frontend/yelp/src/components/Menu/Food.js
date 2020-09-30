@@ -7,7 +7,16 @@ class Food extends Component {
   }
   render() {
     return (
-      <li class="job-form-section-group-viewer-styles__viewer--2SPgS">
+      <li
+        class="job-form-section-group-viewer-styles__viewer--2SPgS"
+        style={{
+          background: 'right',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+          width: '100%',
+          backgroundImage: `url(${this.props.food.ImageUrl})`,
+        }}
+      >
         <div data-ui="group">
           <form
             onSubmit={this.props.onSave}
@@ -126,6 +135,26 @@ class Food extends Component {
                     />
                   </li>
                 </ul>
+                {this.props.food.ID === this.props.editableId && (
+                  <ul>
+                    <li style={{ width: '30%' }}></li>
+                    <li style={{ width: '60%' }}>
+                      {' '}
+                      <label for="image">Update Image</label>
+                      <input
+                        style={{ cursor: 'pointer' }}
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => this.props.onChangeFileHandlerOld(event)}
+                        //onChange={this.onChangeFileHandler}
+                        name="image"
+                        id="image"
+                        multiple
+                        placeholder="update Profile Pic"
+                      />
+                    </li>
+                  </ul>
+                )}
               </div>
               {this.props.food.ID === this.props.editableId && (
                 <div style={{ position: 'absolute', bottom: '10px', right: '322px' }}>

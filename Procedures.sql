@@ -84,36 +84,29 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `insertAppetizerItems` (IN ID_check bigint, IN Dishname_check varchar(60),
  IN Price_check decimal(10,2) , IN Cuisine_check bigint, IN ingredients_check varchar(150), 
- IN description_check varchar(100))
+ IN description_check varchar(100), IN _imageURL varchar(300))
 BEGIN
 declare newID int;
 declare exit handler for sqlexception rollback;
 start transaction;
-INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
-VALUES (ID_check,Dishname_check, Price_check, Cuisine_check , ingredients_check, description_check);
+INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description, ImageURL) 
+VALUES (ID_check,Dishname_check, Price_check, Cuisine_check , ingredients_check, description_check, _imageURL);
 set newID =(SELECT LAST_INSERT_ID());
 SELECT * FROM APPETIZER WHERE AppetizerID=newID;
 commit;
 END$$
 DELIMITER ;
 
-CALL `yelp`.`insertAppetizerItems`('1', 'Momos1', '14.99', '5','Wheat Flour', 'Very Tasty');
-
-SELECT * FROM APPETIZER;
-
-DELETE FROM APPETIZER 
-WHERE AppetizerID = 9;
-
 DELIMITER $$
 CREATE PROCEDURE `insertBeveragesItems` (IN ID_check bigint, IN Dishname_check varchar(60),
  IN Price_check decimal(10,2) , IN Cuisine_check varchar(30), IN ingredients_check varchar(150), 
- IN description_check varchar(100))
+ IN description_check varchar(100),IN _imageURL varchar(300))
 BEGIN
 declare newID int;
 declare exit handler for sqlexception rollback;
 start transaction;
-INSERT INTO BEVERAGES (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
-VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check);
+INSERT INTO BEVERAGES (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description, ImageURL) 
+VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check, _imageURL);
 set newID =(SELECT LAST_INSERT_ID());
 SELECT * FROM SALADS WHERE BeveragesID=newID;
 commit;
@@ -123,13 +116,13 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `insertDessertsItems` (IN ID_check bigint, IN Dishname_check varchar(60),
  IN Price_check decimal(10,2) , IN Cuisine_check varchar(30), IN ingredients_check varchar(150), 
- IN description_check varchar(100))
+ IN description_check varchar(100),IN _imageURL varchar(300))
 BEGIN
 declare newID int;
 declare exit handler for sqlexception rollback;
 start transaction;
-INSERT INTO DESSERTS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
-VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check);
+INSERT INTO DESSERTS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description, ImageURL) 
+VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check,_imageURL);
 set newID =(SELECT LAST_INSERT_ID());
 SELECT * FROM SALADS WHERE DessertsID=newID;
 commit;
@@ -139,14 +132,13 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `insertMainCourseItems` (IN ID_check bigint, IN Dishname_check varchar(60),
  IN Price_check decimal(10,2) , IN Cuisine_check varchar(30), IN ingredients_check varchar(150), 
- IN description_check varchar(100))
+ IN description_check varchar(100),IN _imageURL varchar(300))
 BEGIN
 declare newID int;
 declare exit handler for sqlexception rollback;
 start transaction;
-set _cuisineId=(SELECT CuisineID FROM CUISINE WHERE Cuisine_Name=Cuisine_check);
-INSERT INTO MAIN_COURSE (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
-VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check);
+INSERT INTO MAIN_COURSE (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description, ImageURL) 
+VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check, _imageURL);
 set newID =(SELECT LAST_INSERT_ID());
 SELECT * FROM SALADS WHERE MainCourseID=newID;
 commit;
@@ -156,14 +148,13 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `insertSaladsItems` (IN ID_check bigint, IN Dishname_check varchar(60),
  IN Price_check decimal(10,2) , IN Cuisine_check varchar(30), IN ingredients_check varchar(150), 
- IN description_check varchar(100))
+ IN description_check varchar(100), IN _imageURL varchar(300))
 BEGIN
 declare newID int;
 declare exit handler for sqlexception rollback;
 start transaction;
-set _cuisineId=(SELECT CuisineID FROM CUISINE WHERE Cuisine_Name=Cuisine_check);
-INSERT INTO SALADS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
-VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check);
+INSERT INTO SALADS (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description, ImageURL) 
+VALUES (ID_check,Dishname_check, Price_check, _cuisineId, ingredients_check, description_check, _imageURL);
 set newID =(SELECT LAST_INSERT_ID());
 SELECT * FROM SALADS WHERE SaladsID=newID;
 commit;
@@ -338,17 +329,19 @@ DELIMITER ;
 
 -- Procedure to fetch review for the Restaurant
 DELIMITER $$
-CREATE PROCEDURE `fetchReviews` (IN DID_check bigint)
+CREATE PROCEDURE `fetchReviews` (IN ID_check bigint)
 BEGIN
 declare exit handler for sqlexception rollback;
 start transaction;
-SELECT R.ReviewID, R.CustomerID, L.Name, R.Ratings, R.Date, R.Review
-FROM order_cartREVIEWS R JOIN CUSTOMER C on R.CustomerID = C.CustomerID
+SELECT R.ReviewID, R.CustomerID, L.Name, R.Ratings, R.Date, R.Review, C.ImageURL
+FROM REVIEWS R JOIN CUSTOMER C on R.CustomerID = C.CustomerID
 JOIN LOGIN L ON C.ID = L.ID
 WHERE R.RestaurantID = ID_check;
 commit;
 END$$
 DELIMITER ;
+
+CALL `yelp`.`fetchReviews`('1');
 
 -- Procedure to extract Restaurant details
 delimiter $$
@@ -359,13 +352,16 @@ start transaction;
 SELECT Name ,Country,State,City,Zip_Code,Street_Address,Contact,Country,Open_Time,
 Closing_Time ,EmailID FROM RESTAURANT  JOIN LOGIN  ON UserID = ID 
 WHERE UserID= ID_check;
+
+SELECT D.DeliveryID 
+FROM DELIVERY_TYPES D JOIN RESTAURANT R ON D.RESTAURANTID = R.RESTAURANTID
+WHERE R.UserID= ID_check;
 commit;
 end $$
 delimiter ;
 
-SELECT Name ,Country,State,City,Zip_Code,Street_Address,Contact,Country,Open_Time,
-Closing_Time ,EmailID FROM RESTAURANT  JOIN LOGIN  ON UserID = ID 
-WHERE UserID = 8;
+CALL `yelp`.`getRestaurantCompleteInfoQuery`('1');
+
 -- Procedure to fetch country
 DELIMITER $$
 CREATE  PROCEDURE `countryFetch`()
@@ -379,7 +375,7 @@ DELIMITER $$
 CREATE PROCEDURE `updateRestPrfile`(IN _Name varchar(60),IN _country varchar(20), IN _state varchar(20), 
 IN _city varchar(20), IN _Zip int, IN _street varchar(60), IN _contact bigint, 
 IN _open varchar(20),IN _close varchar(20),
-IN _restID bigint)
+IN _restID bigint, IN _CurbsidePickup boolean, IN _DineIn boolean, _YelpDelivery boolean)
 BEGIN
 declare newID int;
 UPDATE RESTAURANT
@@ -390,10 +386,20 @@ set newID =(SELECT UserID FROM RESTAURANT WHERE RestaurantID = _restID);
 UPDATE LOGIN
 SET Name = _Name
 WHERE ID = newID;
+
+DELETE FROM DELIVERY_TYPES
+WHERE RestaurantID= _restID;
+IF _CurbsidePickup THEN
+INSERT  INTO DELIVERY_TYPES(RestaurantID, DeliveryID) VALUES(_restID, 1);
+END IF;
+IF _DineIn THEN
+INSERT  INTO DELIVERY_TYPES(RestaurantID, DeliveryID) VALUES(_restID, 2);
+END IF;
+IF _YelpDelivery THEN
+INSERT  INTO DELIVERY_TYPES(RestaurantID, DeliveryID) VALUES(_restID, 3);
+END IF;
 END$$
 DELIMITER ;
-
-SELECT * FROM LOGIN;
 
 -- Procedure to fetch cuisines
 DELIMITER $$
@@ -406,11 +412,11 @@ DELIMITER ;
 -- Proceudre to update Menu
 DELIMITER $$
 CREATE PROCEDURE `updateAppetizerMenu` (_id bigint, IN _Dishname varchar(60), IN _Main_Ingredients varchar(150),
-IN _CuisineID BIGINT, IN _Description varchar(100), IN _price decimal(10,2),IN _did bigint) 
+IN _CuisineID BIGINT, IN _Description varchar(100), IN _price decimal(10,2),IN _did bigint, IN _imageURL varchar(300))
 BEGIN
 UPDATE APPETIZER
 SET Dishname = _Dishname, Price = _Price, CuisineID = _CuisineID, 
-Description = _Description, Price = _Price
+Description = _Description, Price = _Price, ImageURL = _imageURL
 WHERE RestaurantID = _id AND AppetizerID = _did;
 END$$
 DELIMITER ;
@@ -479,7 +485,7 @@ start transaction;
 set newID =(SELECT RestaurantID
 FROM RESTAURANT JOIN  LOGIN ON ID = UserID
 WHERE ID = _ID);
-SELECT L.Name, O.CustomerID, O.Date, O.DeliveryMode, O.StatusID, O.State, O.Bill, O.OrderID
+SELECT L.Name, O.CustomerID, O.Date, O.DeliveryMode, O.StatusID, O.State, O.Bill, O.OrderID, C.ImageURL
 FROM ORDERS O JOIN CUSTOMER C on O.CustomerID = C.CustomerID
 JOIN LOGIN L ON L.ID = C. ID
 WHERE O.State LIKE _state AND O.RestaurantID = newID;
@@ -515,11 +521,6 @@ commit;
 end $$
 delimiter ;
 
-SELECT * FROM ORDERS;
-
-CALL `yelp`.`updateDelivery`(5, 3);
-
-
 -- Procedure to fetch delivery states
 delimiter $$
 CREATE procedure `fetchDeliveryState` ()
@@ -527,6 +528,19 @@ begin
 declare exit handler for sqlexception rollback;
 start transaction;
 SELECT * FROM DELIVERY_STATE
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Restaurant ID
+delimiter $$
+CREATE procedure `restroIDFetch` (IN _userID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT RestaurantID 
+FROM RESTAURANT
+WHERE UserID = _userID;
 commit;
 end $$
 delimiter ;

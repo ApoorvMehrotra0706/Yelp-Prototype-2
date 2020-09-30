@@ -24,6 +24,24 @@ class Profile extends Component {
       isFormDisable: true,
       submitError: false,
       submitErrorBlock: '',
+      CurbsidePickup: false,
+      DineIn: false,
+      YelpDelivery: false,
+      tmpEditProfile: {
+        Name: '',
+        Email: '',
+        Country: '',
+        StateName: '',
+        City: '',
+        Zip: '',
+        Street: '',
+        Contact: '',
+        Opening_Time: '',
+        Closing_Time: '',
+        CurbsidePickup: false,
+        DineIn: false,
+        YelpDelivery: false,
+      },
     };
   }
 
@@ -31,6 +49,25 @@ class Profile extends Component {
     axios.get(serverUrl + 'restaurant/restaurantProfile', { withCredentials: true }).then(
       (response) => {
         if (response.status === 200) {
+          let CurbsidePickup = false;
+          let DineIn = false;
+          let YelpDelivery = false;
+          let DeliveryOptions = response.data[1];
+          DeliveryOptions.forEach(function (option) {
+            let deliveryID = option.DeliveryID;
+            if (deliveryID === 1) {
+              CurbsidePickup = true;
+            }
+            if (deliveryID === 2) {
+              // this.setState({
+              //   DineIn: true,
+              // });
+              DineIn = true;
+            }
+            if (deliveryID === 3) {
+              YelpDelivery = true;
+            }
+          });
           this.setState({
             Name: response.data[0][0].Name,
             Email: response.data[0][0].EmailID,
@@ -71,10 +108,65 @@ class Profile extends Component {
   }
 
   editProfile = () => {
-    this.setState({
-      isFormDisable: !this.state.isFormDisable,
-      submitError: false,
-    });
+    if (this.state.isFormDisable) {
+      let tmpEditProfile = {
+        Name: this.state.Name,
+        Email: this.state.Email,
+        Country: this.state.Country,
+        StateName: this.state.StateName,
+        City: this.state.City,
+        Zip: this.state.Zip,
+        Street: this.state.Street,
+        Contact: this.state.Contact,
+        Country: this.state.Country,
+        Opening_Time: this.state.Open_Time,
+        Closing_Time: this.state.Closing_Time,
+        CurbsidePickup: this.state.CurbsidePickup,
+        DineIn: this.state.DineIn,
+        YelpDelivery: this.state.YelpDelivery,
+      };
+      this.setState({
+        isFormDisable: !this.state.isFormDisable,
+        submitError: false,
+      });
+    } else {
+      let orignalData = this.state.tmpEditProfile;
+      let tmpEditProfile = {
+        Name: '',
+        Email: '',
+        Country: '',
+        StateName: '',
+        City: '',
+        Zip: '',
+        Street: '',
+        Contact: '',
+        Country: '',
+        Opening_Time: '',
+        Closing_Time: '',
+        CurbsidePickup: false,
+        DineIn: false,
+        YelpDelivery: false,
+      };
+      this.setState({
+        Name: orignalData.Name,
+        Email: orignalData.Email,
+        Country: orignalData.Country,
+        StateName: orignalData.StateName,
+        City: orignalData.City,
+        Zip: orignalData.Zip,
+        Street: orignalData.Street,
+        Contact: orignalData.Contact,
+        Opening_Time: orignalData.Opening_Time,
+        Closing_Time: orignalData.Closing_Time,
+        CurbsidePickup: orignalData.CurbsidePickup,
+        DineIn: orignalData.DineIn,
+        YelpDelivery: orignalData.YelpDelivery,
+        tmpEditProfile,
+        isFormDisable: !this.state.isFormDisable,
+
+        submitError: false,
+      });
+    }
   };
 
   onChangeHandlerName = (e) => {
@@ -155,6 +247,25 @@ class Profile extends Component {
     });
   };
 
+  onChangeHandlerYelpDelivery = () => {
+    this.setState({
+      YelpDelivery: !this.state.YelpDelivery,
+      submitError: false,
+    });
+  };
+
+  onChangeHandlerCurbsidePickup = () => {
+    this.setState({
+      CurbsidePickup: !this.state.CurbsidePickup,
+    });
+  };
+
+  onChangeHandlerDineIn = () => {
+    this.setState({
+      DineIn: !this.state.DineIn,
+    });
+  };
+
   ValidityUpdateProfile = () => {
     let ErrorStr = '';
     if (this.state.Name.length == 0) {
@@ -204,6 +315,9 @@ class Profile extends Component {
         Contact: this.state.Contact,
         Opening_Time: this.state.Opening_Time,
         Closing_Time: this.state.Closing_Time,
+        CurbsidePickup: this.state.CurbsidePickup,
+        DineIn: this.state.DineIn,
+        YelpDelivery: this.state.YelpDelivery,
         token: cookie.load('cookie'),
         role: cookie.load('role'),
       };
@@ -342,14 +456,6 @@ class Profile extends Component {
                         {states.value}
                       </option>
                     ))}
-                    {/* <option className="Dropdown-menu" key="" value="">
-                      State
-                    </option>
-                    {this.state.States.map((state) => (
-                      <option className="Dropdown-menu" key={state.key} value={state.key}>
-                        {state.value}
-                      </option>
-                    ))} */}
                   </select>
                 </li>
                 <li style={{ width: '5%' }}></li>
@@ -389,6 +495,41 @@ class Profile extends Component {
                     type="text"
                     onChange={this.onChangeHandlerStreet}
                     value={this.state.Street}
+                  />
+                </li>
+              </ul>
+              <fieldset class="login-separator hr-line">
+                <legend align="left">Business Information</legend>
+              </fieldset>
+              <ul class="inline-layout clearfix">
+                <li style={{ width: '30%' }}>
+                  <label class="">Curbside Pickup</label>
+                  <input
+                    style={{ width: '20px', height: '20px' }}
+                    name="isGoing"
+                    type="checkbox"
+                    checked={this.state.CurbsidePickup}
+                    onChange={this.onChangeHandlerCurbsidePickup}
+                  />
+                </li>
+                <li style={{ width: '30%' }}>
+                  <label class="">Dine In</label>
+                  <input
+                    style={{ width: '20px', height: '20px' }}
+                    name="isGoing"
+                    type="checkbox"
+                    checked={this.state.DineIn}
+                    onChange={this.onChangeHandlerDineIn}
+                  />
+                </li>
+                <li style={{ width: '30%' }}>
+                  <label class="">Yelp Delivery</label>
+                  <input
+                    style={{ width: '20px', height: '20px' }}
+                    name="isGoing"
+                    type="checkbox"
+                    checked={this.state.YelpDelivery}
+                    onChange={this.onChangeHandlerYelpDelivery}
                   />
                 </li>
               </ul>
