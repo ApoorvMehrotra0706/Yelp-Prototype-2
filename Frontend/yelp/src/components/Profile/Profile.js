@@ -79,6 +79,9 @@ class Profile extends Component {
             Contact: response.data[0][0].Contact,
             Opening_Time: response.data[0][0].Open_Time,
             Closing_Time: response.data[0][0].Closing_Time,
+            CurbsidePickup,
+            DineIn,
+            YelpDelivery,
             isFormDisable: true,
           });
           let payload = {

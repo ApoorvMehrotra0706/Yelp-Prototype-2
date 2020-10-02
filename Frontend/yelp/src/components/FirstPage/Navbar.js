@@ -136,6 +136,9 @@ class Navbar extends Component {
           <li class={this.props.location.pathname === '/restaurantReview' && 'active'}>
             <Link to="/restaurantReview">Review</Link>
           </li>
+          <li class={this.props.location.pathname === '/restaurantEvents' && 'active'}>
+            <Link to="/restaurantEvents">Events</Link>
+          </li>
         </ul>
       );
     } else {

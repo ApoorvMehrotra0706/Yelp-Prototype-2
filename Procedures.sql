@@ -451,7 +451,6 @@ WHERE RestaurantID = _id  AND SaladsID = _did;
 END$$
 DELIMITER ;
 
-
 DELIMITER $$
 CREATE PROCEDURE `updateMainCourseMenu` (_id bigint, IN _Dishname varchar(60), IN _Main_Ingredients varchar(150),
 IN _CuisineID BIGINT, IN _Description varchar(100), IN _price decimal(10,2),IN _did bigint)
@@ -544,3 +543,57 @@ WHERE UserID = _userID;
 commit;
 end $$
 delimiter ;
+
+-- Procedure to fetch Events
+delimiter $$
+CREATE procedure `getEventsQuery` (IN sortValue varchar(20), IN _userID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+IF sortValue = 'upcoming' THEN
+SELECT * FROM EVENTS
+WHERE EventDate > CURDATE() and EventStartTime > CURTIME() and RestaurantID = _userID;
+END IF;
+
+IF sortValue = 'past' THEN
+SELECT * FROM EVENTS
+WHERE EventDate < CURDATE() and EventEndTime < CURTIME() and RestaurantID = _userID;
+END IF;
+end $$
+delimiter ;
+
+-- Prcocedure to fetch customers who are registered in the event
+DELIMITER $$
+CREATE PROCEDURE `getEventsCustomers`(IN eventID bigint, IN _userID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT * FROM 
+EVENT_REGISTRATION ER JOIN EVENTS E on ER.EventID = E.EventID
+JOIN CUSTOMER C ON ER.CustomerID = C.CustomerID
+JOIN LOGIN L ON C.ID = L.ID
+WHERE ER.EventID = eventID and C.CustomerID = _userID;
+commit;
+end$$
+DELIMITER ;
+
+
+-- Procedure to insert into events table
+DELIMITER $$
+CREATE PROCEDURE `createEvents`(IN _userID bigint, IN _name varchar(30), IN _description varchar(30), 
+IN _eventsdate varchar(20),IN _EventStartTime varchar(30),IN _EventEndTime varchar(30),IN  _address varchar(370),
+IN 	_hashtags varchar(30))
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+INSERT INTO EVENTS(EventName, RestaurantID, Description, EventStartTime, EventDate,
+Location, Hashtags, EventEndTime) VALUES(_name, _userID, _description, _EventStartTime, _eventsdate,
+_address, _hashtags, _EventEndTime);
+commit;
+end$$
+DELIMITER ;
+
+
+INSERT INTO EVENTS(EventName, RestaurantID, Description, EventStartTime, EventDate,
+Location, Hashtags, EventEndTime) VALUES('NEw', 1, 'NEw', '12:00', '15:00:01',
+'1700 N, First Street #273 San Jose 95112 California United States of America', '#NEw', _eventsdate);

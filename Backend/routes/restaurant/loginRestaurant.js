@@ -156,7 +156,8 @@ const menuInsert = async (req, res) => {
 
 const menuItemDeletion = async (req, res) => {
   const { category, foodId } = req.body;
-  const id = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const userid = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+  const id = await getRestroID(userid);
   let items = null;
   if (category === 'APPETIZERS') {
     items = 'CALL deleteAppetizerItems(?,?)';
@@ -190,7 +191,8 @@ const reviewFetch = async (req, res) => {
 // Fetching Restaurant Details
 const getRestaurantCompleteInfo = async (request, response) => {
   try {
-    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const userID = await getRestroID(ID);
     if (userID) {
       const getRestaurantCompleteInfoQuery = 'CALL getRestaurantCompleteInfoQuery(?)';
 
@@ -358,7 +360,8 @@ const getRestaurantOrders = async (request, response) => {
     else if (sortValue === 'New') state = 'New';
     else if (sortValue === 'Delivered') state = 'Delivered';
     else state = 'Canceled';
-    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const userID = await getRestroID(ID);
     if (userID) {
       const getRestaurantOdersQuery = 'CALL getOrderDetails(?,?)';
 
@@ -501,6 +504,126 @@ const foodImageUpload = async (req, res) => {
   return res;
 };
 
+const fetchEvents = async (request, response) => {
+  try {
+    const { sortValue } = url.parse(request.url, true).query;
+    const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const userID = await getRestroID(ID);
+    if (userID) {
+      const getEventsQuery = 'CALL getEvents(?,?)';
+
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(getEventsQuery, [sortValue, userID]);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+// restaurant/fetchRegisteredCustomers
+const fetchRegisteredCustomers = async (request, response) => {
+  try {
+    const { eventID } = url.parse(request.url, true).query;
+    const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const userID = await getRestroID(ID);
+    if (userID) {
+      const getEventsCustomersQuery = 'CALL getEventsCustomers(?,?)';
+
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(getEventsCustomersQuery, [eventID, userID]);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+// restaurant/createNewEvent
+const createNewEvent = async (request, response) => {
+  try {
+    const {
+      Name,
+      Description,
+      EventDate,
+      EventStartTime,
+      EventEndTime,
+      City,
+      State,
+      Country,
+      Street,
+      Zip,
+      hashtags,
+    } = request.body;
+    const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const userID = await getRestroID(ID);
+    if (userID) {
+      const createEventsQuery = 'CALL createEvents(?,?,?,?,?,?,?,?)';
+      // eslint-disable-next-line prefer-template
+      const address = Street + ' ' + City + ' ' + Zip + ' ' + State + ' ' + Country;
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(createEventsQuery, [
+        userID,
+        Name,
+        Description,
+        EventDate,
+        EventStartTime,
+        EventEndTime,
+        address,
+        hashtags,
+      ]);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
 module.exports = {
   restLogin,
   logoutRest,
@@ -515,4 +638,7 @@ module.exports = {
   getPersonOrder,
   updateDeliveryStatus,
   foodImageUpload,
+  fetchEvents,
+  createNewEvent,
+  fetchRegisteredCustomers,
 };

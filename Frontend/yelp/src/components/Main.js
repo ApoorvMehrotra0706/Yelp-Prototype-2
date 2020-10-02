@@ -11,6 +11,7 @@ import WebPage from './FirstPage/WebPage';
 import FoodMenu from './Menu/FoodMenu';
 import ReviewList from './Reviews/ReviewList';
 import OrderList from './Orders/OrdersList';
+import EventList from './Events/EventList';
 
 // import MenuMain from './Menu/MenuMain';
 // Create a Main Component
@@ -31,6 +32,7 @@ class Main extends Component {
         <Route path="/restaurantMenu" component={FoodMenu} />
         <Route path="/restaurantReview" component={ReviewList} />
         <Route path="/restaurantOrders" component={OrderList} />
+        <Route path="/restaurantEvents" component={EventList} />
       </div>
     );
   }
