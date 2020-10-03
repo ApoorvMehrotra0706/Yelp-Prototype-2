@@ -12,7 +12,7 @@ class App extends Component {
   render() {
     return (
       // Use Browser Router to route to different pages
-      <BrowserRouter>
+      <BrowserRouter history={history}>
         <div>
           {/* App Component Has a Child Component called Main */}
           <Main />

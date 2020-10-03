@@ -104,7 +104,7 @@ class Navbar extends Component {
     if (cookie.load('cookie') && this.props.location.pathname === '/login') {
       redirectVar = <Redirect to="/home" />;
     }
-    if (!cookie.load('cookie')) redirectVar = <Redirect to="/webPage" />;
+    // if (!cookie.load('cookie')) redirectVar = <Redirect to="/webPage" />;
 
     let options = null;
     if (!cookie.load('cookie')) {
@@ -115,6 +115,9 @@ class Navbar extends Component {
           </li>
           <li class={this.props.location.pathname === '/restaurantLogin' && 'active'}>
             <Link to="/restaurantLogin">Events</Link>
+          </li>
+          <li class={this.props.location.pathname === '/search' && 'active'}>
+            <Link to="/search">Search</Link>
           </li>
         </ul>
       );
@@ -141,11 +144,26 @@ class Navbar extends Component {
           </li>
         </ul>
       );
-    } else {
+    } else if (cookie.load('cookie') && cookie.load('role') === 'Customer') {
       options = (
         <ul class="nav navbar-nav">
-          <li class={this.props.location.pathname === '/restaurantProfile' && 'active'}>
-            <Link to="/restaurantProfile">Profile</Link>
+          <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
+            <Link to="/customerProfile">Profile</Link>
+          </li>
+          <li class={this.props.location.pathname === '/customerProfileUpdate' && 'active'}>
+            <Link to="/customerProfileUpdate">Profile Update</Link>
+          </li>
+          <li class={this.props.location.pathname === '/customerContactUpdate' && 'active'}>
+            <Link to="/customerContactUpdate">Contact Info Update</Link>
+          </li>
+          <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
+            <Link to="/customerProfile">Events</Link>
+          </li>
+          <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
+            <Link to="/customerProfile">Order History</Link>
+          </li>
+          <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
+            <Link to="/customerProfile">Place Order</Link>
           </li>
         </ul>
       );

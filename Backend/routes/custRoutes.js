@@ -1,9 +1,25 @@
 const express = require('express');
 
 // eslint-disable-next-line no-unused-vars
-const { loginCust, logoutCust } = require('./customer/loginCustomer');
+const {
+  loginCust,
+  logoutCust,
+  fetchCustomerDetails,
+  fetchCustProfileData,
+  updateProfile,
+  getContactInfo,
+  updateContactInfo,
+  uploadCustomerProfilePic,
+} = require('./customer/loginCustomer');
 const signupCustomer = require('./customer/signupCustomer');
-const { statesName, countryName, cuisineFetch, deliveryStatus } = require('./customer/states');
+const {
+  statesName,
+  countryName,
+  cuisineFetch,
+  deliveryStatus,
+  fetchSearchStrings,
+  fetchRestaurantResults,
+} = require('./customer/states');
 
 const Router = express.Router();
 
@@ -44,6 +60,46 @@ Router.get('/cuisineFetch', async (req, res) => {
 
 Router.get('/getOrderDeliveryStatus', async (req, res) => {
   const value = await deliveryStatus(req, res);
+  return value;
+});
+
+Router.get('/getCustomerCompleteProfile', async (req, res) => {
+  const value = await fetchCustomerDetails(req, res);
+  return value;
+});
+
+Router.get('/fetchCustProfileData', async (req, res) => {
+  const value = await fetchCustProfileData(req, res);
+  return value;
+});
+
+Router.put('/updateProfile', async (req, res) => {
+  const value = await updateProfile(req, res);
+  return value;
+});
+
+Router.post('/uploadCustomerProfilePic', async (req, res) => {
+  const value = await uploadCustomerProfilePic(req, res);
+  return value;
+});
+
+Router.get('/getContactInfo', async (req, res) => {
+  const value = await getContactInfo(req, res);
+  return value;
+});
+
+Router.put('/updateContactInfo', async (req, res) => {
+  const value = await updateContactInfo(req, res);
+  return value;
+});
+
+Router.get('/fetchSearchStrings', async (req, res) => {
+  const value = await fetchSearchStrings(req, res);
+  return value;
+});
+
+Router.get('/fetchRestaurantResults', async (req, res) => {
+  const value = await fetchRestaurantResults(req, res);
   return value;
 });
 

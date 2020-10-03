@@ -1,0 +1,9 @@
+.main-content-wrap--full > .content-container {
+  padding-top: 15px;
+  padding-bottom: 36px;
+}
+.content-container {
+  width: 960px;
+  margin: 0 auto;
+  padding: 0 15px;
+}

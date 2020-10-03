@@ -18,7 +18,7 @@ SELECT Password,ID FROM LOGIN
 WHERE EmailID =  EmailID_check AND Role = Role_check;
 commit;
 END$$
-DELIMITER ;statesFetch
+DELIMITER ;
 
 -- Procedure to fetch states
 DELIMITER $$
@@ -29,7 +29,7 @@ END$$
 DELIMITER ;
 
 
--- Procedure to fetch the items froM the menu table asked
+-- Procedure to fetch the items from the menu table asked
 DELIMITER $$
 CREATE PROCEDURE `fetchAppetizerItems` (IN ID_check bigint)
 BEGIN
@@ -593,7 +593,245 @@ commit;
 end$$
 DELIMITER ;
 
+-- Procedure to fetch Customer ID
+delimiter $$
+CREATE procedure `customerIDFetch` (IN _userID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT CustomerID 
+FROM CUSTOMER
+WHERE ID = _userID;
+commit;
+end $$
+delimiter ;
 
-INSERT INTO EVENTS(EventName, RestaurantID, Description, EventStartTime, EventDate,
-Location, Hashtags, EventEndTime) VALUES('NEw', 1, 'NEw', '12:00', '15:00:01',
-'1700 N, First Street #273 San Jose 95112 California United States of America', '#NEw', _eventsdate);
+-- Procedure to fetch Customer Details
+delimiter $$
+CREATE procedure `getCustomerDetails` (IN _custID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT NickName, DOB, concat(City,', ',State) as Address1, Street_Address AS Address2, Headline, 
+Things_Customer_Love, Find_Me_In, YelpingSince, Website, ImageURL 
+FROM CUSTOMER 
+WHERE CustomerID = _custID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Customer Details for updation
+delimiter $$
+CREATE procedure `getCustDetailsForUpdate` (IN _custID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT L.Name, C.NickName, C.GenderID, C.DOB, C.Country, C.State, C.City, C.Zip_Code, C.Street_Address, C.Headline, 
+C.Things_Customer_Love, C.Find_Me_In, C.Website, C.ImageURL 
+FROM CUSTOMER C JOIN LOGIN L ON C.ID = L.ID
+WHERE C.CustomerID = _custID;
+
+SELECT * FROM  COUNTRY;
+
+SELECT * FROM STATE;
+
+SELECT * FROM GENDER;
+commit;
+end $$
+delimiter ;
+CALL `yelp`.`getCustDetailsForUpdate`(2);
+
+-- Procedure to fetch Customer Details for updation
+delimiter $$
+CREATE procedure `updateCustProfile` (IN _custID bigint, IN _Name varchar(40), IN _NickName varchar(20), IN _Gender int,
+IN _DOB varchar(20),IN  _Country varchar(40),IN  _State varchar(20),IN  _City varchar(20), IN _Zip int,IN _Street varchar(60),
+IN _Headline varchar(45),IN _I_Love varchar(100), IN _Find_Me_In varchar(100),  IN _Website varchar(100),IN _ImageURL varchar(300))
+
+begin
+declare id int;
+declare exit handler for sqlexception rollback;
+start transaction;
+UPDATE CUSTOMER 
+SET GenderID = _Gender, DOB = _DOB, NickName = _NickName, Street_Address = _Street, City = _City, State = _State,
+Country = _Country, Zip_Code = _Zip, ImageURL =  _ImageURL, Headline = _Headline, 
+Find_Me_In = _Find_Me_In, Things_Customer_Love = _I_Love, Website = _Website, ImageURL = _ImageURL
+ WHERE CustomerID = _custID;
+set id =(SELECT ID FROM CUSTOMER WHERE CustomerID =_custID );
+UPDATE LOGIN
+SET Name = _Name
+WHERE ID = id;
+commit;
+end $$
+delimiter ;
+
+
+-- Procedure to fetch Customer Contact Information
+delimiter $$
+CREATE procedure `getCustContact` (IN _custID bigint,IN _userID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT L.Name, L.EmailID, C.Contact 
+FROM CUSTOMER C JOIN LOGIN L ON C.ID = L.ID
+WHERE C.CustomerID = _custID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to update Customer Contact Information
+delimiter $$
+CREATE procedure `updateCustContact` (IN _custID bigint,IN _userID bigint,IN  _Email varchar(60), _Contact bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+UPDATE LOGIN
+SET EmailID = _Email
+WHERE ID = _userID;
+
+UPDATE CUSTOMER 
+SET Contact = _Contact
+WHERE CustomerID =_custID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to return Search Strings
+
+
+-- procedure to fetch STrings For Search
+drop procedure  if exists fetchSearchStrings;
+
+DELIMITER  $$
+CREATE PROCEDURE `fetchSearchStrings`()
+BEGIN
+    
+declare exit handler for sqlexception
+rollback;
+start transaction;
+
+select Distinct(Name) from LOGIN WHERE Role = 'Restaurant';
+
+SELECT DISTINCT(DishName) as Name FROM APPETIZER UNION SELECT DISTINCT(DishName) as Name FROM BEVERAGES UNION 
+SELECT DISTINCT(DishName) as Name FROM DESSERTS UNION SELECT DISTINCT(DishName) as Name FROM MAIN_COURSE UNION 
+SELECT DISTINCT(DishName) as Name FROM  SALADS;
+
+SELECT DISTINCT(Cuisine_Name) as Name FROM CUISINE;
+
+SELECT CONCAT(State,', ',City,', ',Street_Address,' ,',Zip_Code) as Name FROM RESTAURANT
+
+commit;
+END  $$
+
+
+
+DELIMITER  $$
+CREATE PROCEDURE `fetchRestaurantResults`(IN _filterCriteria VARCHAR(100), IN _searchedString VARCHAR(100))
+BEGIN
+    
+declare exit handler for sqlexception
+rollback;
+start transaction;
+ IF _filterCriteria='1' THEN
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
+as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=2),false) 
+as DineIn, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=3),false) 
+as YelpDelivery,RESTAURANT.ImageURL as ImageUrl,TIME_FORMAT(RESTAURANT.Open_Time, "%h:%i %p") 
+ as OpeningTime,TIME_FORMAT(RESTAURANT.Closing_Time, "%h:%i %p")  as ClosingTime, 
+count(REVIEWS.ReviewID) as ReviewCounts, round(IFNULL(avg(REVIEWS.Ratings),0)) as AvgRating
+FROM  RESTAURANT LEFT JOIN REVIEWS ON REVIEWS.RestaurantID=RESTAURANT.RestaurantID
+LEFT JOIN LOGIN ON RESTAURANT.UserID = LOGIN.ID
+WHERE RESTAURANT.RestaurantID IN (
+SELECT RestaurantID FROM RESTAURANT JOIN LOGIN ON RESTAURANT.UserID = LOGIN.ID 
+where LOGIN.Name like  CONCAT('%', _searchedString , '%')
+)
+ GROUP BY RESTAURANT.RestaurantID, LOGIN.Name,
+RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
+
+ELSEIF _filterCriteria='2' THEN
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
+as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=2),false) 
+as DineIn, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=3),false) 
+as YelpDelivery,RESTAURANT.ImageURL as ImageUrl,
+TIME_FORMAT(RESTAURANT.Open_Time, "%h:%i %p") 
+ as OpeningTime,TIME_FORMAT(RESTAURANT.Closing_Time, "%h:%i %p")  as ClosingTime, 
+count(REVIEWS.ReviewID) as ReviewCounts, round(IFNULL(avg(REVIEWS.Ratings),0)) as AvgRating
+FROM  RESTAURANT LEFT JOIN REVIEWS ON REVIEWS.RestaurantID=RESTAURANT.RestaurantID
+LEFT JOIN LOGIN ON LOGIN.ID = RESTAURANT.UserID
+WHERE RESTAURANT.RestaurantID IN (
+SELECT RestaurantID FROM APPETIZER where Dishname like  CONCAT('%', _searchedString , '%') UNION
+SELECT RestaurantID FROM BEVERAGES where Dishname like  CONCAT('%', _searchedString , '%') UNION
+SELECT RestaurantID FROM MAIN_COURSE where Dishname like  CONCAT('%', _searchedString , '%') UNION
+SELECT RestaurantID FROM DESSERTS where Dishname like  CONCAT('%', _searchedString , '%') UNION
+SELECT RestaurantID FROM SALADS where Dishname like  CONCAT('%', _searchedString , '%')
+)
+ GROUP BY RESTAURANT.RestaurantID, LOGIN.Name,
+RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
+
+ELSEIF _filterCriteria='3' THEN
+
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
+as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=2),false) 
+as DineIn, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=3),false) 
+as YelpDelivery,RESTAURANT.ImageURL as ImageUrl,
+TIME_FORMAT(RESTAURANT.Open_Time, "%h:%i %p") 
+ as OpeningTime,TIME_FORMAT(RESTAURANT.Closing_Time, "%h:%i %p")  as ClosingTime,  
+count(REVIEWS.ReviewID) as ReviewCounts, round(IFNULL(avg(REVIEWS.Ratings),0)) as AvgRating
+FROM  RESTAURANT LEFT JOIN REVIEWS ON REVIEWS.RestaurantID=RESTAURANT.RestaurantID
+LEFT JOIN LOGIN ON LOGIN.ID = RESTAURANT.UserID
+WHERE RESTAURANT.RestaurantID IN (
+SELECT RestaurantID FROM APPETIZER JOIN CUISINE ON CUISINE.CuisineID=APPETIZER.CuisineID 
+where Cuisine_Name like  CONCAT('%', 'a' , '%') UNION
+SELECT RestaurantID FROM BEVERAGES JOIN CUISINE ON CUISINE.CuisineID=BEVERAGES.CuisineID 
+where Cuisine_Name like  CONCAT('%', 'a' , '%') UNION
+SELECT RestaurantID FROM MAIN_COURSE JOIN CUISINE ON CUISINE.CuisineID=MAIN_COURSE.CuisineID 
+where Cuisine_Name like  CONCAT('%', 'a' , '%') UNION
+SELECT RestaurantID FROM DESSERTS JOIN CUISINE ON CUISINE.CuisineID=DESSERTS.CuisineID 
+where Cuisine_Name like  CONCAT('%', 'a' , '%') UNION
+SELECT RestaurantID FROM SALADS JOIN CUISINE ON CUISINE.CuisineID=SALADS.CuisineID 
+where Cuisine_Name like  CONCAT('%',  _searchedString , '%')
+)
+ GROUP BY RESTAURANT.RestaurantID, LOGIN.Name,
+RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
+ELSE 
+
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
+as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=2),false) 
+as DineIn, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=3),false) 
+as YelpDelivery,RESTAURANT.ImageURL as ImageUrl,
+TIME_FORMAT(RESTAURANT.Open_Time, "%h:%i %p") 
+ as OpeningTime,TIME_FORMAT(RESTAURANT.Closing_Time, "%h:%i %p")  as ClosingTime,  
+count(REVIEWS.ReviewID) as ReviewCounts, round(IFNULL(avg(REVIEWS.Ratings),0)) as AvgRating
+FROM  RESTAURANT LEFT JOIN REVIEWS ON REVIEWS.RestaurantID=RESTAURANT.RestaurantID
+LEFT JOIN LOGIN ON LOGIN.ID = RESTAURANT.UserID
+WHERE RESTAURANT.RestaurantID IN (
+SELECT RestaurantID FROM RESTAURANT JOIN STATE ON STATE.State_Name=RESTAURANT.State where concat(State,City,Zip_Code,Street_Address) 
+like  CONCAT('%', _searchedString , '%')
+)
+ GROUP BY RESTAURANT.RestaurantID, LOGIN.Name,
+RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
+END IF;
+
+commit;
+END  $$
+
+CALL `yelp`.`fetchRestaurantResults`(3, 'Mexican');
+
+
+
+

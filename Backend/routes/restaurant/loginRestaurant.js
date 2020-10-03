@@ -469,7 +469,7 @@ const imageUpload = multer({
   }),
 }).single('file');
 
-// restaurant/foodImageU=pload
+// restaurant/foodImageUpload
 const foodImageUpload = async (req, res) => {
   try {
     const userID = getUserIdFromToken(req.cookies.cookie, req.cookies.role);

@@ -1,3 +1,4 @@
+const url = require('url');
 const mysqlConnection = require('../../connection');
 
 const statesName = async (req, res) => {
@@ -39,4 +40,40 @@ const deliveryStatus = async (req, res) => {
 
   res.end(JSON.stringify(results));
 };
-module.exports = { statesName, countryName, cuisineFetch, deliveryStatus };
+
+// fetchSearchStrings
+const fetchSearchStrings = async (req, res) => {
+  const getSearchStringQuery = 'CALL fetchSearchStrings()';
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(getSearchStringQuery);
+  con.end();
+  res.end(JSON.stringify(results));
+};
+
+const fetchRestaurantResults = async (req, res) => {
+  try {
+    const { filter, searchString } = url.parse(req.url, true).query;
+    const getRestResultsQuery = 'CALL fetchRestaurantResults(?,?)';
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(getRestResultsQuery, [filter, searchString]);
+    con.end();
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Failed');
+  }
+  return res;
+};
+// static/fetchRestaurantResults (Big query)
+module.exports = {
+  statesName,
+  countryName,
+  cuisineFetch,
+  deliveryStatus,
+  fetchSearchStrings,
+  fetchRestaurantResults,
+};

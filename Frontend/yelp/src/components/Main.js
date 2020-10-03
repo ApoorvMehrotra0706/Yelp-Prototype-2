@@ -12,7 +12,11 @@ import FoodMenu from './Menu/FoodMenu';
 import ReviewList from './Reviews/ReviewList';
 import OrderList from './Orders/OrdersList';
 import EventList from './Events/EventList';
-
+import AboutMe from './Customer/AboutMe';
+import UpdateProfile from './Customer/UpdateProfile';
+import UpdateContactInformation from './Customer/UpdateContactInformation';
+import Home from './FirstPage/Home';
+import RestaurantList from '../components/Search/RestaurantList';
 // import MenuMain from './Menu/MenuMain';
 // Create a Main Component
 // eslint-disable-next-line react/prefer-stateless-function
@@ -23,6 +27,7 @@ class Main extends Component {
         {/* Render Different Component based on Route */}
         <Route path="/" component={Navbar} />
         <Route path="/webPage" component={WebPage} />
+        <Route path="/search" component={Home} />
         <Route path="/customerLogin" component={CustomerLogin} />
         <Route path="/restaurantLogin" component={RestaurantLogin} />
         <Route path="/customerSignup" component={CustomerSignup} />
@@ -33,6 +38,10 @@ class Main extends Component {
         <Route path="/restaurantReview" component={ReviewList} />
         <Route path="/restaurantOrders" component={OrderList} />
         <Route path="/restaurantEvents" component={EventList} />
+        <Route path="/customerProfile" component={AboutMe} />
+        <Route path="/customerProfileUpdate" component={UpdateProfile} />
+        <Route path="/customerContactUpdate" component={UpdateContactInformation} />
+        <Route path="/restaurantList" component={RestaurantList} />
       </div>
     );
   }

@@ -1,0 +1,28 @@
+.account-settings_container {
+  padding-top: 18px;
+}
+
+.layout-n .column-alpha {
+  float: left;
+  padding: 0 15px;
+  min-height: 1px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 25%;
+  *width: 211px;
+}
+
+.account-settings_content .yform {
+  max-width: 465px;
+}
+.yform {
+  margin-bottom: 18px;
+}
+
+.yform label,
+.yform legend {
+  display: inline-block;
+  font-weight: bold;
+  margin: 0 0 6px;
+}
