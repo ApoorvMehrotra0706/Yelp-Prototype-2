@@ -1016,3 +1016,74 @@ commit;
 end $$
 delimiter ;
 
+-- Procedure to fetch Event List for Customers
+delimiter $$
+CREATE procedure `fetchEventDetails` ()
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT *
+FROM EVENTS 
+WHERE EventStartTime > CURTIME() AND EVENTDATE >= CURDATE();
+commit;
+end $$
+delimiter ;
+
+-- Procedure to register Customer to an event
+delimiter $$
+CREATE procedure `registerCustToEvent` (IN _eventID BIGINT, IN _custID BIGINT)
+begin
+declare restID int;
+declare exit handler for sqlexception rollback;
+start transaction;
+set restID = (SELECT  RestaurantID FROM EVENTS WHERE EventID=_eventID);
+INSERT INTO EVENT_REGISTRATION(EventID, CustomerID, RestaurantID)
+VALUES(_eventID,restID,_custID);
+
+commit;
+end $$
+delimiter ;
+
+
+-- Procedure to fetch customer registered events
+delimiter $$
+CREATE procedure `custRegisteredEvents` (IN _custID BIGINT)
+begin
+
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT * 
+FROM EVENT_REGISTRATION 
+WHERE CustomerID = _custID;
+
+commit;
+end $$
+delimiter ;
+
+
+
+-- Procedure to fetch customer registered events
+delimiter $$
+CREATE procedure `registeredEvents` (IN _custID BIGINT)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT *
+FROM EVENTS JOIN EVENT_REGISTRATION ON EVENTS.EventID = EVENT_REGISTRATION.EventID
+WHERE EVENT_REGISTRATION.CustomerID = 1 
+AND  EventEndTime > CURTIME() AND EVENTDATE >= CURDATE();
+commit;
+end $$
+delimiter 
+
+-- Procedure to fetch customer searched events
+delimiter $$
+CREATE procedure `eventSearch` (IN _value VARCHAR(300))
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT *
+FROM EVENTS WHERE EventName LIKE _value
+AND  EventEndTime > CURTIME() AND EVENTDATE >= CURDATE();
+commit;
+end $$

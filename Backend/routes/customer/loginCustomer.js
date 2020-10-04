@@ -534,6 +534,102 @@ const fetchOrderDetails = async (request, response) => {
   return response;
 };
 
+const fetchEventList = async (request, response) => {
+  try {
+    const { sortValue } = url.parse(request.url, true).query;
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const custID = await getCustID(userID);
+
+    const con = await mysqlConnection();
+    if (sortValue === 'upcoming') {
+      const fetchEventDetailsQuery = 'CALL fetchEventDetails()';
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(fetchEventDetailsQuery);
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else if (sortValue === 'registered') {
+      const registeredEventsQuery = 'CALL registeredEvents(?)';
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(registeredEventsQuery, custID);
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      const eventSearchQuery = 'CALL eventSearch(?)';
+
+      // eslint-disable-next-line prefer-template
+      const searchValue = '%' + sortValue + '%';
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(eventSearchQuery, searchValue);
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    }
+    con.end();
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+const eventRegistration = async (request, response) => {
+  try {
+    const { eventId, token, userrole } = request.body;
+    const userID = getUserIdFromToken(token, userrole);
+    const custID = await getCustID(userID);
+
+    const registerCustToEventQuery = 'CALL registerCustToEvent(?,?)';
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(registerCustToEventQuery, [eventId, custID]);
+
+    con.end();
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+const getCustRegisteredEvents = async (request, response) => {
+  try {
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const custID = await getCustID(userID);
+
+    const custRegisteredEventsQuery = 'CALL custRegisteredEvents(?)';
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(custRegisteredEventsQuery, custID);
+
+    con.end();
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
 module.exports = {
   loginCust,
   logoutCust,
@@ -547,4 +643,7 @@ module.exports = {
   generateOrder,
   fetchAllOrders,
   fetchOrderDetails,
+  fetchEventList,
+  eventRegistration,
+  getCustRegisteredEvents,
 };

@@ -14,6 +14,9 @@ const {
   generateOrder,
   fetchAllOrders,
   fetchOrderDetails,
+  fetchEventList,
+  eventRegistration,
+  getCustRegisteredEvents,
 } = require('./customer/loginCustomer');
 const signupCustomer = require('./customer/signupCustomer');
 const {
@@ -142,6 +145,21 @@ Router.get('/fetchAllOrders', async (req, res) => {
 
 Router.get('/fetchOrderDetails', async (req, res) => {
   const value = await fetchOrderDetails(req, res);
+  return value;
+});
+
+Router.get('/fetchEventList', async (req, res) => {
+  const value = await fetchEventList(req, res);
+  return value;
+});
+
+Router.post('/eventRegistration', async (req, res) => {
+  const value = await eventRegistration(req, res);
+  return value;
+});
+
+Router.post('/getCustRegisteredEvents', async (req, res) => {
+  const value = await getCustRegisteredEvents(req, res);
   return value;
 });
 
