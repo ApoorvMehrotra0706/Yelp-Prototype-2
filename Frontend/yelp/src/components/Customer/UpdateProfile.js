@@ -89,11 +89,7 @@ class UpdateProfile extends Component {
       Profile: { ...this.state.Profile, ...{ First_Name: e.target.value } },
     });
   };
-  // onLNameChangeHandler = (e) => {
-  //   this.setState({
-  //     Profile: { ...this.state.Profile, ...{ Last_Name: e.target.value } },
-  //   });
-  // };
+
   onNickNameChangeHandler = (e) => {
     this.setState({
       Profile: { ...this.state.Profile, ...{ Nick_Name: e.target.value } },
@@ -287,6 +283,7 @@ class UpdateProfile extends Component {
                               id="filename"
                               multiple
                             />
+                            defaultImage
                           </a>
                         </strong>
                       </h4>

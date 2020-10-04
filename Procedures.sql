@@ -350,7 +350,7 @@ begin
 declare exit handler for sqlexception rollback;
 start transaction;
 SELECT Name ,Country,State,City,Zip_Code,Street_Address,Contact,Country,Open_Time,
-Closing_Time ,EmailID FROM RESTAURANT  JOIN LOGIN  ON UserID = ID 
+Closing_Time ,EmailID, ImageURL FROM RESTAURANT  JOIN LOGIN  ON UserID = ID 
 WHERE UserID= ID_check;
 
 SELECT D.DeliveryID 
@@ -375,12 +375,12 @@ DELIMITER $$
 CREATE PROCEDURE `updateRestPrfile`(IN _Name varchar(60),IN _country varchar(20), IN _state varchar(20), 
 IN _city varchar(20), IN _Zip int, IN _street varchar(60), IN _contact bigint, 
 IN _open varchar(20),IN _close varchar(20),
-IN _restID bigint, IN _CurbsidePickup boolean, IN _DineIn boolean,IN _YelpDelivery boolean)
+IN _restID bigint,IN _imageURL varchar(300), IN _CurbsidePickup boolean, IN _DineIn boolean,IN _YelpDelivery boolean)
 BEGIN
 declare newID int;
 UPDATE RESTAURANT
 SET  Country = _country, Contact = _contact, Street_Address = _street, City = _city, 
-State = _State, Open_Time= _open, Closing_Time = _close, Zip_Code = _Zip
+State = _State, Open_Time= _open, Closing_Time = _close, Zip_Code = _Zip, ImageURL =_imageURL
 WHERE RestaurantID= _restID;
 set newID =(SELECT UserID FROM RESTAURANT WHERE RestaurantID = _restID);
 UPDATE LOGIN
@@ -1024,7 +1024,7 @@ declare exit handler for sqlexception rollback;
 start transaction;
 SELECT *
 FROM EVENTS 
-WHERE EventStartTime > CURTIME() AND EVENTDATE >= CURDATE();
+WHERE EventEndTime > CURTIME() AND EVENTDATE >= CURDATE();
 commit;
 end $$
 delimiter ;

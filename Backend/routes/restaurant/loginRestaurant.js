@@ -236,6 +236,7 @@ const updateRestaurantProfile = async (restaurant, response) => {
       Contact,
       // eslint-disable-next-line camelcase
       Opening_Time,
+      ImageUrl,
       // eslint-disable-next-line camelcase
       Closing_Time,
       CurbsidePickup,
@@ -245,7 +246,7 @@ const updateRestaurantProfile = async (restaurant, response) => {
     const userID = getUserIdFromToken(restaurant.body.token, restaurant.body.role);
     const restroID = await getRestroID(userID);
     if (restroID) {
-      const updateRestaurantProfileQuery = 'CALL updateRestPrfile(?,?,?,?,?,?,?,?,?,?,?,?,?)';
+      const updateRestaurantProfileQuery = 'CALL updateRestPrfile(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
       const connection = await mysqlConnection();
       // eslint-disable-next-line no-unused-vars
@@ -265,6 +266,7 @@ const updateRestaurantProfile = async (restaurant, response) => {
         // eslint-disable-next-line camelcase
         Closing_Time,
         restroID,
+        ImageUrl,
         CurbsidePickup,
         DineIn,
         YelpDelivery,
@@ -624,6 +626,57 @@ const createNewEvent = async (request, response) => {
   return response;
 };
 
+const restImageUpload = multer({
+  storage: multerS3({
+    s3: s3Storage,
+    bucket: BUCKET_NAME,
+    acl: 'public-read',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    // eslint-disable-next-line func-names
+    // eslint-disable-next-line object-shorthand
+    key: function (req, file, cb) {
+      console.log(req.body);
+      const folderName = 'yelp-rest-';
+      console.log('Multer Called', folderName);
+      cb(null, `${folderName}/${Date.now().toString()}${file.originalname}`);
+    },
+  }),
+}).single('file');
+
+const uploadRestaurantProfilePic = async (req, res) => {
+  try {
+    const userID = getUserIdFromToken(req.cookies.cookie, req.cookies.role);
+    const custID = await getRestroID(userID);
+    if (custID) {
+      restImageUpload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+          res.json({ status: 400, error: err.message });
+        } else if (err) {
+          res.json({ status: 400, error: err.message });
+        } else {
+          console.log(req.file.location);
+
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+          });
+          res.end(req.file.location);
+        }
+      });
+    } else {
+      res.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Invalid User');
+    }
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Network Error');
+  }
+  return res;
+};
+
 module.exports = {
   restLogin,
   logoutRest,
@@ -641,4 +694,5 @@ module.exports = {
   fetchEvents,
   createNewEvent,
   fetchRegisteredCustomers,
+  uploadRestaurantProfilePic,
 };

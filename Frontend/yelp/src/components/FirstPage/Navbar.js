@@ -105,15 +105,15 @@ class Navbar extends Component {
       redirectVar = <Redirect to="/home" />;
     }
 
-    // if (!cookie.load('cookie') && 1) {
-    //   if (this.props.location.pathname === '/RestaurantList') {
-    //     this.props.location.pathname === '/RestaurantList';
-    //   } else if (this.props.location.pathname === '/RestaurantPage') {
-    //     redirectVar = <Redirect to="/RestaurantPage" />;
-    //   } else {
-    //     redirectVar = <Redirect to="/webPage" />;
-    //   }
-    // }
+    if (!cookie.load('cookie')) {
+      if (this.props.location.pathname === '/RestaurantList') {
+        redirectVar = <Redirect to="/RestaurantList" />;
+      } else if (this.props.location.pathname === '/RestaurantPage') {
+        redirectVar = <Redirect to="/RestaurantPage" />;
+      } else {
+        redirectVar = <Redirect to="/webPage" />;
+      }
+    }
 
     // if (!cookie.load('cookie') && this.props.location.pathname === '/RestaurantList') {
     //   redirectVar = <Redirect to="/RestaurantList" />;
@@ -129,12 +129,6 @@ class Navbar extends Component {
     if (!cookie.load('cookie')) {
       options = (
         <ul class="nav navbar-nav">
-          <li class={this.props.location.pathname === '/restaurantLogin' && 'active'}>
-            <Link to="/restaurantLogin">Write a Review</Link>
-          </li>
-          <li class={this.props.location.pathname === '/restaurantLogin' && 'active'}>
-            <Link to="/restaurantLogin">Events</Link>
-          </li>
           <li class={this.props.location.pathname === '/search' && 'active'}>
             <Link to="/search">Search</Link>
           </li>
