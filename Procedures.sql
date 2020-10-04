@@ -975,15 +975,43 @@ end $$
 delimiter ;
 
 
--- Procedure to finsert Customer Review
+-- Procedure to insert Customer Review
 delimiter $$
 CREATE procedure `updateCustReview` (IN _restroID bigint, IN _custID bigint, IN _ratings enum('1','2','3','4','5'), 
-IN review varchar(100))
+IN _review varchar(100))
 begin
 declare exit handler for sqlexception rollback;
 start transaction;
 INSERT INTO REVIEWS(RestaurantID, CustomerID, Ratings, Date, Review)
 VALUE(_restroID, _custID, _ratings, CURDATE(), _review);
+commit;
+end $$
+delimiter ;
+
+
+-- Procedure to fetch Customer Order
+delimiter $$
+CREATE procedure `fetchCustOrder` (IN _custID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT O.RestaurantId, O.OrderID, O.Bill, D.Delivery_Status, O.Date, O.DeliveryMode
+FROM ORDERS O JOIN DELIVERY_STATE D  ON O.StatusID = D.DeliveryID
+WHERE O.CustomerID = _custID;
+commit;
+end $$
+delimiter ;
+
+
+-- Procedure to fetch Customer current Order
+delimiter $$
+CREATE procedure `fetchCustOrderDetails` (IN _orderID bigint, IN _restroID bigint,IN _custID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT DishName, Quantity, Price, Total_Price
+FROM ORDER_CART
+WHERE OrderID = _orderID AND RestaurantID = _restroID AND CustomerID = _custID;
 commit;
 end $$
 delimiter ;

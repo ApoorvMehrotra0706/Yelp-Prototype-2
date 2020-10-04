@@ -181,11 +181,8 @@ class Navbar extends Component {
           <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
             <Link to="/customerProfile">Events</Link>
           </li>
-          <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
-            <Link to="/customerProfile">Order History</Link>
-          </li>
-          <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
-            <Link to="/customerProfile">Place Order</Link>
+          <li class={this.props.location.pathname === '/orderHistory' && 'active'}>
+            <Link to="/orderHistory">Order History</Link>
           </li>
         </ul>
       );

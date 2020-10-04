@@ -12,6 +12,8 @@ const {
   uploadCustomerProfilePic,
   submitReview,
   generateOrder,
+  fetchAllOrders,
+  fetchOrderDetails,
 } = require('./customer/loginCustomer');
 const signupCustomer = require('./customer/signupCustomer');
 const {
@@ -130,6 +132,16 @@ Router.post('/submitReview', async (req, res) => {
 
 Router.post('/generateOrder', async (req, res) => {
   const value = await generateOrder(req, res);
+  return value;
+});
+
+Router.get('/fetchAllOrders', async (req, res) => {
+  const value = await fetchAllOrders(req, res);
+  return value;
+});
+
+Router.get('/fetchOrderDetails', async (req, res) => {
+  const value = await fetchOrderDetails(req, res);
   return value;
 });
 

@@ -6,6 +6,7 @@ const genRandom = require('randomstring');
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
+const url = require('url');
 const mysqlConnection = require('../../connection');
 
 // eslint-disable-next-line prefer-const
@@ -424,6 +425,8 @@ const generateOrder = async (request, response) => {
     const custID = await getCustID(userID);
     let deliveryM = 'Delivery';
     if (deliveryMode === 'Takeout') deliveryM = 'Pickup';
+    let deliveryAddress = null;
+    if (address) deliveryAddress = address;
     const updateCustOrderQuery = 'CALL updateCustOrder(?,?,?,?,?,?,?)';
 
     const con = await mysqlConnection();
@@ -435,13 +438,12 @@ const generateOrder = async (request, response) => {
       statusID,
       state,
       Price,
-      address,
+      deliveryAddress,
     ]);
 
     const OrderID = results[0][0].ID;
     let insertString = '';
-    let deliveryAddress = null;
-    if (address) deliveryAddress = address;
+
     // eslint-disable-next-line prefer-const
     for (let cart of foodCart) {
       // eslint-disable-next-line no-await-in-loop
@@ -476,6 +478,62 @@ const generateOrder = async (request, response) => {
   return response;
 };
 
+//
+const fetchAllOrders = async (request, response) => {
+  try {
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const custID = await getCustID(userID);
+
+    const fetchCustOrderQuery = 'CALL fetchCustOrder(?)';
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(fetchCustOrderQuery, custID);
+
+    con.end();
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+const fetchOrderDetails = async (request, response) => {
+  try {
+    const { orderID, restroId } = url.parse(request.url, true).query;
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const custID = await getCustID(userID);
+
+    const fetchCustOrderDetailsQuery = 'CALL fetchCustOrderDetails(?,?,?)';
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(fetchCustOrderDetailsQuery, [
+      orderID,
+      restroId,
+      custID,
+    ]);
+
+    con.end();
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
 module.exports = {
   loginCust,
   logoutCust,
@@ -487,4 +545,6 @@ module.exports = {
   updateContactInfo,
   submitReview,
   generateOrder,
+  fetchAllOrders,
+  fetchOrderDetails,
 };
