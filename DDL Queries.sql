@@ -624,6 +624,9 @@ ADD COLUMN Website varchar(100);
 ALTER TABLE CUSTOMER
 MODIFY Country varchar(50);
 
+ALTER TABLE ORDERS
+ADD COLUMN Address varchar(60) DEFAULT NULL;
+
 
 
  

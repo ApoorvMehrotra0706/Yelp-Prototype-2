@@ -104,6 +104,25 @@ class Navbar extends Component {
     if (cookie.load('cookie') && this.props.location.pathname === '/login') {
       redirectVar = <Redirect to="/home" />;
     }
+
+    // if (!cookie.load('cookie') && 1) {
+    //   if (this.props.location.pathname === '/RestaurantList') {
+    //     this.props.location.pathname === '/RestaurantList';
+    //   } else if (this.props.location.pathname === '/RestaurantPage') {
+    //     redirectVar = <Redirect to="/RestaurantPage" />;
+    //   } else {
+    //     redirectVar = <Redirect to="/webPage" />;
+    //   }
+    // }
+
+    // if (!cookie.load('cookie') && this.props.location.pathname === '/RestaurantList') {
+    //   redirectVar = <Redirect to="/RestaurantList" />;
+    // }
+
+    // if (!cookie.load('cookie') && this.props.location.pathname === '/RestaurantPage') {
+    //   redirectVar = <Redirect to="/RestaurantPage" />;
+    // }
+
     // if (!cookie.load('cookie')) redirectVar = <Redirect to="/webPage" />;
 
     let options = null;
@@ -155,6 +174,9 @@ class Navbar extends Component {
           </li>
           <li class={this.props.location.pathname === '/customerContactUpdate' && 'active'}>
             <Link to="/customerContactUpdate">Contact Info Update</Link>
+          </li>
+          <li class={this.props.location.pathname === '/search' && 'active'}>
+            <Link to="/search">Search</Link>
           </li>
           <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
             <Link to="/customerProfile">Events</Link>

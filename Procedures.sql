@@ -375,7 +375,7 @@ DELIMITER $$
 CREATE PROCEDURE `updateRestPrfile`(IN _Name varchar(60),IN _country varchar(20), IN _state varchar(20), 
 IN _city varchar(20), IN _Zip int, IN _street varchar(60), IN _contact bigint, 
 IN _open varchar(20),IN _close varchar(20),
-IN _restID bigint, IN _CurbsidePickup boolean, IN _DineIn boolean, _YelpDelivery boolean)
+IN _restID bigint, IN _CurbsidePickup boolean, IN _DineIn boolean,IN _YelpDelivery boolean)
 BEGIN
 declare newID int;
 UPDATE RESTAURANT
@@ -680,7 +680,7 @@ delimiter ;
 
 -- Procedure to update Customer Contact Information
 delimiter $$
-CREATE procedure `updateCustContact` (IN _custID bigint,IN _userID bigint,IN  _Email varchar(60), _Contact bigint)
+CREATE procedure `updateCustContact` (IN _custID bigint,IN _userID bigint,IN  _Email varchar(60),IN  _Contact bigint)
 begin
 declare exit handler for sqlexception rollback;
 start transaction;
@@ -830,8 +830,161 @@ END IF;
 commit;
 END  $$
 
-CALL `yelp`.`fetchRestaurantResults`(3, 'Mexican');
+
+-- Procedure to fetch items from the menu
+delimiter $$
+CREATE procedure `fetchRestaurantMenu` (IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT * FROM APPETIZER WHERE RestaurantID = _restroID;
+SELECT * FROM BEVERAGES WHERE RestaurantID = _restroID;
+SELECT * FROM MAIN_COURSE WHERE RestaurantID = _restroID;
+SELECT * FROM SALADS WHERE RestaurantID = _restroID;
+SELECT * FROM DESSERTS WHERE RestaurantID = _restroID;
+commit;
+end $$
+delimiter ;
+
+delimiter $$
+CREATE procedure `fetchRestaurantReview` (IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT R.ReviewID, R.Ratings, R.Date, R.Review,
+R.CustomerID, L.Name, concat(Street_Address,', ',City,', ',State,', ',Country) as Address,
+C.ImageURL FROM REVIEWS R JOIN CUSTOMER C ON R.CustomerID = C.CustomerID
+JOIN LOGIN L ON C.ID= L.ID WHERE R.RestaurantID = _restroID;
+commit;
+end $$
+delimiter ;
+
+delimiter $$
+CREATE procedure `getRestForCust` (IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
+as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=2),false) 
+as DineIn, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
+DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=3),false) 
+as YelpDelivery, RESTAURANT.ImageURL as ImageUrl,TIME_FORMAT(RESTAURANT.Open_Time, "%h:%i %p") 
+ as OpeningTime,TIME_FORMAT(RESTAURANT.Closing_Time, "%h:%i %p")  as ClosingTime, 
+count(REVIEWS.ReviewID) as ReviewCounts, round(IFNULL(avg(REVIEWS.Ratings),0)) as AvgRating
+FROM  RESTAURANT LEFT JOIN REVIEWS ON REVIEWS.RestaurantID=RESTAURANT.RestaurantID
+LEFT JOIN LOGIN ON RESTAURANT.UserID = LOGIN.ID
+WHERE RESTAURANT.RestaurantID = _restroID;
+commit;
+end $$
+delimiter ;
+
+
+-- Procedure to submit review from customer
+delimiter $$
+CREATE procedure `submitReview` (IN _custID bigint, IN _restroID bigint, IN _review varchar(100),
+IN _rating bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+INSERT INTO REVIEWS(RestaurantID, CustomerID, Ratings, Date, Review)
+VALUES(_restroID, _custID, _rating, CURDATE(),_review);
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Appetizer Dishname corresponding to the dishid 
+delimiter $$
+CREATE procedure `appetizerDishFetch` (IN _dishID bigint, IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT Dishname FROM APPETIZER
+WHERE RestaurantID = _restroID and AppetizerID = _dishID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Beverages Dishname corresponding to the dishid 
+delimiter $$
+CREATE procedure `beveragesDishFetch` (IN _dishID bigint, IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT Dishname FROM BEVERAGES
+WHERE RestaurantID = _restroID and BeveragesID = _dishID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch MainCourse Dishname corresponding to the dishid 
+delimiter $$
+CREATE procedure `mainCourseDishFetch` (IN _dishID bigint, IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT Dishname FROM MAIN_COURSE
+WHERE RestaurantID = _restroID and MainCourseID = _dishID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Salads Dishname corresponding to the dishid 
+delimiter $$
+CREATE procedure `saladsDishFetch` (IN _dishID bigint, IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT Dishname FROM SALADS
+WHERE RestaurantID = _restroID and SaladsID = _dishID;
+commit;
+end $$
+delimiter ;
+
+-- Procedure to fetch Desserts Dishname corresponding to the dishid 
+delimiter $$
+CREATE procedure `dessertsDishFetch` (IN _dishID bigint, IN _restroID bigint)
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+SELECT Dishname FROM DESSERTS
+WHERE RestaurantID = _restroID and DessertsID = _dishID;
+commit;
+end $$
+delimiter ;
 
 
 
+-- Procedure to update customer order
+delimiter $$
+CREATE procedure `updateCustOrder` (IN _RestroID bigint, IN _custID bigint, 
+IN _deliveryMode enum('Delivery','Pickup'),
+IN _statusID bigint,IN  _state enum('New','Delivered','Canceled'),IN _Price decimal(10,2), 
+IN _Address varchar(60))
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+INSERT INTO ORDERS(RestaurantID, CustomerID, DeliveryMode, StatusID, State, Bill, Date, Address)
+VALUES(_RestroID, _custID, _deliveryMode, _statusID, _state, _Price, CURDATE(), _Address);
+
+SELECT LAST_INSERT_ID() AS ID;
+commit;
+end $$
+delimiter ;
+
+
+-- Procedure to finsert Customer Review
+delimiter $$
+CREATE procedure `updateCustReview` (IN _restroID bigint, IN _custID bigint, IN _ratings enum('1','2','3','4','5'), 
+IN review varchar(100))
+begin
+declare exit handler for sqlexception rollback;
+start transaction;
+INSERT INTO REVIEWS(RestaurantID, CustomerID, Ratings, Date, Review)
+VALUE(_restroID, _custID, _ratings, CURDATE(), _review);
+commit;
+end $$
+delimiter ;
 

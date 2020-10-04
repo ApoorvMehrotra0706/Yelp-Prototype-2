@@ -68,7 +68,61 @@ const fetchRestaurantResults = async (req, res) => {
   }
   return res;
 };
-// static/fetchRestaurantResults (Big query)
+
+const menuFetch = async (req, res) => {
+  try {
+    const { restroId } = url.parse(req.url, true).query;
+    const getRestMenuQuery = 'CALL fetchRestaurantMenu(?)';
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(getRestMenuQuery, restroId);
+    con.end();
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Failed');
+  }
+  return res;
+};
+
+const fetchReviews = async (req, res) => {
+  try {
+    const { restroId } = url.parse(req.url, true).query;
+    const getRestReviewQuery = 'CALL fetchRestaurantReview(?,?)';
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(getRestReviewQuery, restroId);
+    con.end();
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Failed');
+  }
+  return res;
+};
+
+const fetchRestaurantProfileForCustomer = async (req, res) => {
+  try {
+    const { restroId } = url.parse(req.url, true).query;
+    const getRestForCustQuery = 'CALL getRestForCust(?)';
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(getRestForCustQuery, restroId);
+    con.end();
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    res.end('Failed');
+  }
+  return res;
+};
+
 module.exports = {
   statesName,
   countryName,
@@ -76,4 +130,7 @@ module.exports = {
   deliveryStatus,
   fetchSearchStrings,
   fetchRestaurantResults,
+  menuFetch,
+  fetchReviews,
+  fetchRestaurantProfileForCustomer,
 };

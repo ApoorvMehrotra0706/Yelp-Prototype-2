@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable camelcase */
 /* eslint-disable func-names */
 const bcrypt = require('bcrypt');
@@ -94,6 +95,21 @@ const getCustID = async (userID) => {
   const [results, fields] = await con.query(restroIDFetchQuery, userID);
   con.end();
   return results[0][0].CustomerID;
+};
+
+const getDishname = async (restID, foodCart) => {
+  const { MenuCategory, ID } = foodCart;
+  let dishNameFetchQuery = null;
+  if (MenuCategory === 'APPETIZERS') dishNameFetchQuery = 'CALL appetizerDishFetch(?,?)';
+  else if (MenuCategory === 'BEVERAGES') dishNameFetchQuery = 'CALL beveragesDishFetch(?,?)';
+  if (MenuCategory === 'MAIN_COURSE') dishNameFetchQuery = 'CALL mainCourseDishFetch(?,?)';
+  if (MenuCategory === 'SALADS') dishNameFetchQuery = 'CALL saladsDishFetch(?,?)';
+  if (MenuCategory === 'DESSERTS') dishNameFetchQuery = 'CALL dessertsDishFetch(?,?)';
+  const con = await mysqlConnection();
+  // eslint-disable-next-line no-unused-vars
+  const [results, fields] = await con.query(dishNameFetchQuery, [ID, restID]);
+  con.end();
+  return results[0][0].Dishname;
 };
 
 // customer/getCustomerCompleteProfile
@@ -367,7 +383,99 @@ const updateContactInfo = async (request, response) => {
   }
   return response;
 };
-// customer/updateContactInfo  EmailID (first verify if unique), Password in Login, Contact in Customer
+
+const submitReview = async (request, response) => {
+  try {
+    const { RestroId, review, rating } = request.body;
+    const updateCustReviewQuery = 'CALL updateCustReview(?,?,?,?)';
+
+    const userID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const custID = await getCustID(userID);
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(updateCustReviewQuery, [
+      RestroId,
+      custID,
+      rating,
+      review,
+    ]);
+    con.end();
+
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
+const generateOrder = async (request, response) => {
+  try {
+    const { RestroId, Price, foodCart, address, deliveryMode, token, userrole } = request.body;
+    const statusID = 1;
+    const state = 'New';
+    const userID = getUserIdFromToken(token, userrole);
+    const custID = await getCustID(userID);
+    let deliveryM = 'Delivery';
+    if (deliveryMode === 'Takeout') deliveryM = 'Pickup';
+    const updateCustOrderQuery = 'CALL updateCustOrder(?,?,?,?,?,?,?)';
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(updateCustOrderQuery, [
+      Number(RestroId),
+      custID,
+      deliveryM,
+      statusID,
+      state,
+      Price,
+      address,
+    ]);
+
+    const OrderID = results[0][0].ID;
+    let insertString = '';
+    let deliveryAddress = null;
+    if (address) deliveryAddress = address;
+    // eslint-disable-next-line prefer-const
+    for (let cart of foodCart) {
+      // eslint-disable-next-line no-await-in-loop
+      const dishname = await getDishname(RestroId, cart);
+      const total = cart.Quantity * cart.Price;
+      // eslint-disable-next-line prettier/prettier
+      insertString += `(${OrderID},${custID},${RestroId},'${dishname}',${cart.Quantity},${cart.Price},${total}),`;
+      console.log(insertString);
+    }
+
+    insertString = insertString.slice(0, -1);
+    console.log(insertString);
+    const orderCartInsertQuery =
+      // eslint-disable-next-line prefer-template
+      'INSERT INTO ORDER_CART(OrderID, CustomerID, RestaurantID, DishName, Quantity, Price, Total_Price) VALUES' +
+      insertString +
+      ';';
+    console.log(orderCartInsertQuery);
+    // eslint-disable-next-line no-unused-vars
+    const [results1, fields1] = await con.query(orderCartInsertQuery);
+    con.end();
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
 module.exports = {
   loginCust,
   logoutCust,
@@ -377,4 +485,6 @@ module.exports = {
   updateProfile,
   getContactInfo,
   updateContactInfo,
+  submitReview,
+  generateOrder,
 };

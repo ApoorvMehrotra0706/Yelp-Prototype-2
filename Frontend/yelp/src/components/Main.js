@@ -17,6 +17,7 @@ import UpdateProfile from './Customer/UpdateProfile';
 import UpdateContactInformation from './Customer/UpdateContactInformation';
 import Home from './FirstPage/Home';
 import RestaurantList from '../components/Search/RestaurantList';
+import RestaurantPage from './RestProfileOrder/RestaurantPage';
 // import MenuMain from './Menu/MenuMain';
 // Create a Main Component
 // eslint-disable-next-line react/prefer-stateless-function
@@ -42,6 +43,7 @@ class Main extends Component {
         <Route path="/customerProfileUpdate" component={UpdateProfile} />
         <Route path="/customerContactUpdate" component={UpdateContactInformation} />
         <Route path="/restaurantList" component={RestaurantList} />
+        <Route path="/RestaurantPage" component={RestaurantPage} />
       </div>
     );
   }

@@ -10,6 +10,8 @@ const {
   getContactInfo,
   updateContactInfo,
   uploadCustomerProfilePic,
+  submitReview,
+  generateOrder,
 } = require('./customer/loginCustomer');
 const signupCustomer = require('./customer/signupCustomer');
 const {
@@ -19,6 +21,9 @@ const {
   deliveryStatus,
   fetchSearchStrings,
   fetchRestaurantResults,
+  menuFetch,
+  fetchReviews,
+  fetchRestaurantProfileForCustomer,
 } = require('./customer/states');
 
 const Router = express.Router();
@@ -100,6 +105,31 @@ Router.get('/fetchSearchStrings', async (req, res) => {
 
 Router.get('/fetchRestaurantResults', async (req, res) => {
   const value = await fetchRestaurantResults(req, res);
+  return value;
+});
+
+Router.get('/menuFetch', async (req, res) => {
+  const value = await menuFetch(req, res);
+  return value;
+});
+
+Router.get('/fetchReviews', async (req, res) => {
+  const value = await fetchReviews(req, res);
+  return value;
+});
+
+Router.get('/fetchRestaurantProfileForCustomer', async (req, res) => {
+  const value = await fetchRestaurantProfileForCustomer(req, res);
+  return value;
+});
+
+Router.post('/submitReview', async (req, res) => {
+  const value = await submitReview(req, res);
+  return value;
+});
+
+Router.post('/generateOrder', async (req, res) => {
+  const value = await generateOrder(req, res);
   return value;
 });
 
