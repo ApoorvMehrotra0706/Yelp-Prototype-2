@@ -498,6 +498,8 @@ INSERT INTO GENDER(GenderName) VALUES ('Male');
 INSERT INTO GENDER(GenderName) VALUES ('Female');
 INSERT INTO GENDER(GenderName) VALUES ('Other');
 
+
+
 INSERT INTO APPETIZER (RestaurantID, Dishname, Price, CuisineID, Main_Ingredients, Description) 
 VALUES(1, "Apricot Ricotta Honey Basil Bites", 6.99, 3, "Apricot, Honey, Mint, Mayo", " Best from the rest");
 
@@ -580,21 +582,14 @@ INSERT INTO DELIVERY_STATE(Delivery_Status) VALUES('Picked up');
 
 SELECT * FROM DELIVERY_STATE;
 
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=11;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=12;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=13;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=14;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=15;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=16;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=17;
-DELETE FROM DELIVERY_STATE WHERE DeliveryID=18;
+DELETE FROM DELIVERY_STATE WHERE DeliveryID=7;
+DELETE FROM DELIVERY_STATE WHERE DeliveryID=8;
 DELETE FROM DELIVERY_STATE WHERE DeliveryID=9;
 DELETE FROM DELIVERY_STATE WHERE DeliveryID=10;
+DELETE FROM DELIVERY_STATE WHERE DeliveryID=11;
+DELETE FROM DELIVERY_STATE WHERE DeliveryID=12;
 
 
-
-INSERT INTO ORDER_CART(CustomerID, DishName, Quantity, Price, Total_Price, RestaurantID)
-VALUES (1, "Choco lava cake", 2, 14.99, 29.98, 1);
 
 ALTER TABLE RESTAURANT
 CHANGE Picture ImageURL varchar(300); 
@@ -627,15 +622,23 @@ MODIFY Country varchar(50);
 ALTER TABLE ORDERS
 ADD COLUMN Address varchar(60) DEFAULT NULL;
 
+ALTER TABLE EVENTS
+CHANGE COLUMN EventTime EventEndTime time;
 
+UPDATE DELIVERY_STATE
+SET Delivery_Status = 'Pick up Ready'
+WHERE DeliveryID = 4; 
 
- 
+ALTER TABLE DELIVERY_STATE
+MODIFY Delivery_Status ENUM ('Order Received','Preparing','On the way','Delivered','Pick up Ready','Picked up', 'Canceled');
 
+UPDATE DELIVERY_STATE
+SET Delivery_Status = 'Delivered'
+WHERE DeliveryID = 5; 
 
-
-
-
-
+UPDATE DELIVERY_STATE
+SET Delivery_Status = 'Canceled'
+WHERE DeliveryID = 7; 
 
 
 

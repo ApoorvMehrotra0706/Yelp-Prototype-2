@@ -100,7 +100,7 @@ class Food extends Component {
                       maxLength="100"
                       id="phoneNo"
                       name="phoneNo"
-                      placeholder="Ingredents"
+                      placeholder="Ingredients"
                       required="required"
                       type="text"
                       onChange={(event, id) =>

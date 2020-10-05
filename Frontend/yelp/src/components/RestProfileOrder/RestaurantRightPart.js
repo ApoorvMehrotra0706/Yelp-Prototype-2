@@ -37,40 +37,43 @@ class RestaurantRightPart extends Component {
   };
 
   orderFood = (foodCart, Price) => {
-    const data = {
-      RestroId: localStorage.getItem('restaurantPageID'),
-      Price,
-      foodCart: foodCart,
-      address: this.state.address,
-      deliveryMode: this.state.currentMode,
-      token: cookie.load('cookie'),
-      userrole: cookie.load('role'),
-    };
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios.post(serverUrl + 'customer/generateOrder', data).then(
-      (response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          console.log(response.data);
-          this.setState({
-            showFoodMenu: !this.state.showFoodMenu,
-            //RegisteredCustomerList: [],
-          });
-          let payload = {
-            success: true,
-            message: 'Order Created Successfully!',
-          };
-          this.props.updateSnackbarData(payload);
-          alert('Order Placed');
+    if (Price === 0) alert('Please select food items to place order');
+    else {
+      const data = {
+        RestroId: localStorage.getItem('restaurantPageID'),
+        Price,
+        foodCart: foodCart,
+        address: this.state.address,
+        deliveryMode: this.state.currentMode,
+        token: cookie.load('cookie'),
+        userrole: cookie.load('role'),
+      };
+      axios.defaults.withCredentials = true;
+      //make a post request with the user data
+      axios.post(serverUrl + 'customer/generateOrder', data).then(
+        (response) => {
+          console.log('Status Code : ', response.status);
+          if (response.status === 200) {
+            console.log(response.data);
+            this.setState({
+              showFoodMenu: !this.state.showFoodMenu,
+              //RegisteredCustomerList: [],
+            });
+            let payload = {
+              success: true,
+              message: 'Order Created Successfully!',
+            };
+            this.props.updateSnackbarData(payload);
+            alert('Order Placed');
+          }
+        },
+        (error) => {
+          console.log(error);
         }
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
+      );
 
-    console.log('Order Confirmed', foodCart);
+      console.log('Order Confirmed', foodCart);
+    }
   };
 
   render() {

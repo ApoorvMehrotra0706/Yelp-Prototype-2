@@ -1107,7 +1107,7 @@ DELIMITER ;
 
 -- Procedure to fetch Registered Customer Details
 DELIMITER $$
-CREATE PROCEDURE `fetchRegCustomerDetails` (IN _custID BIGINT)
+CREATE PROCEDURE `getEventsCustomers` (IN _custID BIGINT)
 BEGIN
 SELECT L.Name, G.GenderName, C.YelpingSince, C.Contact
 FROM LOGIN L JOIN CUSTOMER C ON L.ID = C.ID
@@ -1115,8 +1115,6 @@ JOIN GENDER G ON C.GenderID = G.GenderID
 WHERE C.CustomerID = _custID;
 END$$
 DELIMITER ;
-
-
 
 
 

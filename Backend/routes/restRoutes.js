@@ -20,6 +20,7 @@ const {
   fetchRegisteredCustomers,
   uploadRestaurantProfilePic,
   fetchCustomerDetails,
+  fetchRegCustomerDetails,
 } = require('./restaurant/loginRestaurant');
 const signupRestaurant = require('./restaurant/signupRestaurant');
 
@@ -124,6 +125,11 @@ Router.post('/uploadRestaurantProfilePic', async (req, res) => {
 
 Router.get('/fetchCustomerDetails', async (req, res) => {
   const value = await fetchCustomerDetails(req, res);
+  return value;
+});
+
+Router.get('/fetchRegCustomerDetails', async (req, res) => {
+  const value = await fetchRegCustomerDetails(req, res);
   return value;
 });
 

@@ -107,7 +107,7 @@ const menuFetch = async (req, res) => {
   let items = null;
   if (category === 'APPETIZERS') {
     items = 'CALL fetchAppetizerItems(?)';
-  } else if (category === 'BEVERAGESs') {
+  } else if (category === 'BEVERAGES') {
     items = 'CALL fetchBeveragesItems(?)';
   } else if (category === 'DESSERTS') {
     items = 'CALL fetchDessertsItems(?)';
@@ -363,13 +363,13 @@ const getRestaurantOrders = async (request, response) => {
     else if (sortValue === 'Delivered') state = 'Delivered';
     else state = 'Canceled';
     const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
-    const userID = await getRestroID(ID);
-    if (userID) {
+    // const userID = await getRestroID(ID);
+    if (ID) {
       const getRestaurantOdersQuery = 'CALL getOrderDetails(?,?)';
 
       const con = await mysqlConnection();
       // eslint-disable-next-line no-unused-vars
-      const [results, fields] = await con.query(getRestaurantOdersQuery, [state, userID]);
+      const [results, fields] = await con.query(getRestaurantOdersQuery, [state, ID]);
       con.end();
 
       response.writeHead(200, {
@@ -709,6 +709,29 @@ const fetchCustomerDetails = async (request, response) => {
   return response;
 };
 
+const fetchRegCustomerDetails = async (request, response) => {
+  try {
+    const { CustomerID } = url.parse(request.url, true).query;
+    const fetchRegCustomerDetailsQuery = 'CALL fetchRegCustomerDetails(?)';
+
+    const con = await mysqlConnection();
+    // eslint-disable-next-line no-unused-vars
+    const [results, fields] = await con.query(fetchRegCustomerDetailsQuery, CustomerID);
+    con.end();
+
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    response.end(JSON.stringify(results));
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('k Error');
+  }
+  return response;
+};
+
 module.exports = {
   restLogin,
   logoutRest,
@@ -728,4 +751,5 @@ module.exports = {
   fetchRegisteredCustomers,
   uploadRestaurantProfilePic,
   fetchCustomerDetails,
+  fetchRegCustomerDetails,
 };

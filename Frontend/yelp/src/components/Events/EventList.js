@@ -9,6 +9,7 @@ import NewEventForm from './NewEventForm';
 import RegisteredCustomers from './RegisteredCustomers';
 import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
+import RegCustomerDetails from './RegCustomerDetails';
 import SnackBar from '../SharedComponents/Snackbar';
 
 class EventList extends Component {
@@ -19,15 +20,10 @@ class EventList extends Component {
       visible: true,
       formOpen: false,
       popSeen: false,
-      RegisteredCustomerList: [
-        // { ID: 1, cusName: 'Pranjay', Email: 'asd@gmail.com' },
-        // { ID: 2, cusName: 'Salman', Email: 'sss@gmail.com' },
-        // { ID: 3, cusName: 'Apoorv', Email: 'acdd@gmail.com' },
-        // { ID: 4, cusName: 'Sorabh', Email: 'ccd@gmail.com' },
-        // { ID: 5, cusName: 'Joshi', Email: 'aeef@gmail.com' },
-        // { ID: 6, cusName: 'Dimple', Email: 'cscds@gmail.com' },
-      ],
+      RegisteredCustomerList: [],
+      customerDetails: [],
       EVENTS: [],
+      popSeen1: false,
     };
   }
 
@@ -175,6 +171,38 @@ class EventList extends Component {
 
   fetchCustomerProfile = (e, CustomerID) => {
     console.log('getting customer id', CustomerID);
+    if (this.state.popSeen1) {
+      this.setState({
+        popSeen1: !this.state.popSeen1,
+        customerDetails: [],
+      });
+    } else {
+      axios
+        .get(
+          serverUrl + 'restaurant/fetchRegCustomerDetails',
+
+          { params: { CustomerID }, withCredentials: true }
+        )
+        .then((response) => {
+          console.log(response.data);
+          let allItems = response.data[0].map((Item) => {
+            return {
+              name: Item.Name,
+              gender: Item.GenderName,
+              yelpingsince: Item.YelpingSince,
+              contact: Item.Contact,
+            };
+          });
+
+          this.setState({
+            customerDetails: this.state.customerDetails.concat(allItems),
+            popSeen1: !this.state.popSeen1,
+          });
+        })
+        .catch((err) => {
+          console.log('Error');
+        });
+    }
   };
 
   render() {
@@ -215,6 +243,12 @@ class EventList extends Component {
             RegisteredCustomerList={this.state.RegisteredCustomerList}
             toggle={this.openRegisteredCustomers}
             fetchCustomerProfile={(event, id) => this.fetchCustomerProfile(event, id)}
+          />
+        ) : null}
+        {this.state.popSeen1 ? (
+          <RegCustomerDetails
+            customerDetails={this.state.customerDetails}
+            toggle={this.fetchCustomerProfile}
           />
         ) : null}
         {this.state.formOpen && (

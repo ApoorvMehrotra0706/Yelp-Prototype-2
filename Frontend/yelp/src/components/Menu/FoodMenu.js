@@ -234,7 +234,7 @@ class FoodMenu extends Component {
               console.log(response.data);
               let allBeverages = response.data[0].map((Beverage) => {
                 return {
-                  ID: Beverage.BeverageID,
+                  ID: Beverage.BeveragesID,
                   Name: Beverage.Dishname,
                   MainIngredients: Beverage.Main_Ingredients,
                   CuisineID: Beverage.CuisineID,
@@ -1423,6 +1423,7 @@ class FoodMenu extends Component {
                     onDescriptionChangeHandler={(evt) => this.onDescriptionChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
                     onNameChangeHandler={(evt) => this.onNameChangeHandler(evt)}
+                    onChangeFileHandler={(event) => this.onChangeFileHandler(event)}
                     food={this.state.newFood}
                     onSaveCreateNew={() => this.onSaveCreateNew()}
                   ></NewFoodForm>

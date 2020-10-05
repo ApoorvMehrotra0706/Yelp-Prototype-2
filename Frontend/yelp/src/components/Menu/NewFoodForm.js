@@ -96,7 +96,7 @@ class NewFoodForm extends Component {
                     maxLength="100"
                     id="MainIngredents"
                     name="MainIngredents"
-                    placeholder="Ingredents"
+                    placeholder="Ingredients"
                     type="text"
                     onChange={(event) => this.props.onIngredentsChangeHandler(event.target.value)}
                     value={this.props.food.MainIngredients}
