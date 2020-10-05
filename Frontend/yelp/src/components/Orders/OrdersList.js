@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Order from './Order';
 import OrderDetails from './OrderDetails';
+import CustomerDetails from './CustomerDetails';
 import './Orders.css';
 import axios from 'axios';
 import serverUrl from '../../config';
@@ -12,9 +13,11 @@ class ordersList extends Component {
     this.state = {
       orderSortBy: localStorage.getItem('orderSortBy'),
       popSeen: false,
+      popSeen1: false,
       activePage: 1,
       ORDERS: [],
       orderDetails: [],
+      customerDetails: [],
     };
   }
 
@@ -51,6 +54,9 @@ class ordersList extends Component {
           ORDERS: allOrders,
           orderSortBy: sortValue,
         });
+      })
+      .catch((err) => {
+        console.log('Error');
       });
     localStorage.setItem('orderSortBy', sortValue);
   }
@@ -105,6 +111,44 @@ class ordersList extends Component {
     }
 
     console.log('fetching food details');
+  };
+
+  // new
+  openCustomerDetails = (orderID) => {
+    if (this.state.popSeen1) {
+      this.setState({
+        popSeen1: !this.state.popSeen1,
+        customerDetails: [],
+      });
+    } else {
+      axios
+        .get(
+          serverUrl + 'restaurant/fetchCustomerDetails',
+
+          { params: { orderID }, withCredentials: true }
+        )
+        .then((response) => {
+          console.log(response.data);
+          let allItems = response.data[0].map((Item) => {
+            return {
+              name: Item.Name,
+              gender: Item.GenderName,
+              yelpingsince: Item.YelpingSince,
+              contact: Item.Contact,
+            };
+          });
+
+          this.setState({
+            customerDetails: this.state.customerDetails.concat(allItems),
+            popSeen1: !this.state.popSeen1,
+          });
+        })
+        .catch((err) => {
+          console.log('Error');
+        });
+    }
+
+    console.log('fetching customer details');
   };
 
   updateStatus = (orderID) => {
@@ -177,18 +221,27 @@ class ordersList extends Component {
         {this.state.popSeen ? (
           <OrderDetails orderDetails={this.state.orderDetails} toggle={this.openOrderDetails} />
         ) : null}
+
         <div>
           <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
             {this.state.ORDERS.map((order) => (
               <Order
                 order={order}
                 openOrderDetails={() => this.openOrderDetails(order.ID)}
+                openCustomerDetails={() => this.openCustomerDetails(order.ID)}
                 onSave={() => this.updateStatus(order.ID)}
                 onStatusChangeHandler={(evt, id) => this.onStatusChangeHandler(evt, id)}
               />
             ))}
           </ul>
         </div>
+
+        {this.state.popSeen1 ? (
+          <CustomerDetails
+            customerDetails={this.state.customerDetails}
+            toggle={this.openCustomerDetails}
+          />
+        ) : null}
       </div>
     );
   }

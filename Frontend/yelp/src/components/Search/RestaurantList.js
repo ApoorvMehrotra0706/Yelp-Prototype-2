@@ -16,8 +16,7 @@ class RestaurantList extends Component {
       BackupRestaurantsList: [],
     };
   }
-  // localStorage.setItem('SearchedString', '');
-  // localStorage.setItem('SearchFilter', '');
+
   componentDidMount() {
     console.log('inside Signup');
     axios

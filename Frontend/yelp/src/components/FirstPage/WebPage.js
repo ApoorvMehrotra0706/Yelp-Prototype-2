@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
+import serverUrl from '../../config';
 import './WebPage.css';
 
 class WebPage extends Component {
@@ -13,7 +14,7 @@ class WebPage extends Component {
 
   // handle logout to destroy the cookie
   handleLogout = () => {
-    axios.delete('http://localhost:3001/logout').then((response) => {
+    axios.delete(serverUrl + 'logout').then((response) => {
       console.log('Status Code : ', response.status);
       if (response.status === 200) {
         this.setState({

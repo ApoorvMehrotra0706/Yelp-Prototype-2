@@ -677,6 +677,38 @@ const uploadRestaurantProfilePic = async (req, res) => {
   return res;
 };
 
+const fetchCustomerDetails = async (request, response) => {
+  try {
+    const { orderID } = url.parse(request.url, true).query;
+    const ID = getUserIdFromToken(request.cookies.cookie, request.cookies.role);
+    const userID = await getRestroID(ID);
+    if (userID) {
+      const fetchCustomerDetailsQuery = 'CALL fetchCustomerDetails(?)';
+
+      const con = await mysqlConnection();
+      // eslint-disable-next-line no-unused-vars
+      const [results, fields] = await con.query(fetchCustomerDetailsQuery, orderID);
+      con.end();
+
+      response.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      response.end(JSON.stringify(results));
+    } else {
+      response.writeHead(401, {
+        'Content-Type': 'text/plain',
+      });
+      response.end('Invalid User');
+    }
+  } catch (error) {
+    response.writeHead(401, {
+      'Content-Type': 'text/plain',
+    });
+    response.end('Network Error');
+  }
+  return response;
+};
+
 module.exports = {
   restLogin,
   logoutRest,
@@ -695,4 +727,5 @@ module.exports = {
   createNewEvent,
   fetchRegisteredCustomers,
   uploadRestaurantProfilePic,
+  fetchCustomerDetails,
 };

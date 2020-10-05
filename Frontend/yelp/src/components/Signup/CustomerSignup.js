@@ -4,6 +4,7 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import '../FirstPage/WebPage.css';
+import serverUrl from '../../config';
 import { connect } from 'react-redux';
 
 // Define a Login Component
@@ -59,7 +60,7 @@ class CustomerSignup extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3004/customer/stateNames').then((response) => {
+    axios.get(serverUrl + 'customer/stateNames').then((response) => {
       //update the state with the response data
       let stateDetails = response.data[0].map((state) => {
         return { key: state.StateID, value: state.State_Name };
@@ -230,7 +231,7 @@ class CustomerSignup extends Component {
       axios.defaults.withCredentials = true;
       // make a post request with the user data
       axios
-        .post('http://localhost:3004/customer/signupCustomer', data)
+        .post(serverUrl + 'customer/signupCustomer', data)
         .then((response) => {
           console.log('Status Code : ', response.status);
           if (response.status === 200) {

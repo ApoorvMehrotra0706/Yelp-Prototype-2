@@ -5,6 +5,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import loginHandlingReducer from '../../reducer/loginHandlingReducer';
 import { connect } from 'react-redux';
+import serverUrl from './../../config';
 
 // Define a Login Component
 class CustomerLogin extends Component {
@@ -64,7 +65,7 @@ class CustomerLogin extends Component {
     axios.defaults.withCredentials = true;
     // make a post request with the user data
     axios
-      .post('http://localhost:3004/customer/loginCustomer', data)
+      .post(serverUrl + 'customer/loginCustomer', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {

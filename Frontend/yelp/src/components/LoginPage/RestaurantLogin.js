@@ -3,6 +3,7 @@ import '../../App.css';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
+import serverUrl from '../../config';
 import { connect } from 'react-redux';
 
 // Define a Login Component
@@ -58,7 +59,7 @@ class RestaurantLogin extends Component {
     axios.defaults.withCredentials = true;
     // make a post request with the user data
     axios
-      .post('http://localhost:3004/restaurant/loginRestaurant', data)
+      .post(serverUrl + 'restaurant/loginRestaurant', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
@@ -88,7 +89,7 @@ class RestaurantLogin extends Component {
     //redirect based on successful login
     let redirectVar = null;
     if (cookie.load('cookie')) {
-      redirectVar = <Redirect to="/RestaurantLandingPage" />;
+      redirectVar = <Redirect to="/restaurantProfile" />;
     }
     return (
       <div>

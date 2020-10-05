@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import CustomerLogin from './LoginPage/CustomerLogin';
 import RestaurantLogin from './LoginPage/RestaurantLogin';
-import RestaurantLandingPage from './LoginLandingPage/RestaurantLandingPage';
 import CustomerSignup from './Signup/CustomerSignup';
 import RestaurantSignup from './Signup/RestaurantSignup';
 import RestaurantProfile from './Profile/Profile';
@@ -36,7 +35,6 @@ class Main extends Component {
         <Route path="/restaurantLogin" component={RestaurantLogin} />
         <Route path="/customerSignup" component={CustomerSignup} />
         <Route path="/restaurantSignup" component={RestaurantSignup} />
-        <Route path="/restaurantLandingPage" component={RestaurantLandingPage} />
         <Route path="/restaurantProfile" component={RestaurantProfile} />
         <Route path="/restaurantMenu" component={FoodMenu} />
         <Route path="/restaurantReview" component={ReviewList} />

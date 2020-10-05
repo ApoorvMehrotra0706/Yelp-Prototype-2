@@ -76,10 +76,11 @@ class Order extends Component {
                       <span class="lemon--span__373c0__3997G text__373c0__2Kxyz fs-block text-color--blue-dark__373c0__1jX7S text-align--left__373c0__2XGa- text-weight--bold__373c0__1elNz">
                         <a
                           class="lemon--a__373c0__IEZFH link__373c0__1G70M link-color--inherit__373c0__3dzpk link-size--inherit__373c0__1VFlE"
-                          href="/#"
+                          href="#"
                           target=""
                           name=""
                           rel=""
+                          onClick={() => this.props.openCustomerDetails()}
                         >
                           {/* Onelia D.*/}
                           {this.props.order.CustomerName}

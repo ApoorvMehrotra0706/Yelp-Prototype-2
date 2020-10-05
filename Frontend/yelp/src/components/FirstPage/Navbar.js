@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
+import serverUrl from '../../config';
 import { connect } from 'react-redux';
 
 // create the Navbar Component
@@ -18,8 +19,8 @@ class Navbar extends Component {
       role: cookie.load('role'),
     };
     let url = '';
-    if (data.role === 'Customer') url = 'http://localhost:3004/customer/logoutCustomer';
-    else url = 'http://localhost:3004/restaurant/logoutRestaurant';
+    if (data.role === 'Customer') url = serverUrl + 'customer/logoutCustomer';
+    else url = serverUrl + 'restaurant/logoutRestaurant';
     axios
       .post(url, data)
       .then((response) => {
@@ -115,16 +116,6 @@ class Navbar extends Component {
       }
     }
 
-    // if (!cookie.load('cookie') && this.props.location.pathname === '/RestaurantList') {
-    //   redirectVar = <Redirect to="/RestaurantList" />;
-    // }
-
-    // if (!cookie.load('cookie') && this.props.location.pathname === '/RestaurantPage') {
-    //   redirectVar = <Redirect to="/RestaurantPage" />;
-    // }
-
-    // if (!cookie.load('cookie')) redirectVar = <Redirect to="/webPage" />;
-
     let options = null;
     if (!cookie.load('cookie')) {
       options = (
@@ -137,9 +128,6 @@ class Navbar extends Component {
     } else if (cookie.load('cookie') && cookie.load('role') === 'Restaurant') {
       options = (
         <ul class="nav navbar-nav">
-          <li class={this.props.location.pathname === '/home' && 'active'}>
-            <Link to="/restaurantLandingPage">Home</Link>
-          </li>
           <li class={this.props.location.pathname === '/restaurantProfile' && 'active'}>
             <Link to="/restaurantProfile">Profile</Link>
           </li>
