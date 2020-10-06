@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import serverUrl from '../../config';
 
 class EventForCustomer extends Component {
   constructor(props) {
@@ -8,18 +6,7 @@ class EventForCustomer extends Component {
     this.state = { DeliveryStatuses: [] };
   }
   // Call On render
-  componentDidMount() {
-    // console.log('inside Event for Customer');
-    // axios.get(serverUrl + 'static/getDeliverStatus').then((response) => {
-    //   console.log(response.data);
-    //   let allStatuses = response.data[0].map((status) => {
-    //     return { key: status.ID, value: status.Status };
-    //   });
-    //   this.setState({
-    //     DeliveryStatuses: this.state.DeliveryStatuses.concat(allStatuses),
-    //   });
-    // });
-  }
+  componentDidMount() {}
 
   verifyRegistered = (id) => {
     for (const item of this.props.registeredEventIds) {

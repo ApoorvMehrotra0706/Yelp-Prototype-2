@@ -270,14 +270,14 @@ DELIMITER $$
 CREATE PROCEDURE `userInsert`(IN EmailID_check varchar(60), IN Password_check varchar(100),
  IN Role_check enum('Restaurant','Customer') , IN Name_check varchar(60), IN Contact_check bigint,
  IN Address_Check varchar(60), IN City_check varchar(20), IN State_check varchar(20), IN Country_check varchar(20),
- IN Zip_check int)
+ IN Zip_check int, IN _latitude varchar(50), IN _longitude varchar(50))
 BEGIN
 declare _custmrId int;
 INSERT INTO LOGIN (EmailID, Password, Role, Name) 
 VALUES(EmailID_check,Password_check,Role_check,Name_check);
 set _custmrId=(SELECT ID FROM LOGIN WHERE EmailID=EmailID_check and Role="Restaurant");
-INSERT INTO RESTAURANT(UserID, Contact, Street_Address, City, State, Country,Zip_Code) 
-VALUES(_custmrId, Contact_check, Address_check, City_check, State_check, Country_check, Zip_check);
+INSERT INTO RESTAURANT(UserID, Contact, Street_Address, City, State, Country,Zip_Code,Latitude,Longitude) 
+VALUES(_custmrId, Contact_check, Address_check, City_check, State_check, Country_check, Zip_check, _latitude, _longitude);
 END$$
 DELIMITER ;
 
@@ -543,21 +543,27 @@ delimiter ;
 
 -- Procedure to fetch Events
 delimiter $$
-CREATE procedure `getEvents` (IN sortValue varchar(20), IN _userID bigint)
+CREATE procedure `getEvents` (IN sortValue varchar(20), IN _userID varchar(5))
 begin
 declare exit handler for sqlexception rollback;
 start transaction;
 IF sortValue = 'upcoming' THEN
 SELECT * FROM EVENTS
-WHERE EventDate > CURDATE() and EventStartTime > CURTIME() and RestaurantID = _userID;
+WHERE EventDate > CURDATE() AND RestaurantID = _userID;
 END IF;
 
 IF sortValue = 'past' THEN
 SELECT * FROM EVENTS
-WHERE EventDate < CURDATE() and RestaurantID = _userID;
+WHERE EventDate < CURDATE() AND RestaurantID = _userID;
 END IF;
+
+commit;
 end $$
+
 delimiter ;
+
+CALL `YELP`.`getEvents`('past', 1);
+
 
 -- Prcocedure to fetch customers who are registered in the event
 DELIMITER $$
@@ -736,6 +742,7 @@ rollback;
 start transaction;
  IF _filterCriteria='1' THEN
 SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+RESTAURANT.Latitude as Latitude, RESTAURANT.Longitude AS Longitude,
 IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
 DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
 as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
@@ -755,7 +762,8 @@ where LOGIN.Name like  CONCAT('%', _searchedString , '%')
 RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
 
 ELSEIF _filterCriteria='2' THEN
-SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name,
+RESTAURANT.Latitude as Latitude, RESTAURANT.Longitude AS Longitude, 
 IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
 DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
 as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
@@ -780,7 +788,8 @@ RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
 
 ELSEIF _filterCriteria='3' THEN
 
-SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name,
+RESTAURANT.Latitude as Latitude, RESTAURANT.Longitude AS Longitude, 
 IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
 DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
 as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
@@ -810,6 +819,7 @@ RESTAURANT.Open_Time, RESTAURANT.Closing_Time;
 ELSE 
 
 SELECT RESTAURANT.RestaurantID as ID, LOGIN.Name as Name, 
+RESTAURANT.Latitude as Latitude, RESTAURANT.Longitude AS Longitude,
 IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
 DELIVERY_TYPES.RestaurantID=RESTAURANT.RestaurantID and DeliveryID=1),false) 
 as CurbsidePickup, IFNULL((SELECT true FROM DELIVERY_TYPES WHERE 
@@ -1021,13 +1031,21 @@ delimiter ;
 
 -- Procedure to fetch Event List for Customers
 delimiter $$
-CREATE procedure `fetchEventDetails` ()
+CREATE procedure `fetchEventDetails` (IN sortValue varchar(10), IN _custID bigint)
 begin
 declare exit handler for sqlexception rollback;
 start transaction;
+IF sortValue = 'upcoming' THEN
 SELECT *
 FROM EVENTS 
-WHERE EventEndTime > CURTIME() AND EVENTDATE >= CURDATE();
+WHERE  EventDate >= CURDATE();
+END IF;
+
+IF sortValue = 'registered' THEN
+SELECT *
+FROM EVENTS E JOIN EVENT_REGISTRATION ER on E.EventID = ER.EventID
+WHERE  E.EventDate >= CURDATE() AND ER.CustomerID = _custID;
+END IF;
 commit;
 end $$
 delimiter ;
@@ -1063,6 +1081,7 @@ commit;
 end $$
 delimiter ;
 
+CALL `YELP`.`custRegisteredEvents`(1);
 
 
 -- Procedure to fetch customer registered events
@@ -1087,7 +1106,7 @@ declare exit handler for sqlexception rollback;
 start transaction;
 SELECT *
 FROM EVENTS WHERE EventName LIKE _value
-AND  EventEndTime > CURTIME() AND EVENTDATE >= CURDATE();
+AND EVENTDATE >= CURDATE();
 commit;
 end $$
 
@@ -1107,7 +1126,7 @@ DELIMITER ;
 
 -- Procedure to fetch Registered Customer Details
 DELIMITER $$
-CREATE PROCEDURE `getEventsCustomers` (IN _custID BIGINT)
+CREATE PROCEDURE `fetchRegCustomerDetails` (IN _custID BIGINT)
 BEGIN
 SELECT L.Name, G.GenderName, C.YelpingSince, C.Contact
 FROM LOGIN L JOIN CUSTOMER C ON L.ID = C.ID
@@ -1115,6 +1134,8 @@ JOIN GENDER G ON C.GenderID = G.GenderID
 WHERE C.CustomerID = _custID;
 END$$
 DELIMITER ;
+
+
 
 
 

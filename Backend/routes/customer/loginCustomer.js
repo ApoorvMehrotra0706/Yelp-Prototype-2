@@ -489,7 +489,7 @@ const fetchAllOrders = async (request, response) => {
     const con = await mysqlConnection();
     // eslint-disable-next-line no-unused-vars
     const [results, fields] = await con.query(fetchCustOrderQuery, custID);
-
+    // exports.executeQuery=function(fetchCustOrderQuery, [custID],callback){ // include response.writeHead in callback
     con.end();
     response.writeHead(200, {
       'Content-Type': 'text/plain',
@@ -542,17 +542,17 @@ const fetchEventList = async (request, response) => {
 
     const con = await mysqlConnection();
     if (sortValue === 'upcoming') {
-      const fetchEventDetailsQuery = 'CALL fetchEventDetails()';
+      const fetchEventDetailsQuery = 'CALL fetchEventDetails(?,?)';
       // eslint-disable-next-line no-unused-vars
-      const [results, fields] = await con.query(fetchEventDetailsQuery);
+      const [results, fields] = await con.query(fetchEventDetailsQuery, [sortValue, custID]);
       response.writeHead(200, {
         'Content-Type': 'text/plain',
       });
       response.end(JSON.stringify(results));
     } else if (sortValue === 'registered') {
-      const registeredEventsQuery = 'CALL registeredEvents(?)';
+      const registeredEventsQuery = 'CALL fetchEventDetails(?,?)';
       // eslint-disable-next-line no-unused-vars
-      const [results, fields] = await con.query(registeredEventsQuery, custID);
+      const [results, fields] = await con.query(registeredEventsQuery, [sortValue, custID]);
       response.writeHead(200, {
         'Content-Type': 'text/plain',
       });

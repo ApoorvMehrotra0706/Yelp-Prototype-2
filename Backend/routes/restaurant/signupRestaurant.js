@@ -1,5 +1,10 @@
 const bcrypt = require('bcrypt');
+const geocoder = require('google-geocoder');
 const mysqlConnection = require('../../connection');
+
+const geofinder = geocoder({
+  key: 'process.env.GOOGLEAPIKEY',
+});
 
 const checkEmail = async (emailID, role) => {
   const emailProcedure = 'CALL existingEmail(?,?)';
@@ -25,9 +30,11 @@ const userInsert = async (
   city,
   state,
   country,
-  zip
+  zip,
+  latitude,
+  longitude
 ) => {
-  const userInsertProcedure = 'CALL userInsert(?,?,?,?,?,?,?,?,?,?)';
+  const userInsertProcedure = 'CALL userInsert(?,?,?,?,?,?,?,?,?,?,?,?)';
   const con = await mysqlConnection();
   // eslint-disable-next-line no-unused-vars
   const [results, fields] = await con.query(userInsertProcedure, [
@@ -41,6 +48,8 @@ const userInsert = async (
     state,
     country,
     zip,
+    latitude,
+    longitude,
   ]);
   con.end();
   if (results.affectedRows === 1) {
@@ -62,26 +71,42 @@ const restSignUp = async (req, res) => {
     res.writeHead(401, { 'content-type': 'text/json' });
     res.end(JSON.stringify({ message: 'ID already used' }));
   } else {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // console.log('Password length is ', hashedPassword.length);
-    const insertStatus = await userInsert(
-      emailID,
-      hashedPassword,
-      role,
-      name,
-      contact,
-      streetAddress,
-      city,
-      state,
-      country,
-      zip
-    );
-    if (insertStatus) {
-      res.writeHead(200, { 'content-type': 'text/json' });
-      res.end(JSON.stringify({ message: 'Insertion successful' }));
-    } else {
-      res.writeHead(401, { 'content-type': 'text/json' });
-      res.end(JSON.stringify({ message: 'Insertion Failed' }));
+    try {
+      // eslint-disable-next-line prefer-template
+      let place = streetAddress.concat(', ');
+      place = place.concat(zip);
+      console.log(place);
+
+      geofinder.find(place, async function (error, response) {
+        const latitude = response[0].location.lat;
+        const longitude = response[0].location.lng;
+        console.log('lat ', latitude, 'long ', longitude);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // console.log('Password length is ', hashedPassword.length);
+        const insertStatus = await userInsert(
+          emailID,
+          hashedPassword,
+          role,
+          name,
+          contact,
+          streetAddress,
+          city,
+          state,
+          country,
+          zip,
+          latitude,
+          longitude
+        );
+        if (insertStatus) {
+          res.writeHead(200, { 'content-type': 'text/json' });
+          res.end(JSON.stringify({ message: 'Insertion successful' }));
+        } else {
+          res.writeHead(401, { 'content-type': 'text/json' });
+          res.end(JSON.stringify({ message: 'Insertion Failed' }));
+        }
+      });
+    } catch (error) {
+      console.log('Error ', error);
     }
   }
   return res;

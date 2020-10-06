@@ -194,7 +194,7 @@ class RestaurantLeftReviewPart extends Component {
                   <div class="lemon--div__373c0__1mboc border-color--default__373c0__3-ifU nowrap__373c0__35McF">
                     <div class="lemon--div__373c0__1mboc display--inline-block__373c0__1ZKqC margin-r1-5__373c0__1Vie3 border-color--default__373c0__3-ifU">
                       <span class="lemon--span__373c0__3997G text__373c0__2Kxyz text-color--red__373c0__n7iaa text-align--left__373c0__2XGa- text-weight--semibold__373c0__2l0fe text-size--large__373c0__3t60B">
-                        Closed
+                        {/* Closed */}
                       </span>
                       <span class="lemon--span__373c0__3997G display--inline__373c0__3JqBP margin-l1__373c0__1khIQ border-color--default__373c0__3-ifU">
                         <span class="lemon--span__373c0__3997G text__373c0__2Kxyz text-color--black-extra-light__373c0__2OyzO text-align--left__373c0__2XGa- text-weight--semibold__373c0__2l0fe text-size--large__373c0__3t60B">
@@ -322,7 +322,7 @@ class RestaurantLeftReviewPart extends Component {
           <div class="lemon--div__373c0__1mboc arrange__373c0__2C9bH gutter-auto__373c0__1Ep_j vertical-align-middle__373c0__1SDTo margin-b3__373c0__q1DuY border-color--default__373c0__3-ifU">
             <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT arrange-unit-fill__373c0__3Sfw1 border-color--default__373c0__3-ifU">
               <h4 class="lemon--h4__373c0__1yd__ heading--h4__373c0__27bDo heading--inline__373c0__10ozy">
-                Location &amp; Hours
+                {/* Location &amp; Hours */}
               </h4>
             </div>
           </div>
@@ -344,20 +344,20 @@ class RestaurantLeftReviewPart extends Component {
                     class="lemon--div__373c0__1mboc container__373c0__2bHp0 border-color--default__373c0__3-ifU overflow--hidden__373c0__2y4YK"
                     style={{ width: '315px', height: '150px' }}
                   >
-                    <img
+                    {/* <img
                       class="lemon--img__373c0__3GQUb"
                       src="https://maps.googleapis.com/maps/api/staticmap?scale=1&amp;center=37.352959%2C-121.987099&amp;language=en&amp;zoom=15&amp;markers=scale%3A1%7Cicon%3Ahttps%3A%2F%2Fyelp-images.s3.amazonaws.com%2Fassets%2Fmap-markers%2Fannotation_32x43.png%7C37.352959%2C-121.987099&amp;client=gme-yelp&amp;sensor=false&amp;size=315x150&amp;signature=NC8kbqXLioETMUInMXxL0RNfN80="
                       srcset="https://maps.googleapis.com/maps/api/staticmap?scale=1&amp;center=37.352959%2C-121.987099&amp;language=en&amp;zoom=15&amp;markers=scale%3A1%7Cicon%3Ahttps%3A%2F%2Fyelp-images.s3.amazonaws.com%2Fassets%2Fmap-markers%2Fannotation_32x43.png%7C37.352959%2C-121.987099&amp;client=gme-yelp&amp;sensor=false&amp;size=315x150&amp;signature=NC8kbqXLioETMUInMXxL0RNfN80= 1x, https://maps.googleapis.com/maps/api/staticmap?scale=2&amp;center=37.352959%2C-121.987099&amp;language=en&amp;zoom=15&amp;markers=scale%3A2%7Cicon%3Ahttps%3A%2F%2Fyelp-images.s3.amazonaws.com%2Fassets%2Fmap-markers%2Fannotation_64x86.png%7C37.352959%2C-121.987099&amp;client=gme-yelp&amp;sensor=false&amp;size=315x150&amp;signature=neBWfrE1uB8uY_XLP3_3RW00muk= 2x"
                       width="315"
                       height="150"
                       alt="Map"
-                    />
+                    /> */}
                   </div>
                 </a>
                 <div class="lemon--div__373c0__1mboc padding-t2__373c0__11Iek padding-r2__373c0__28zpp padding-b2__373c0__34gV1 padding-l2__373c0__1Dr82 border-color--default__373c0__3-ifU">
                   <div class="lemon--div__373c0__1mboc arrange__373c0__2C9bH vertical-align-middle__373c0__1SDTo border-color--default__373c0__3-ifU">
                     <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT arrange-unit-fill__373c0__3Sfw1 border-color--default__373c0__3-ifU">
-                      <address class="lemon--address__373c0__2sPac">
+                      {/* <address class="lemon--address__373c0__2sPac">
                         <p class="lemon--p__373c0__3Qnnj text__373c0__2Kxyz text-color--normal__373c0__3xep9 text-align--left__373c0__2XGa- text-weight--bold__373c0__1elNz">
                           <span class="lemon--span__373c0__3997G raw__373c0__3rcx7">
                             1614 Pomeroy Ave
@@ -368,9 +368,9 @@ class RestaurantLeftReviewPart extends Component {
                             Santa Clara, CA 95051
                           </span>
                         </p>
-                      </address>
+                      </address> */}
                     </div>
-                    <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT border-color--default__373c0__3-ifU nowrap__373c0__35McF">
+                    {/* <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT border-color--default__373c0__3-ifU nowrap__373c0__35McF">
                       <a
                         class="lemon--a__373c0__IEZFH button__373c0__3lYgT small__373c0__Wsszq secondary__373c0__1bsQo"
                         // style="--mousedown-x:0px;--mousedown-y:0px;--button-width:0px"
@@ -382,7 +382,7 @@ class RestaurantLeftReviewPart extends Component {
                           </span>
                         </div>
                       </a>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -393,7 +393,7 @@ class RestaurantLeftReviewPart extends Component {
           class="lemon--div__373c0__1mboc border-color--default__373c0__3-ifU"
           style={{ position: 'relative', minHeight: '0px' }}
         >
-          <section class="lemon--section__373c0__fNwDM margin-t4__373c0__1TRkQ padding-t4__373c0__3hVZ3 border--top__373c0__3gXLy border-color--default__373c0__3-ifU">
+          {/* <section class="lemon--section__373c0__fNwDM margin-t4__373c0__1TRkQ padding-t4__373c0__3hVZ3 border--top__373c0__3gXLy border-color--default__373c0__3-ifU">
             <div class="lemon--div__373c0__1mboc arrange__373c0__2C9bH gutter-auto__373c0__1Ep_j vertical-align-middle__373c0__1SDTo margin-b3__373c0__q1DuY border-color--default__373c0__3-ifU">
               <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT arrange-unit-fill__373c0__3Sfw1 border-color--default__373c0__3-ifU">
                 <h4 class="lemon--h4__373c0__1yd__ heading--h4__373c0__27bDo heading--inline__373c0__10ozy">
@@ -404,7 +404,7 @@ class RestaurantLeftReviewPart extends Component {
             <div class="lemon--div__373c0__1mboc css-79elbk border-color--default__373c0__3-ifU">
               <div className="lemon--div__373c0__1mboc border-color--default__373c0__3-ifU">
                 {/**Reviews */}
-                <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
+          {/* <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
                   {this.state.REVIEWS.map((review) => (
                     <Review
                       review={review}
@@ -415,7 +415,7 @@ class RestaurantLeftReviewPart extends Component {
                 </ul>
               </div>
             </div>
-          </section>
+          </section> */}
         </div>
       </div>
     );

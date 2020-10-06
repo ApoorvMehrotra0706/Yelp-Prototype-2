@@ -67,6 +67,9 @@ class Events extends Component {
         this.setState({
           registeredEventIds: this.state.registeredEventIds.concat(allRegisteredEvents),
         });
+      })
+      .catch((e) => {
+        console.log('Error');
       });
   }
 

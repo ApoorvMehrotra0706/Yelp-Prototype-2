@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-// import CustomerNavBar from '../CommonArea/CustomerNavBar';
 import './Restaurant.css';
+import './RestList.css';
 import Restaurant from './Restaurant';
 import axios from 'axios';
 import serverUrl from '../../config';
 import { updateRestaurantArray } from '../../reducer/action-types';
+import MapDisplay from './MapDisplay';
 import { history } from '../../App';
 
 import { connect } from 'react-redux';
@@ -14,6 +15,7 @@ class RestaurantList extends Component {
     super(props);
     this.state = {
       BackupRestaurantsList: [],
+      mapCoordinates: [],
     };
   }
 
@@ -30,6 +32,12 @@ class RestaurantList extends Component {
       })
       .then((response) => {
         console.log(response.data);
+        let mapCoordinates = response.data[0].map((restaurant) => {
+          return {
+            title: restaurant.Name,
+            coordinates: { lat: restaurant.Latitude, lng: restaurant.Longitude },
+          };
+        });
         let allRestaurants = response.data[0].map((restaurant) => {
           return {
             // From restaurant, delivery_methods, reviews
@@ -48,6 +56,7 @@ class RestaurantList extends Component {
 
         this.setState({
           BackupRestaurantsList: allRestaurants,
+          mapCoordinates: mapCoordinates,
         });
         const payload = { restaurantSearchResults: allRestaurants };
         this.props.updateRestaurantArray(payload);
@@ -184,7 +193,20 @@ class RestaurantList extends Component {
             </div>
 
             {/**Google Maps */}
-            <div className="lemon--div__09f24__1mboc rightRailContainer__09f24__3VshM border-color--default__09f24__R1nRO"></div>
+            <div className="lemon--div__09f24__1mboc rightRailContainer__09f24__3VshM border-color--default__09f24__R1nRO">
+              <div className="lemon--div__09f24__1mboc rightRailInnerContainer__09f24__1eXhz border-color--default__09f24__R1nRO">
+                <div
+                  className="lemon--div__09f24__1mboc stickyContainer__09f24__1IR-t border-color--default__09f24__R1nRO"
+                  style={{ top: '133px', height: 'calc(100vh - 133px)', marginTop: '36px' }}
+                >
+                  <div className="lemon--div__09f24__1mboc container__09f24__11Ola border-color--default__09f24__R1nRO">
+                    <div className="lemon--div__09f24__1mboc outer__09f24__2nI2R border-color--default__09f24__R1nRO">
+                      <MapDisplay mapCoordinates={this.state.mapCoordinates}></MapDisplay>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

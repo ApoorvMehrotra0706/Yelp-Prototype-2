@@ -158,7 +158,7 @@ Router.post('/eventRegistration', async (req, res) => {
   return value;
 });
 
-Router.post('/getCustRegisteredEvents', async (req, res) => {
+Router.get('/getCustRegisteredEvents', async (req, res) => {
   const value = await getCustRegisteredEvents(req, res);
   return value;
 });

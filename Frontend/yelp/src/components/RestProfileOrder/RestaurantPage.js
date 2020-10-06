@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import CustomerNavBar from '../../CommonArea/CustomerNavBar';
 import RestaurantLeftReviewPart from './RestaurantLeftReviewPart';
 import RestaurantRightPart from './RestaurantRightPart';
 import './RestaurantPage.css';

@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-// import CustomerNavBar from '../CommonArea/CustomerNavBar';
-// import GreyArea from '../../Customer/CommonArea/GreyArea';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
-// import LeftPannel from '../LeftPannel/LeftPannel';
 import './AboutMe.css';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -18,9 +15,9 @@ class AboutMe extends Component {
       Address1: '',
       Address2: '',
       Headline: '',
-      ILove: '', //Things_Customer_Love
-      FMI: '', //Find_Me_In
-      JoinDate: '', //YelpingSince
+      ILove: '',
+      FMI: '',
+      JoinDate: '',
       Website: '',
       ImageURL: '',
     };
@@ -116,7 +113,6 @@ class AboutMe extends Component {
                               ? this.state.ImageURL
                               : defaultImage
                           }
-                          // src="https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png"
                         />
                       </a>
                     </div>
