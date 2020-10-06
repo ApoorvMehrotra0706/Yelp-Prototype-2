@@ -124,7 +124,7 @@ class Order extends Component {
                 <span class="lemon--span__373c0__3997G raw__373c0__3rKqk" lang="en">
                   {/*this.props.order.OrderType*/}
                   <form
-                    onSubmit={this.props.onSave}
+                    onSubmit={(event) => this.props.onSave(event)}
                     class="yform signup-form  city-hidden"
                     id="signup-form"
                   >

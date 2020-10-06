@@ -7,7 +7,9 @@ const statesName = async (req, res) => {
   // eslint-disable-next-line no-unused-vars
   const [results, fields] = await con.query(statesFetchProcedure);
   con.end();
-
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
   res.end(JSON.stringify(results));
 };
 
@@ -27,7 +29,9 @@ const cuisineFetch = async (req, res) => {
   // eslint-disable-next-line no-unused-vars
   const [results, fields] = await con.query(cuisineFetchProcedure);
   con.end();
-
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
   res.end(JSON.stringify(results));
 };
 
@@ -59,6 +63,9 @@ const fetchRestaurantResults = async (req, res) => {
     // eslint-disable-next-line no-unused-vars
     const [results, fields] = await con.query(getRestResultsQuery, [filter, searchString]);
     con.end();
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
     res.end(JSON.stringify(results));
   } catch (error) {
     res.writeHead(401, {

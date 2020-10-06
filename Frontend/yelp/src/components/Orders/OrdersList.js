@@ -6,6 +6,8 @@ import CustomerDetails from './CustomerDetails';
 import './Orders.css';
 import axios from 'axios';
 import serverUrl from '../../config';
+import { setRawCookie } from 'react-cookies';
+import cookie from 'react-cookies';
 
 class ordersList extends Component {
   constructor(props) {
@@ -151,16 +153,17 @@ class ordersList extends Component {
     console.log('fetching customer details');
   };
 
-  updateStatus = (orderID) => {
+  updateStatus = (event, orderID) => {
     const index = this.state.ORDERS.findIndex((x) => x.ID === orderID);
     let foodItem = { ...this.state.ORDERS[index] };
     const newStatus = foodItem.tmpStatus;
     let data = {
       deliveryStatus: newStatus,
       orderID,
-      token: localStorage.getItem('token'),
-      userrole: localStorage.getItem('role'),
+      token: cookie.load('cookie'),
+      userrole: cookie.load('role'),
     };
+    event.preventDefault();
     axios.post(serverUrl + 'restaurant/updateDeliveryStatus', data).then(
       (response) => {
         console.log('Status Code : ', response.status);
@@ -229,7 +232,7 @@ class ordersList extends Component {
                 order={order}
                 openOrderDetails={() => this.openOrderDetails(order.ID)}
                 openCustomerDetails={() => this.openCustomerDetails(order.ID)}
-                onSave={() => this.updateStatus(order.ID)}
+                onSave={(event) => this.updateStatus(event, order.ID)}
                 onStatusChangeHandler={(evt, id) => this.onStatusChangeHandler(evt, id)}
               />
             ))}
