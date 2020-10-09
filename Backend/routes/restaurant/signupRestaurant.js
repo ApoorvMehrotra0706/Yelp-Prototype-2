@@ -3,7 +3,8 @@ const geocoder = require('google-geocoder');
 const mysqlConnection = require('../../connection');
 
 const geofinder = geocoder({
-  key: 'process.env.GOOGLEAPIKEY',
+  // key: `'${process.env.GOOGLEAPIKEY}'`,
+  key: 'AIzaSyDHRJvSWfXNenjs51fuPKCvOODQKm2AhQY',
 });
 
 const checkEmail = async (emailID, role) => {
