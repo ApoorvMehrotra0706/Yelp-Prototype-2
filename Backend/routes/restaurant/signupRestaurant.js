@@ -76,12 +76,12 @@ const restSignUp = async (req, res) => {
       // eslint-disable-next-line prefer-template
       let place = streetAddress.concat(', ');
       place = place.concat(zip);
-      console.log(place);
+      // console.log(place);
 
       geofinder.find(place, async function (error, response) {
         const latitude = response[0].location.lat;
         const longitude = response[0].location.lng;
-        console.log('lat ', latitude, 'long ', longitude);
+        // console.log('lat ', latitude, 'long ', longitude);
         const hashedPassword = await bcrypt.hash(password, 10);
         // console.log('Password length is ', hashedPassword.length);
         const insertStatus = await userInsert(
@@ -107,7 +107,7 @@ const restSignUp = async (req, res) => {
         }
       });
     } catch (error) {
-      console.log('Error ', error);
+      // console.log('Error ', error);
     }
   }
   return res;

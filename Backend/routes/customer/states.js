@@ -1,4 +1,8 @@
 const url = require('url');
+const States = require('../models/StateModel');
+const Country = require('../models/CountryModel');
+const Gender = require('../models/GenderModel');
+const Cuisine = require('../models/CuisineModel');
 const mysqlConnection = require('../../connection');
 
 const statesName = async (req, res) => {
@@ -130,6 +134,168 @@ const fetchRestaurantProfileForCustomer = async (req, res) => {
   return res;
 };
 
+const createState = async (req, res) => {
+  const stateName = new States({
+    StateName: req.body.State,
+  });
+  States.findOne({ StateName: req.body.State }, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('State already exists');
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      stateName.save((e, data) => {
+        if (e) {
+          res.writeHead(500, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        } else {
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        }
+      });
+    }
+  });
+};
+
+const createCountry = async (req, res) => {
+  const country = new Country({
+    CountryName: req.body.Country,
+  });
+  Country.findOne({ CountryName: req.body.Country }, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Country already exists');
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      country.save((e, data) => {
+        if (e) {
+          res.writeHead(500, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        } else {
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        }
+      });
+    }
+  });
+};
+
+const createGender = async (req, res) => {
+  const gender = new Gender({
+    GenderName: req.body.gender,
+  });
+  Gender.findOne({ GenderName: req.body.gender }, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Gender already exists');
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      gender.save((e, data) => {
+        if (e) {
+          res.writeHead(500, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        } else {
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        }
+      });
+    }
+  });
+};
+
+const createCuisine = async (req, res) => {
+  const cuisine = new Cuisine({
+    CuisineName: req.body.Cuisine,
+  });
+  Cuisine.findOne({ CuisineName: req.body.Cuisine }, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Cuisine already exists');
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      cuisine.save((e, data) => {
+        if (e) {
+          res.writeHead(500, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        } else {
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        }
+      });
+    }
+  });
+};
+
+const deleteCuisine = async (req, res) => {
+  Cuisine.deleteOne({ CuisineName: req.body.Cuisine }, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result.n === 0) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+      res.end('Book ID does not exists');
+    } else {
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+  });
+};
+
 module.exports = {
   statesName,
   countryName,
@@ -140,4 +306,9 @@ module.exports = {
   menuFetch,
   fetchReviews,
   fetchRestaurantProfileForCustomer,
+  createState,
+  createCountry,
+  createGender,
+  createCuisine,
+  deleteCuisine,
 };

@@ -22,13 +22,18 @@ const {
   fetchCustomerDetails,
   fetchRegCustomerDetails,
 } = require('./restaurant/loginRestaurant');
-const signupRestaurant = require('./restaurant/signupRestaurant');
+// const signupRestaurant = require('./restaurant/signupRestaurant');
+const {
+  signupRestaurant,
+  loginRestaurant,
+  restaurantLogout,
+} = require('./restaurantData/restaurantHandling');
 
 const Router = express.Router();
 
 // Login for the Restaurant
 Router.post('/loginRestaurant', async (req, res) => {
-  const value = await restLogin(req, res);
+  const value = await loginRestaurant(req, res);
   return value;
 });
 
@@ -39,8 +44,8 @@ Router.post('/signupRestaurant', async (req, res) => {
 });
 
 // Logout for the Restaurant
-Router.post('/logoutRestaurant', async (req, res) => {
-  const value = await logoutRest(req, res);
+Router.post('/restaurantLogout', async (req, res) => {
+  const value = await restaurantLogout(req, res);
   return value;
 });
 

@@ -5,6 +5,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import serverUrl from '../../config';
 import { connect } from 'react-redux';
+import jwt_decode from 'jwt-decode';
 
 // Define a Login Component
 class RestaurantLogin extends Component {
@@ -62,13 +63,18 @@ class RestaurantLogin extends Component {
       .post(serverUrl + 'restaurant/loginRestaurant', data)
       .then((response) => {
         console.log('Status Code : ', response.status);
+        localStorage.setItem('token',response.data);
+        const decoded = jwt_decode(localStorage.getItem('token').split(' ')[1]);
+        localStorage.setItem('user_id', decoded._id);
+        localStorage.setItem('username', decoded.username);
+        localStorage.setItem('role',decoded.role);
         if (response.status === 200) {
           this.setState({
             authFlag: true,
           });
           let payload = {
             emailID: this.state.emailID,
-            role: cookie.load('role'),
+            role: localStorage.getItem('role'),
             loginStatus: 'true',
           };
           this.props.updateLoginInfo(payload);
@@ -88,7 +94,7 @@ class RestaurantLogin extends Component {
   render() {
     //redirect based on successful login
     let redirectVar = null;
-    if (cookie.load('cookie')) {
+    if (localStorage.getItem('token')) {
       redirectVar = <Redirect to="/restaurantProfile" />;
     }
     return (

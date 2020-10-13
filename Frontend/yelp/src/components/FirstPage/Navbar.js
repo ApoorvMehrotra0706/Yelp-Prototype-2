@@ -10,17 +10,55 @@ import { connect } from 'react-redux';
 class Navbar extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      stateNames: [],
+      countryNames: [],
+      genderNames: [],
+    };
     this.handleLogout = this.handleLogout.bind(this);
   }
+
+  componentDidMount() {
+    axios.get(serverUrl + 'staticData/fetchStaticData').then((response) => {
+      console.log(response.data);
+      //update the state with the response data
+      let stateDetails = response.data[0].map((state) => {
+        return { key: state._id, value: state.StateName };
+      });
+      this.setState({
+        stateNames: this.state.stateNames.concat(stateDetails),
+      });
+      let countryDetails = response.data[1].map((country) => {
+        return { key: country._id, value: country.CountryName };
+      });
+      this.setState({
+        countryNames: this.state.countryNames.concat(countryDetails),
+      });
+      let genderDetails = response.data[2].map((gender) => {
+        return { key: gender._id, value: gender.GenderName };
+      });
+      this.setState({
+        genderNames: this.state.genderNames.concat(genderDetails),
+      });
+      let payload = {
+        stateNames: this.state.stateNames,
+        countryNames: this.state.countryNames,
+        genderNames: this.state.genderNames,
+      };
+      this.props.updateStaticDataInfo(payload);
+    });
+  }
+
   // handle logout to destroy the cookie
   handleLogout = () => {
+    localStorage.clear();
     const data = {
-      token: cookie.load('cookie'),
-      role: cookie.load('role'),
+      token: localStorage.getItem('token'),
+      role: localStorage.getItem('role'),
     };
     let url = '';
     if (data.role === 'Customer') url = serverUrl + 'customer/logoutCustomer';
-    else url = serverUrl + 'restaurant/logoutRestaurant';
+    else url = serverUrl + 'restaurant/restaurantLogout';
     axios
       .post(url, data)
       .then((response) => {
@@ -29,7 +67,7 @@ class Navbar extends Component {
           this.setState({
             authFlag: false,
           });
-          localStorage.clear();
+          
           let payload = {
             emailID: '',
             role: '',
@@ -60,10 +98,10 @@ class Navbar extends Component {
     cookie.remove('cookie', { path: '/' });
   };
   render() {
-    //if Cookie is set render Logout Button
+    // if Token is set render Logout Button
     let navLogin = null;
-    if (cookie.load('cookie')) {
-      console.log('Able to read cookie');
+    if (localStorage.getItem('token')) {
+      console.log('Able to read token');
       navLogin = (
         <ul class="nav navbar-nav navbar-right">
           <li>
@@ -75,7 +113,7 @@ class Navbar extends Component {
       );
     } else {
       // Else display login button
-      console.log('Not Able to read cookie');
+      console.log('Not Able to read token');
       navLogin = (
         <ul class="nav navbar-nav navbar-right">
           <li>
@@ -102,11 +140,11 @@ class Navbar extends Component {
       );
     }
     let redirectVar = null;
-    if (cookie.load('cookie') && this.props.location.pathname === '/login') {
+    if (localStorage.getItem('token') && this.props.location.pathname === '/login') {
       redirectVar = <Redirect to="/home" />;
     }
 
-    if (!cookie.load('cookie')) {
+    if (!localStorage.getItem('token')) {
       if (this.props.location.pathname === '/RestaurantList') {
         redirectVar = <Redirect to="/RestaurantList" />;
       } else if (this.props.location.pathname === '/RestaurantPage') {
@@ -117,7 +155,7 @@ class Navbar extends Component {
     }
 
     let options = null;
-    if (!cookie.load('cookie')) {
+    if (!localStorage.getItem('token')) {
       options = (
         <ul class="nav navbar-nav">
           <li class={this.props.location.pathname === '/search' && 'active'}>
@@ -125,7 +163,7 @@ class Navbar extends Component {
           </li>
         </ul>
       );
-    } else if (cookie.load('cookie') && cookie.load('role') === 'Restaurant') {
+    } else if (localStorage.getItem('token') && localStorage.getItem('role') === 'Restaurant') {
       options = (
         <ul class="nav navbar-nav">
           <li class={this.props.location.pathname === '/restaurantProfile' && 'active'}>
@@ -145,7 +183,7 @@ class Navbar extends Component {
           </li>
         </ul>
       );
-    } else if (cookie.load('cookie') && cookie.load('role') === 'Customer') {
+    } else if (localStorage.getItem('token') && localStorage.getItem('role') === 'Customer') {
       options = (
         <ul class="nav navbar-nav">
           <li class={this.props.location.pathname === '/customerProfile' && 'active'}>
@@ -206,6 +244,12 @@ const mapDispatchToProps = (dispatch) => {
     updateNameInfo: (payload) => {
       dispatch({
         type: 'update-name-field',
+        payload,
+      });
+    },
+    updateStaticDataInfo: (payload) => {
+      dispatch({
+        type: 'update-static-field',
         payload,
       });
     },

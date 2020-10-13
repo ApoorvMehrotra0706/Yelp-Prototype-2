@@ -4,6 +4,7 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import loginHandlingReducer from '../../reducer/loginHandlingReducer';
+import jwt_decode from 'jwt-decode';
 import { connect } from 'react-redux';
 import serverUrl from './../../config';
 
@@ -69,6 +70,7 @@ class CustomerLogin extends Component {
       .then((response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
+          localStorage.setItem('token',response.data);
           this.setState({
             authFlag: true,
           });
@@ -94,7 +96,11 @@ class CustomerLogin extends Component {
   render() {
     //redirect based on successful login
     let redirectVar = null;
-    if (cookie.load('cookie')) {
+    if (localStorage.getItem('token')) {
+      const decoded = jwt_decode(localStorage.getItem('token').split(' ')[1]);
+      localStorage.setItem('user_id', decoded._id);
+      localStorage.setItem('username', decoded.username);
+      localStorage.setItem('role',decoded.role);
       redirectVar = <Redirect to="/webPage" />;
     }
     return (

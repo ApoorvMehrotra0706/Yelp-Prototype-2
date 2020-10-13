@@ -18,7 +18,12 @@ const {
   eventRegistration,
   getCustRegisteredEvents,
 } = require('./customer/loginCustomer');
-const signupCustomer = require('./customer/signupCustomer');
+// const signupCustomer = require('./customer/signupCustomer');
+const {
+  signupCustomer,
+  loginCustomer,
+  logoutCustomer,
+} = require('./customerData/customerHandling');
 const {
   statesName,
   countryName,
@@ -29,13 +34,18 @@ const {
   menuFetch,
   fetchReviews,
   fetchRestaurantProfileForCustomer,
+  createState,
+  createCountry,
+  createGender,
+  createCuisine,
+  deleteCuisine,
 } = require('./customer/states');
 
 const Router = express.Router();
 
 // Login for the customer
 Router.post('/loginCustomer', async (req, res) => {
-  const value = await loginCust(req, res);
+  const value = await loginCustomer(req, res);
   return value;
 });
 
@@ -47,7 +57,7 @@ Router.post('/signupCustomer', async (req, res) => {
 
 // Logout for the customer
 Router.post('/logoutCustomer', async (req, res) => {
-  const value = await logoutCust(req, res);
+  const value = await logoutCustomer(req, res);
   return value;
 });
 
@@ -160,6 +170,31 @@ Router.post('/eventRegistration', async (req, res) => {
 
 Router.get('/getCustRegisteredEvents', async (req, res) => {
   const value = await getCustRegisteredEvents(req, res);
+  return value;
+});
+
+Router.post('/stateCreate', async (req, res) => {
+  const value = await createState(req, res);
+  return value;
+});
+
+Router.post('/createCountry', async (req, res) => {
+  const value = await createCountry(req, res);
+  return value;
+});
+
+Router.post('/createGender', async (req, res) => {
+  const value = await createGender(req, res);
+  return value;
+});
+
+Router.post('/createCuisine', async (req, res) => {
+  const value = await createCuisine(req, res);
+  return value;
+});
+
+Router.delete('/deleteCuisine', async (req, res) => {
+  const value = await deleteCuisine(req, res);
   return value;
 });
 

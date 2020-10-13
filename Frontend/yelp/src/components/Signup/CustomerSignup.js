@@ -24,6 +24,7 @@ class CustomerSignup extends Component {
       countryError: 0,
       stateName: '',
       stateNames: [],
+      countryNames: [],
       city: '',
       cityError: '',
       streetAddress: '',
@@ -60,15 +61,20 @@ class CustomerSignup extends Component {
   }
 
   componentDidMount() {
-    axios.get(serverUrl + 'customer/stateNames').then((response) => {
-      //update the state with the response data
-      let stateDetails = response.data[0].map((state) => {
-        return { key: state.StateID, value: state.State_Name };
-      });
-      this.setState({
-        stateNames: this.state.stateNames.concat(stateDetails),
-      });
+    // axios.get(serverUrl + 'customer/stateNames').then((response) => {
+    //   //update the state with the response data
+    //   let stateDetails = response.data[0].map((state) => {
+    //     return { key: state.StateID, value: state.State_Name };
+    //   });
+    //   this.setState({
+    //     stateNames: this.state.stateNames.concat(stateDetails),
+    //   });
+    // });
+    this.setState({
+      stateNames: this.props.staticData.stateNames,
+      countryNames: this.props.staticData.countryNames,
     });
+    
   }
   // emailID change handler to update state variable with the text entered by the user
   emailIDChangeHandler = (e) => {
@@ -253,6 +259,7 @@ class CustomerSignup extends Component {
         .catch((error) => {
           this.setState({
             errorFlag: 1,
+            emailIDerror: 1,
           });
         });
     } else {
@@ -442,7 +449,7 @@ class CustomerSignup extends Component {
                       </select>
                     </div>
 
-                    <div class="form-group">
+                    {/* <div class="form-group">
                       <input
                         onChange={this.countryChangeHandler}
                         type="text"
@@ -457,6 +464,19 @@ class CustomerSignup extends Component {
                       {this.state.errorFlag === 1 && (
                         <p style={{ color: 'red' }}>Signup failed.ID already in use</p>
                       )}
+                    </div> */}
+                    <div class="form-group">
+                      <select
+                        className="form-control"
+                        value={this.state.countryName}
+                        onChange={this.countryChangeHandler}
+                      >
+                        {this.state.countryNames.map((country) => (
+                          <option className="Dropdown-menu" key={country.key} value={country.value}>
+                            {country.value}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <button class="btn btn-primary">Register</button>
                   </div>
@@ -480,5 +500,13 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
+const mapStateToProps = (state) => {
+  const { staticData } = state.staticDataReducer;
+  return {
+    staticData: staticData,
+    
+  };
+};
 //export Login Component
-export default connect(null, mapDispatchToProps)(CustomerSignup);
+export default connect(mapStateToProps, mapDispatchToProps)(CustomerSignup);

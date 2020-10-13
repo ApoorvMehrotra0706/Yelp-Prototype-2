@@ -25,10 +25,11 @@ class RestaurantSignup extends Component {
       streetAddressError: 0,
       city: '',
       cityError: 0,
-      stateName: '',
+      stateName: null,
       stateNames: [],
       stateNameError: 0,
       country: '',
+      countryNames: [],
       countryError: 0,
       zip: '',
       zipError: '',
@@ -59,14 +60,19 @@ class RestaurantSignup extends Component {
   }
 
   componentDidMount() {
-    axios.get(serverUrl + 'customer/stateNames').then((response) => {
-      //update the state with the response data
-      let stateDetails = response.data[0].map((state) => {
-        return { key: state.StateID, value: state.State_Name };
-      });
-      this.setState({
-        stateNames: this.state.stateNames.concat(stateDetails),
-      });
+    // axios.get(serverUrl + 'customer/stateNames').then((response) => {
+    //   //update the state with the response data
+    //   let stateDetails = response.data[0].map((state) => {
+    //     return { key: state.StateID, value: state.State_Name };
+    //   });
+    //   this.setState({
+    //     stateNames: this.state.stateNames.concat(stateDetails),
+    //   });
+    // });
+
+    this.setState({
+      stateNames: this.props.staticData.stateNames,
+      countryNames: this.props.staticData.countryNames,
     });
   }
   // emailID change handler to update state variable with the text entered by the user
@@ -246,6 +252,7 @@ class RestaurantSignup extends Component {
         .catch((error) => {
           this.setState({
             errorFlag: 1,
+            emailIDerror: 1
           });
         });
     } else {
@@ -381,7 +388,7 @@ class RestaurantSignup extends Component {
                         ))}
                       </select>
                     </div>
-                    <div class="form-group">
+                    {/* <div class="form-group">
                       <input
                         onChange={this.countryChangeHandler}
                         type="text"
@@ -393,7 +400,21 @@ class RestaurantSignup extends Component {
                     </div>
                     {this.state.countryError === 1 && (
                       <p style={{ color: 'red' }}>Only letters allowed</p>
-                    )}
+                    )} */}
+                    <div class="form-group">
+                      <select
+                        className="form-control"
+                        value={this.state.CountryName}
+                        onChange={this.countryChangeHandler}
+                        required
+                      >
+                        {this.state.countryNames.map((country) => (
+                          <option className="Dropdown-menu" key={country.key} value={country.value}>
+                            {country.value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <div class="form-group">
                       <input
                         onChange={this.zipChangeHandler}
@@ -429,5 +450,13 @@ const mapDispatchToProps = (dispatch) => {
     },
   };
 };
+
+const mapStateToProps = (state) => {
+  const { staticData } = state.staticDataReducer;
+  return {
+    staticData: staticData,
+    
+  };
+};
 //export Login Component
-export default connect(null, mapDispatchToProps)(RestaurantSignup);
+export default connect(mapStateToProps, mapDispatchToProps)(RestaurantSignup);
