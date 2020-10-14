@@ -440,7 +440,9 @@ class CustomerSignup extends Component {
                         className="form-control"
                         value={this.state.stateName}
                         onChange={this.onStateSelect}
-                      >
+                      ><option className="Dropdown-menu" key="" value="">
+                      --Select-State--
+                    </option>
                         {this.state.stateNames.map((states) => (
                           <option className="Dropdown-menu" key={states.key} value={states.value}>
                             {states.value}
@@ -471,6 +473,9 @@ class CustomerSignup extends Component {
                         value={this.state.countryName}
                         onChange={this.countryChangeHandler}
                       >
+                        <option className="Dropdown-menu" key="" value="">
+                            --Select-Country--
+                          </option>
                         {this.state.countryNames.map((country) => (
                           <option className="Dropdown-menu" key={country.key} value={country.value}>
                             {country.value}

@@ -12,14 +12,18 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 
 const mongoose = require('mongoose');
+const cors = require('cors');
 const restaurantRoutes = require('./routes/restRoutes');
 
 const customerRoutes = require('./routes/custRoutes');
 
 const staticRoutes = require('./routes/staticRoutes');
 
+const { mongoDB, frontendURL } = require('./config');
+
 const app = express();
 
+app.use(cors({ origin: frontendURL, credentials: true }));
 app.use(cookieParser());
 app.use(bodyParser.json());
 
@@ -45,8 +49,6 @@ app.use(function (req, res, next) {
   res.setHeader('Cache-Control', 'no-cache');
   next();
 });
-
-const { mongoDB } = require('./config');
 
 const options = {
   useNewUrlParser: true,

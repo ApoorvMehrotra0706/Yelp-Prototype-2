@@ -7,6 +7,7 @@ import customerBasicInfoReducer from './customerBasicInfoReducer';
 import searchTabReducer from './searchTabReducer';
 import restaurantSearchResultReducer from './restaurantSearchResultReducer';
 import staticDataReducer from './staticDataReducer';
+import restaurantDataReducer from './restaurantDataReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -17,6 +18,7 @@ const combReducer = combineReducers({
   searchTabReducer: searchTabReducer,
   restaurantSearchResultReducer: restaurantSearchResultReducer,
   staticDataReducer: staticDataReducer,
+  restaurantDataReducer: restaurantDataReducer,
 
 });
 

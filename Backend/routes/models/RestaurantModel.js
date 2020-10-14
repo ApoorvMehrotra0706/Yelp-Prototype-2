@@ -15,7 +15,7 @@ const restaurantSchema = new Schema(
     zip: { type: Number, min: 10000, max: 99999, required: true },
     ImageURL: { type: String },
     Description: { type: String },
-    Open_Time: { type: String },
+    Opening_Time: { type: String },
     Closing_Time: { type: String },
     Curbside_Pickup: { type: Boolean },
     Dine_In: { type: Boolean },

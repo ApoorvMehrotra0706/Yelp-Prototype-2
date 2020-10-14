@@ -381,6 +381,9 @@ class RestaurantSignup extends Component {
                         value={this.state.stateName}
                         onChange={this.onStateSelect}
                       >
+                        <option className="Dropdown-menu" key="" value="">
+                            --Select-State--
+                          </option>
                         {this.state.stateNames.map((states) => (
                           <option className="Dropdown-menu" key={states.key} value={states.value}>
                             {states.value}
@@ -408,6 +411,9 @@ class RestaurantSignup extends Component {
                         onChange={this.countryChangeHandler}
                         required
                       >
+                        <option className="Dropdown-menu" key="" value="">
+                            --Select-Country
+                          </option>
                         {this.state.countryNames.map((country) => (
                           <option className="Dropdown-menu" key={country.key} value={country.value}>
                             {country.value}

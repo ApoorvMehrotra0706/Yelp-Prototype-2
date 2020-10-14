@@ -1,15 +1,13 @@
 const express = require('express');
+const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
-  restLogin,
-  logoutRest,
   menuFetch,
   menuInsert,
   menuItemDeletion,
   reviewFetch,
-  getRestaurantCompleteInfo,
-  updateRestaurantProfile,
+  // updateRestaurantProfile,
   updateMenu,
   getRestaurantOrders,
   getPersonOrder,
@@ -18,7 +16,6 @@ const {
   fetchEvents,
   createNewEvent,
   fetchRegisteredCustomers,
-  uploadRestaurantProfilePic,
   fetchCustomerDetails,
   fetchRegCustomerDetails,
 } = require('./restaurant/loginRestaurant');
@@ -27,6 +24,9 @@ const {
   signupRestaurant,
   loginRestaurant,
   restaurantLogout,
+  restaurantProfile,
+  uploadRestaurantProfilePic,
+  updateRestaurantProfile,
 } = require('./restaurantData/restaurantHandling');
 
 const Router = express.Router();
@@ -49,6 +49,23 @@ Router.post('/restaurantLogout', async (req, res) => {
   return value;
 });
 
+// Fetching Restaurant Profile
+Router.get('/restaurantProfile', checkAuth, async (req, res) => {
+  const value = await restaurantProfile(req, res);
+  return value;
+});
+
+// Upload profile picture
+Router.post('/uploadRestaurantProfilePic', checkAuth, async (req, res) => {
+  const value = await uploadRestaurantProfilePic(req, res);
+  return value;
+});
+
+// Update Restaurant Profile
+Router.post('/updateRestProfile', checkAuth, async (req, res) => {
+  const value = await updateRestaurantProfile(req, res);
+  return value;
+});
 // Fetching items from menu
 Router.get('/menuFetch', async (req, res) => {
   const value = await menuFetch(req, res);
@@ -70,16 +87,6 @@ Router.post('/menuDelete', async (req, res) => {
 // Fetch reviews for the restaurant
 Router.get('/fetchReview', async (req, res) => {
   const value = await reviewFetch(req, res);
-  return value;
-});
-
-Router.get('/restaurantProfile', async (req, res) => {
-  const value = await getRestaurantCompleteInfo(req, res);
-  return value;
-});
-
-Router.post('/updateRestProfile', async (req, res) => {
-  const value = await updateRestaurantProfile(req, res);
   return value;
 });
 
@@ -120,11 +127,6 @@ Router.get('/fetchRegisteredCustomers', async (req, res) => {
 
 Router.post('/createNewEvent', async (req, res) => {
   const value = await createNewEvent(req, res);
-  return value;
-});
-
-Router.post('/uploadRestaurantProfilePic', async (req, res) => {
-  const value = await uploadRestaurantProfilePic(req, res);
   return value;
 });
 
