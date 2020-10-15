@@ -150,20 +150,7 @@ class Profile extends Component {
         ImageUrl: '',
       };
       this.setState({
-        // Name: orignalData.Name,
-        // Email: orignalData.Email,
-        // Country: orignalData.Country,
-        // StateName: orignalData.StateName,
-        // City: orignalData.City,
-        // Zip: orignalData.Zip,
-        // Street: orignalData.Street,
-        // Contact: orignalData.Contact,
-        // Opening_Time: orignalData.Opening_Time,
-        // Closing_Time: orignalData.Closing_Time,
-        // CurbsidePickup: orignalData.CurbsidePickup,
-        // DineIn: orignalData.DineIn,
-        // YelpDelivery: orignalData.YelpDelivery,
-        // ImageUrl: orignalData.ImageUrl,
+        
         tmpEditProfile,
         isFormDisable: !this.state.isFormDisable,
 

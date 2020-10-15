@@ -11,7 +11,7 @@ const defaultState = {
       case 'update-static-field': {
         return {
           ...state,
-          staticData: { ...state.signup, ...action.payload },
+          staticData: { ...state.staticData, ...action.payload },
         };
       }
       default: {

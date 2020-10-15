@@ -4,16 +4,20 @@ import serverUrl from '../../config';
 import './FoodMenu.css';
 import Food from './Food';
 import NewFoodForm from './NewFoodForm';
+import { connect } from 'react-redux';
+import ReactPaginate from 'react-paginate';
+
 class FoodMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      APPETIZERS: [],
-      BEVERAGES: [],
-      DESSERTS: [],
-      MAIN_COURSE: [],
-      SALADS: [],
-      CUISINES: [],
+      // APPETIZERS: [],
+      // BEVERAGES: [],
+      // DESSERTS: [],
+      // MAIN_COURSE: [],
+      // SALADS: [],
+      // CUISINES: [],
+      pageNo: '0',
       showFoodCategory: localStorage.getItem('showFoodCategory'),
       addFoodItemForm: false,
       newFood: {
@@ -43,18 +47,765 @@ class FoodMenu extends Component {
     if (localStorage.getItem('showFoodCategory')) {
       this.showMenuCategory(localStorage.getItem('showFoodCategory'));
     }
-
-    axios.get(serverUrl + 'customer/cuisineFetch').then((response) => {
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    axios.get(serverUrl + 'restaurant/cuisineFetch',
+    {  params: { RestaurantID: localStorage.getItem('user_id') }, withCredentials: true }).then((response) => {
       console.log(response.data);
-      let allCuisines = response.data[0].map((Cusine) => {
-        return { key: Cusine.CuisineID, value: Cusine.Cuisine_Name };
+      let allCuisines = response.data.map((Cusine) => {
+        return { key: Cusine._id, value: Cusine.CuisineName };
       });
 
-      this.setState({
-        CUISINES: this.state.CUISINES.concat(allCuisines),
-      });
+      let payload = {
+        cuisineNames : allCuisines,
+      }
+
+      this.props.updateCuisineInfo(payload);
+      
     });
   }
+
+
+  // Open or close Food Addition Form
+  openFoodForm = () => {
+    if (this.state.addFoodItemForm) {
+      let tmp = {
+        Name: '',
+        MainIngredients: '',
+        CuisineID: null,
+        Description: '',
+        Price: null,
+        ImageUrl: '',
+      };
+      this.setState({
+        newFood: { ...this.state.newFood, ...tmp },
+      });
+    } else {
+      this.setState({ editableId: null });
+    }
+    this.setState({
+      addFoodItemForm: !this.state.addFoodItemForm,
+    });
+  };
+
+   // onChange Handler for new food item form
+   onNameChangeHandler = (value, menuCategory) => {
+    let tmp = { Name: value, category: menuCategory };
+    this.setState({
+      newFood: { ...this.state.newFood, ...tmp },
+    });
+  };
+  onPriceChangeHandler = (value, menuCategory) => {
+    let tmp = { Price: value, category: menuCategory };
+    this.setState({
+      newFood: { ...this.state.newFood, ...tmp },
+    });
+  };
+  onCusineChangeHandler = (value, menuCategory) => {
+    let tmp = { CuisineID: value, category: menuCategory };
+    this.setState({
+      newFood: { ...this.state.newFood, ...tmp },
+    });
+  };
+  onIngredentsChangeHandler = (value, menuCategory) => {
+    let tmp = { MainIngredients: value, category: menuCategory };
+    this.setState({
+      newFood: { ...this.state.newFood, ...tmp },
+    });
+  };
+  onDescriptionChangeHandler = (value, menuCategory) => {
+    let tmp = { Description: value, category: menuCategory };
+    this.setState({
+      newFood: { ...this.state.newFood, ...tmp },
+    });
+  };
+ // Saving a new picture 
+  onChangeFileHandler = (event) => {
+    if (event.target.files.length === 1) {
+      event.preventDefault();
+      let formData = new FormData();
+      formData.append('file', event.target.files[0], event.target.files[0].name);
+      axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+      axios({
+        method: 'post',
+        url: serverUrl + 'restaurant/foodImageUpload',
+        data: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+        .then((response) => {
+          console.log('Status Code : ', response.status);
+          if (parseInt(response.status) === 200) {
+            console.log('Product Saved');
+            let tmp = { ImageUrl: response.data };
+            this.setState({
+              newFood: { ...this.state.newFood, ...tmp },
+            });
+          } else if (parseInt(response.status) === 400) {
+            console.log(response.data);
+          }
+        })
+        .catch((error) => {
+          this.setState({
+            errorMsg: error.message,
+            authFlag: false,
+          });
+        });
+    }
+  };
+
+// Creating a new entry
+  onSaveCreateNew = () => {
+    const data = {
+      category: this.state.showFoodCategory,
+      RestaurantID: localStorage.getItem('user_id'),
+      Dishname: this.state.newFood.Name,
+      Price: this.state.newFood.Price,
+      Cuisine: this.state.newFood.CuisineID,
+      Main_Ingredients: this.state.newFood.MainIngredients,
+      Description: this.state.newFood.Description,
+      ImageURL: this.state.newFood.ImageUrl,
+    };
+    //set the with credentials to true
+    axios.defaults.withCredentials = true;
+    //make a post request with the user data
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    axios.post(serverUrl + 'restaurant/menuInsert', data).then(
+      (response) => {
+        console.log('Status Code : ', response.status);
+        if (response.status === 200) {
+          console.log(response.data);
+          // let newFood = {
+          //   category: this.state.showFoodCategory,
+          //   Name: response.data[0][0].Dishname,
+          //   MainIngredients: response.data[0][0].Main_Ingredients,
+          //   CuisineID: response.data[0][0].CuisineID,
+          //   Description: response.data[0][0].Description,
+          //   Price: response.data[0][0].Price,
+          //   ImageUrl: response.data[0][0].ImageURL,
+          // };
+          alert("New Food Entry Created");
+          // newFoodId = { ...newFoodId, ...this.state.newFood };
+          // switch (this.state.showFoodCategory) {
+          //   case 'APPETIZERS':
+          //     this.setState({
+          //       APPETIZERS: this.state.APPETIZERS.concat(newFood),
+          //     });
+          //     break;
+          //   case 'SALADS':
+          //     this.setState({
+          //       SALADS: this.state.SALADS.concat(newFood),
+          //     });
+          //     break;
+          //   case 'MAIN_COURSE':
+          //     this.setState({
+          //       MAIN_COURSE: this.state.MAIN_COURSE.concat(newFood),
+          //     });
+          //     break;
+          //   case 'BEVERAGES':
+          //     this.setState({
+          //       BEVERAGES: this.state.BEVERAGES.concat(newFood),
+          //     });
+          //     break;
+          //   case 'DESSERTS':
+          //     this.setState({
+          //       DESSERTS: this.state.DESSERTS.concat(newFood),
+          //     });
+          //     break;
+          //   default:
+          //     console.log('Sorry, bad choice');
+          //     break;
+          // }
+        }
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+    let newFood = {
+      category: '',
+      Dishname: '',
+      Main_Ingredients: '',
+      CuisineID: null,
+      Description: '',
+      Price: null,
+    };
+    this.setState({
+      newFood: { ...this.setState.newFood, ...newFood },
+      addFoodItemForm: false,
+    });
+  };
+  /* New food form ends */
+
+  // open or hide on select menu and fetch data if not in state
+  showMenuCategory = (menuCategory) => {
+    let tmp = {
+      ID: null,
+      category: '',
+      Name: '',
+      MainIngredients: '',
+      CuisineID: null,
+      Description: '',
+      Price: null,
+    };
+    if (this.state.showFoodCategory === menuCategory) {
+      localStorage.setItem('showFoodCategory', '');
+      this.setState({
+        editableCategory: '',
+        showFoodCategory: '',
+        addFoodItemForm: false,
+        tmpFood: { ...this.state.tmpFood, ...tmp },
+      });
+    } else {
+      localStorage.setItem('showFoodCategory', menuCategory);
+      this.setState({
+        showFoodCategory: menuCategory,
+        editableCategory: menuCategory,
+        addFoodItemForm: false,
+      });
+    }
+    switch (menuCategory) {
+      case 'APPETIZERS':
+        // if (this.state.APPETIZERS.length === 0) {
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch',
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo: '0' }, withCredentials: true } // restID & pageNo = 0
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allAppetizers = response.data[0].map((Appetizer) => { // payload, move it in Redux
+                return {
+                  ID: Appetizer._id,
+                  Name: Appetizer.Dishname,
+                  MainIngredients: Appetizer.Main_Ingredients,
+                  CuisineID: Appetizer.Cuisine,
+                  Description: Appetizer.Description,
+                  Price: Appetizer.Price,
+                  ImageUrl: Appetizer.ImageURL,
+                };
+              });
+
+              // this.setState({
+              //   APPETIZERS: this.state.APPETIZERS.concat(allAppetizers), // Redux calling 
+              // });
+              let payload = {
+                APPETIZERS: allAppetizers,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+        // }
+        break;
+      case 'SALADS':
+        // if (this.state.SALADS.length === 0) {
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch',
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo: '0' }, withCredentials: true } // page no , rest ID
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allSalads = response.data[0].map((Salad) => {
+                return {
+                  ID: Salad._id,
+                  Name: Salad.Dishname,
+                  MainIngredients: Salad.Main_Ingredients,
+                  CuisineID: Salad.Cuisine,
+                  Description: Salad.Description,
+                  Price: Salad.Price,
+                  ImageUrl: Salad.ImageURL,
+                };
+              });
+
+              let payload = {
+                SALADS: allSalads,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+
+            });
+     
+        break;
+      case 'MAIN_COURSE':
+        
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch',
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo: '0' }, withCredentials: true } // Rest ID and page no.
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allMainCourse = response.data[0].map((MainCourse) => {
+                return {
+                  ID: MainCourse._id,
+                  Name: MainCourse.Dishname,
+                  MainIngredients: MainCourse.Main_Ingredients,
+                  CuisineID: MainCourse.Cuisine,
+                  Description: MainCourse.Description,
+                  Price: MainCourse.Price,
+                  ImageUrl: MainCourse.ImageURL,
+                };
+              });
+
+              // this.setState({
+              //   MAIN_COURSE: this.state.MAIN_COURSE.concat(allMainCourse), // Move to Redux
+              // });
+              let payload = {
+                MAIN_COURSE: allMainCourse,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+        // }
+        break;
+      case 'BEVERAGES':
+        // if (this.state.BEVERAGES.length === 0) {
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch', 
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo: '0' }, withCredentials: true } // rest id and page no
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allBeverages = response.data[0].map((Beverage) => {
+                return {
+                  ID: Beverage._id,
+                  Name: Beverage.Dishname,
+                  MainIngredients: Beverage.Main_Ingredients,
+                  CuisineID: Beverage.Cuisine,
+                  Description: Beverage.Description,
+                  Price: Beverage.Price,
+                  ImageUrl: Beverage.ImageURL,
+                };
+              });
+
+              // this.setState({
+              //   BEVERAGES: this.state.BEVERAGES.concat(allBeverages), // move to redux
+              // });
+              let payload = {
+                BEVERAGES: allBeverages,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+        // }
+        break;
+      case 'DESSERTS':
+        // if (this.state.DESSERTS.length === 0) {
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(serverUrl + 'restaurant/menuFetch', 
+            { params: { category: menuCategory, 
+              RestaurantID: localStorage.getItem('user_id'),
+              pageNo: '0' }, withCredentials: true }
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allDesserts = response.data[0].map((Dessert) => {
+                return {
+                  ID: Dessert._id,
+                  Name: Dessert.Dishname,
+                  MainIngredients: Dessert.Main_Ingredients,
+                  CuisineID: Dessert.Cuisine,
+                  Description: Dessert.Description,
+                  Price: Dessert.Price,
+                  ImageUrl: Dessert.ImageURL,
+                };
+              });
+
+              
+              let payload = {
+                DESSERTS: allDesserts,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+        // }
+        break;
+      default:
+        console.log('Incorrect ask');
+        break;
+    }
+  };
+
+  // Create paginate method  , page no., restID ( from localstorage)
+
+  handlePageClick = (e) => {
+    const menuCategory = localStorage.getItem('showFoodCategory');
+    this.setState({
+      pageNo: e.selected,
+    });
+    this.fetchCall(menuCategory, this.state.pageNo);
+    // switch (menuCategory) {
+    //   case 'APPETIZERS':
+    //     // if (this.state.APPETIZERS.length === 0) {
+    //       axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    //       axios
+    //         .get(
+    //           serverUrl + 'restaurant/menuFetch',
+
+    //           { params: { category: menuCategory, 
+    //             RestaurantID: localStorage.getItem('user_id'),
+    //             pageNo: e.selected }, withCredentials: true } // restID & pageNo = 0
+    //         )
+    //         .then((response) => {
+    //           console.log(response.data);
+    //           let allAppetizers = response.data[0].map((Appetizer) => { // payload, move it in Redux
+    //             return {
+    //               ID: Appetizer._id,
+    //               Name: Appetizer.Dishname,
+    //               MainIngredients: Appetizer.Main_Ingredients,
+    //               CuisineID: Appetizer.Cuisine,
+    //               Description: Appetizer.Description,
+    //               Price: Appetizer.Price,
+    //               ImageUrl: Appetizer.ImageURL,
+    //             };
+    //           });
+
+    //           // this.setState({
+    //           //   APPETIZERS: this.state.APPETIZERS.concat(allAppetizers), // Redux calling 
+    //           // });
+    //           let payload = {
+    //             APPETIZERS: allAppetizers,
+    //             PageCount: response.data[1],
+    //           };
+    //           this.props.updatefoodMenu(payload);
+    //         });
+    //     // }
+    //     break;
+    //   case 'SALADS':
+    //     // if (this.state.SALADS.length === 0) {
+    //       axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    //       axios
+    //         .get(
+    //           serverUrl + 'restaurant/menuFetch',
+
+    //           { params: { category: menuCategory, 
+    //             RestaurantID: localStorage.getItem('user_id'),
+    //             pageNo: e.selected }, withCredentials: true } // page no , rest ID
+    //         )
+    //         .then((response) => {
+    //           console.log(response.data);
+    //           let allSalads = response.data[0].map((Salad) => {
+    //             return {
+    //               ID: Salad._id,
+    //               Name: Salad.Dishname,
+    //               MainIngredients: Salad.Main_Ingredients,
+    //               CuisineID: Salad.Cuisine,
+    //               Description: Salad.Description,
+    //               Price: Salad.Price,
+    //               ImageUrl: Salad.ImageURL,
+    //             };
+    //           });
+
+    //           // this.setState({
+    //           //   SALADS: this.state.SALADS.concat(allSalads), // Move to Redux
+    //           // });
+    //           let payload = {
+    //             SALADS: allSalads,
+    //             PageCount: response.data[1],
+    //           };
+    //           this.props.updatefoodMenu(payload);
+
+    //         });
+    //     // }
+    //     break;
+    //   case 'MAIN_COURSE':
+    //     // if (this.state.MAIN_COURSE.length === 0) {
+    //       axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    //       axios
+    //         .get(
+    //           serverUrl + 'restaurant/menuFetch',
+
+    //           { params: { category: menuCategory, 
+    //             RestaurantID: localStorage.getItem('user_id'),
+    //             pageNo: e.selected }, withCredentials: true } // Rest ID and page no.
+    //         )
+    //         .then((response) => {
+    //           console.log(response.data);
+    //           let allMainCourse = response.data[0].map((MainCourse) => {
+    //             return {
+    //               ID: MainCourse._id,
+    //               Name: MainCourse.Dishname,
+    //               MainIngredients: MainCourse.Main_Ingredients,
+    //               CuisineID: MainCourse.Cuisine,
+    //               Description: MainCourse.Description,
+    //               Price: MainCourse.Price,
+    //               ImageUrl: MainCourse.ImageURL,
+    //             };
+    //           });
+
+    //           // this.setState({
+    //           //   MAIN_COURSE: this.state.MAIN_COURSE.concat(allMainCourse), // Move to Redux
+    //           // });
+    //           let payload = {
+    //             MAIN_COURSE: allMainCourse,
+    //             PageCount: response.data[1],
+    //           };
+    //           this.props.updatefoodMenu(payload);
+    //         });
+    //     // }
+    //     break;
+    //   case 'BEVERAGES':
+    //     // if (this.state.BEVERAGES.length === 0) {
+    //       axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    //       axios
+    //         .get(
+    //           serverUrl + 'restaurant/menuFetch', 
+
+    //           { params: { category: menuCategory, 
+    //             RestaurantID: localStorage.getItem('user_id'),
+    //             pageNo: e.selected }, withCredentials: true } // rest id and page no
+    //         )
+    //         .then((response) => {
+    //           console.log(response.data);
+    //           let allBeverages = response.data[0].map((Beverage) => {
+    //             return {
+    //               ID: Beverage._id,
+    //               Name: Beverage.Dishname,
+    //               MainIngredients: Beverage.Main_Ingredients,
+    //               CuisineID: Beverage.Cuisine,
+    //               Description: Beverage.Description,
+    //               Price: Beverage.Price,
+    //               ImageUrl: Beverage.ImageURL,
+    //             };
+    //           });
+
+    //           // this.setState({
+    //           //   BEVERAGES: this.state.BEVERAGES.concat(allBeverages), // move to redux
+    //           // });
+    //           let payload = {
+    //             BEVERAGES: allBeverages,
+    //             PageCount: response.data[1],
+    //           };
+    //           this.props.updatefoodMenu(payload);
+    //         });
+    //     // }
+    //     break;
+    //   case 'DESSERTS':
+    //     // if (this.state.DESSERTS.length === 0) {
+    //       axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    //       axios
+    //         .get(serverUrl + 'restaurant/menuFetch', 
+    //         { params: { category: menuCategory, 
+    //           RestaurantID: localStorage.getItem('user_id'),
+    //           pageNo: e.selected }, withCredentials: true }
+    //         )
+    //         .then((response) => {
+    //           console.log(response.data);
+    //           let allDesserts = response.data[0].map((Dessert) => {
+    //             return {
+    //               ID: Dessert._id,
+    //               Name: Dessert.Dishname,
+    //               MainIngredients: Dessert.Main_Ingredients,
+    //               CuisineID: Dessert.Cuisine,
+    //               Description: Dessert.Description,
+    //               Price: Dessert.Price,
+    //               ImageUrl: Dessert.ImageURL,
+    //             };
+    //           });
+
+    //           // this.setState({
+    //           //   DESSERTS: this.state.DESSERTS.concat(allDesert), // Move to Redux
+    //           // });
+    //           let payload = {
+    //             DESSERTS: allDesserts,
+    //             PageCount: response.data[1],
+    //           };
+    //           this.props.updatefoodMenu(payload);
+    //         });
+    //     // }
+    //     break;
+    //   default:
+    //     console.log('Incorrect ask');
+    //     break;
+    // }
+  };
+
+  fetchCall(menuCategory, pageNo) {
+    switch (menuCategory) {
+      case 'APPETIZERS':
+        // if (this.state.APPETIZERS.length === 0) {
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch',
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo }, withCredentials: true } // restID & pageNo = 0
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allAppetizers = response.data[0].map((Appetizer) => { // payload, move it in Redux
+                return {
+                  ID: Appetizer._id,
+                  Name: Appetizer.Dishname,
+                  MainIngredients: Appetizer.Main_Ingredients,
+                  CuisineID: Appetizer.Cuisine,
+                  Description: Appetizer.Description,
+                  Price: Appetizer.Price,
+                  ImageUrl: Appetizer.ImageURL,
+                };
+              });
+
+              let payload = {
+                APPETIZERS: allAppetizers,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+        
+        break;
+      case 'SALADS':
+        
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch',
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo}, withCredentials: true } // page no , rest ID
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allSalads = response.data[0].map((Salad) => {
+                return {
+                  ID: Salad._id,
+                  Name: Salad.Dishname,
+                  MainIngredients: Salad.Main_Ingredients,
+                  CuisineID: Salad.Cuisine,
+                  Description: Salad.Description,
+                  Price: Salad.Price,
+                  ImageUrl: Salad.ImageURL,
+                };
+              });
+
+              let payload = {
+                SALADS: allSalads,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+
+            });
+
+        break;
+      case 'MAIN_COURSE':
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch',
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo }, withCredentials: true } // Rest ID and page no.
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allMainCourse = response.data[0].map((MainCourse) => {
+                return {
+                  ID: MainCourse._id,
+                  Name: MainCourse.Dishname,
+                  MainIngredients: MainCourse.Main_Ingredients,
+                  CuisineID: MainCourse.Cuisine,
+                  Description: MainCourse.Description,
+                  Price: MainCourse.Price,
+                  ImageUrl: MainCourse.ImageURL,
+                };
+              });
+              let payload = {
+                MAIN_COURSE: allMainCourse,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+       
+        break;
+      case 'BEVERAGES':
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(
+              serverUrl + 'restaurant/menuFetch', 
+
+              { params: { category: menuCategory, 
+                RestaurantID: localStorage.getItem('user_id'),
+                pageNo }, withCredentials: true } // rest id and page no
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allBeverages = response.data[0].map((Beverage) => {
+                return {
+                  ID: Beverage._id,
+                  Name: Beverage.Dishname,
+                  MainIngredients: Beverage.Main_Ingredients,
+                  CuisineID: Beverage.Cuisine,
+                  Description: Beverage.Description,
+                  Price: Beverage.Price,
+                  ImageUrl: Beverage.ImageURL,
+                };
+              });
+
+              let payload = {
+                BEVERAGES: allBeverages,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+       
+        break;
+      case 'DESSERTS':
+       
+          axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+          axios
+            .get(serverUrl + 'restaurant/menuFetch', 
+            { params: { category: menuCategory, 
+              RestaurantID: localStorage.getItem('user_id'),
+              pageNo }, withCredentials: true }
+            )
+            .then((response) => {
+              console.log(response.data);
+              let allDesserts = response.data[0].map((Dessert) => {
+                return {
+                  ID: Dessert._id,
+                  Name: Dessert.Dishname,
+                  MainIngredients: Dessert.Main_Ingredients,
+                  CuisineID: Dessert.Cuisine,
+                  Description: Dessert.Description,
+                  Price: Dessert.Price,
+                  ImageUrl: Dessert.ImageURL,
+                };
+              });
+
+              let payload = {
+                DESSERTS: allDesserts,
+                PageCount: response.data[1],
+              };
+              this.props.updatefoodMenu(payload);
+            });
+   
+        break;
+      default:
+        console.log('Incorrect ask');
+        break;
+    }
+
+  };
 
   // change editable food state
   makeEditable = (FoodId) => {
@@ -110,179 +861,7 @@ class FoodMenu extends Component {
     console.log('editable ID: ', this.state.editableId);
   };
 
-  // open or hide on select menu and fetch data if not in state
-  showMenuCategory = (menuCategory) => {
-    let tmp = {
-      ID: null,
-      category: '',
-      Name: '',
-      MainIngredients: '',
-      CuisineID: null,
-      Description: '',
-      Price: null,
-    };
-    if (this.state.showFoodCategory === menuCategory) {
-      localStorage.setItem('showFoodCategory', '');
-      this.setState({
-        editableCategory: '',
-        showFoodCategory: '',
-        addFoodItemForm: false,
-        tmpFood: { ...this.state.tmpFood, ...tmp },
-      });
-    } else {
-      localStorage.setItem('showFoodCategory', menuCategory);
-      this.setState({
-        showFoodCategory: menuCategory,
-        editableCategory: menuCategory,
-        addFoodItemForm: false,
-      });
-    }
-    switch (menuCategory) {
-      case 'APPETIZERS':
-        if (this.state.APPETIZERS.length === 0) {
-          axios
-            .get(
-              serverUrl + 'restaurant/menuFetch',
-
-              { params: { category: menuCategory }, withCredentials: true }
-            )
-            .then((response) => {
-              console.log(response.data);
-              let allAppetizers = response.data[0].map((Appetizer) => {
-                return {
-                  ID: Appetizer.AppetizerID,
-                  Name: Appetizer.Dishname,
-                  MainIngredients: Appetizer.Main_Ingredients,
-                  CuisineID: Appetizer.CuisineID,
-                  Description: Appetizer.Description,
-                  Price: Appetizer.Price,
-                  ImageUrl: Appetizer.ImageURL,
-                };
-              });
-
-              this.setState({
-                APPETIZERS: this.state.APPETIZERS.concat(allAppetizers),
-              });
-            });
-        }
-        break;
-      case 'SALADS':
-        if (this.state.SALADS.length === 0) {
-          axios
-            .get(
-              serverUrl + 'restaurant/menuFetch',
-
-              { params: { category: menuCategory }, withCredentials: true }
-            )
-            .then((response) => {
-              console.log(response.data);
-              let allSalads = response.data[0].map((Salad) => {
-                return {
-                  ID: Salad.SaladsID,
-                  Name: Salad.Dishname,
-                  MainIngredients: Salad.Main_Ingredients,
-                  CuisineID: Salad.CuisineID,
-                  Description: Salad.Description,
-                  Price: Salad.Price,
-                  ImageUrl: Salad.ImageURL,
-                };
-              });
-
-              this.setState({
-                SALADS: this.state.SALADS.concat(allSalads),
-              });
-            });
-        }
-        break;
-      case 'MAIN_COURSE':
-        if (this.state.MAIN_COURSE.length === 0) {
-          axios
-            .get(
-              serverUrl + 'restaurant/menuFetch',
-
-              { params: { category: menuCategory }, withCredentials: true }
-            )
-            .then((response) => {
-              console.log(response.data);
-              let allMainCourse = response.data[0].map((MainCourse) => {
-                return {
-                  ID: MainCourse.MainCourseID,
-                  Name: MainCourse.Dishname,
-                  MainIngredients: MainCourse.Main_Ingredients,
-                  CuisineID: MainCourse.CuisineID,
-                  Description: MainCourse.Description,
-                  Price: MainCourse.Price,
-                  ImageUrl: MainCourse.ImageURL,
-                };
-              });
-
-              this.setState({
-                MAIN_COURSE: this.state.MAIN_COURSE.concat(allMainCourse),
-              });
-            });
-        }
-        break;
-      case 'BEVERAGES':
-        if (this.state.BEVERAGES.length === 0) {
-          axios
-            .get(
-              serverUrl + 'restaurant/menuFetch',
-
-              { params: { category: menuCategory }, withCredentials: true }
-            )
-            .then((response) => {
-              console.log(response.data);
-              let allBeverages = response.data[0].map((Beverage) => {
-                return {
-                  ID: Beverage.BeveragesID,
-                  Name: Beverage.Dishname,
-                  MainIngredients: Beverage.Main_Ingredients,
-                  CuisineID: Beverage.CuisineID,
-                  Description: Beverage.Description,
-                  Price: Beverage.Price,
-                  ImageUrl: Beverage.ImageURL,
-                };
-              });
-
-              this.setState({
-                BEVERAGES: this.state.BEVERAGES.concat(allBeverages),
-              });
-            });
-        }
-        break;
-      case 'DESSERTS':
-        if (this.state.DESSERTS.length === 0) {
-          axios
-            .get(serverUrl + 'restaurant/menuFetch', {
-              params: { category: menuCategory },
-              withCredentials: true,
-            })
-            .then((response) => {
-              console.log(response.data);
-              let allDesert = response.data[0].map((Dessert) => {
-                return {
-                  ID: Dessert.DessertsID,
-                  Name: Dessert.Dishname,
-                  MainIngredients: Dessert.Main_Ingredients,
-                  CuisineID: Dessert.CuisineID,
-                  Description: Dessert.Description,
-                  Price: Dessert.Price,
-                  ImageUrl: Dessert.ImageURL,
-                };
-              });
-
-              this.setState({
-                DESSERTS: this.state.DESSERTS.concat(allDesert),
-              });
-            });
-        }
-        break;
-      default:
-        console.log('Incorrect ask');
-        break;
-    }
-  };
-
+  
   // on successful delete remove from state also
   deleteFoodItem = (foodId) => {
     let category = this.state.showFoodCategory;
@@ -290,7 +869,8 @@ class FoodMenu extends Component {
       category: this.state.showFoodCategory,
       foodId: foodId,
     };
-    console.log('Delete Appetizer Food:', foodId, 'catefory: ', category);
+    console.log('Delete  Food:', foodId, 'category: ', category);
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios.defaults.withCredentials = true;
     //make a post request with the user data
     axios.post(serverUrl + 'restaurant/menuDelete', data).then(
@@ -298,54 +878,55 @@ class FoodMenu extends Component {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
           console.log(response.data);
-
+          this.fetchCall(category,this.state.pageNo)
           // newFoodId = { ...newFoodId, ...this.state.newFood };
           let index = -1;
-          switch (this.state.showFoodCategory) {
-            case 'APPETIZERS':
-              index = this.state.APPETIZERS.findIndex((x) => x.ID === foodId);
-              let tmpAPPETIZERS = [...this.state.APPETIZERS];
-              tmpAPPETIZERS.splice(index, 1);
-              this.setState({
-                APPETIZERS: tmpAPPETIZERS,
-              });
-              break;
-            case 'SALADS':
-              index = this.state.SALADS.findIndex((x) => x.ID === foodId);
-              let tmpSALADS = [...this.state.SALADS];
-              tmpSALADS.splice(index, 1);
-              this.setState({
-                SALADS: tmpSALADS,
-              });
-              break;
-            case 'MAIN_COURSE':
-              index = this.state.MAIN_COURSE.findIndex((x) => x.ID === foodId);
-              let tmpMainCourse = [...this.state.MAIN_COURSE];
-              tmpMainCourse.splice(index, 1);
-              this.setState({
-                MAIN_COURSE: tmpMainCourse,
-              });
-              break;
-            case 'BEVERAGES':
-              index = this.state.BEVERAGES.findIndex((x) => x.ID === foodId);
-              let tmpBEVERAGES = [...this.state.BEVERAGES];
-              tmpBEVERAGES.splice(index, 1);
-              this.setState({
-                BEVERAGES: tmpBEVERAGES,
-              });
-              break;
-            case 'DESSERTS':
-              index = this.state.DESSERTS.findIndex((x) => x.ID === foodId);
-              let tmpDESSERTS = [...this.state.DESSERTS];
-              tmpDESSERTS.splice(index, 1);
-              this.setState({
-                DESSERTS: tmpDESSERTS,
-              });
-              break;
-            default:
-              console.log('Bad ask');
-              break;
-          }
+          // switch (this.state.showFoodCategory) {
+          //   case 'APPETIZERS':
+          //     index = this.state.APPETIZERS.findIndex((x) => x.ID === foodId);
+          //     let tmpAPPETIZERS = [...this.state.APPETIZERS];
+          //     tmpAPPETIZERS.splice(index, 1);
+          //     // this.setState({
+          //     //   APPETIZERS: tmpAPPETIZERS,
+          //     // });
+          //     let p
+          //     break;
+          //   case 'SALADS':
+          //     index = this.state.SALADS.findIndex((x) => x.ID === foodId);
+          //     let tmpSALADS = [...this.state.SALADS];
+          //     tmpSALADS.splice(index, 1);
+          //     this.setState({
+          //       SALADS: tmpSALADS,
+          //     });
+          //     break;
+          //   case 'MAIN_COURSE':
+          //     index = this.state.MAIN_COURSE.findIndex((x) => x.ID === foodId);
+          //     let tmpMainCourse = [...this.state.MAIN_COURSE];
+          //     tmpMainCourse.splice(index, 1);
+          //     this.setState({
+          //       MAIN_COURSE: tmpMainCourse,
+          //     });
+          //     break;
+          //   case 'BEVERAGES':
+          //     index = this.state.BEVERAGES.findIndex((x) => x.ID === foodId);
+          //     let tmpBEVERAGES = [...this.state.BEVERAGES];
+          //     tmpBEVERAGES.splice(index, 1);
+          //     this.setState({
+          //       BEVERAGES: tmpBEVERAGES,
+          //     });
+          //     break;
+          //   case 'DESSERTS':
+          //     index = this.state.DESSERTS.findIndex((x) => x.ID === foodId);
+          //     let tmpDESSERTS = [...this.state.DESSERTS];
+          //     tmpDESSERTS.splice(index, 1);
+          //     this.setState({
+          //       DESSERTS: tmpDESSERTS,
+          //     });
+          //     break;
+          //   default:
+          //     console.log('Bad ask');
+          //     break;
+          // }
         }
       },
       (error) => {
@@ -354,59 +935,9 @@ class FoodMenu extends Component {
     );
   };
 
-  // Open or close Food Addition FOrm
-  openFoodForm = () => {
-    if (this.state.addFoodItemForm) {
-      let tmp = {
-        Name: '',
-        MainIngredients: '',
-        CuisineID: null,
-        Description: '',
-        Price: null,
-        ImageUrl: '',
-      };
-      this.setState({
-        newFood: { ...this.state.newFood, ...tmp },
-      });
-    } else {
-      this.setState({ editableId: null });
-    }
-    this.setState({
-      addFoodItemForm: !this.state.addFoodItemForm,
-    });
-  };
+  
 
-  // onChange Handler for new food item form
-  onNameChangeHandler = (value, menuCategory) => {
-    let tmp = { Name: value, category: menuCategory };
-    this.setState({
-      newFood: { ...this.state.newFood, ...tmp },
-    });
-  };
-  onPriceChangeHandler = (value, menuCategory) => {
-    let tmp = { Price: value, category: menuCategory };
-    this.setState({
-      newFood: { ...this.state.newFood, ...tmp },
-    });
-  };
-  onCusineChangeHandler = (value, menuCategory) => {
-    let tmp = { CuisineID: value, category: menuCategory };
-    this.setState({
-      newFood: { ...this.state.newFood, ...tmp },
-    });
-  };
-  onIngredentsChangeHandler = (value, menuCategory) => {
-    let tmp = { MainIngredients: value, category: menuCategory };
-    this.setState({
-      newFood: { ...this.state.newFood, ...tmp },
-    });
-  };
-  onDescriptionChangeHandler = (value, menuCategory) => {
-    let tmp = { Description: value, category: menuCategory };
-    this.setState({
-      newFood: { ...this.state.newFood, ...tmp },
-    });
-  };
+ 
 
   // onChange handlers for old food items
   onNameChangeHandlerUpdate = (value, id, menuCategory) => {
@@ -704,6 +1235,7 @@ class FoodMenu extends Component {
 
     foodItem = { ...foodItem, category: this.state.showFoodCategory };
     axios.defaults.withCredentials = true;
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     //make a post request with the user data
     axios.post(serverUrl + 'restaurant/updateMenu', foodItem).then(
       (response) => {
@@ -798,6 +1330,7 @@ class FoodMenu extends Component {
     if (event.target.files.length === 1) {
       event.preventDefault();
       let formData = new FormData();
+      axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
       formData.append('file', event.target.files[0], event.target.files[0].name);
       axios({
         method: 'post',
@@ -874,116 +1407,8 @@ class FoodMenu extends Component {
     }
   };
 
-  onChangeFileHandler = (event) => {
-    if (event.target.files.length === 1) {
-      event.preventDefault();
-      let formData = new FormData();
-      formData.append('file', event.target.files[0], event.target.files[0].name);
-      axios({
-        method: 'post',
-        url: serverUrl + 'restaurant/foodImageUpload',
-        data: formData,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-        .then((response) => {
-          console.log('Status Code : ', response.status);
-          if (parseInt(response.status) === 200) {
-            console.log('Product Saved');
-            let tmp = { ImageUrl: response.data };
-            this.setState({
-              newFood: { ...this.state.newFood, ...tmp },
-            });
-          } else if (parseInt(response.status) === 400) {
-            console.log(response.data);
-          }
-        })
-        .catch((error) => {
-          this.setState({
-            errorMsg: error.message,
-            authFlag: false,
-          });
-        });
-    }
-  };
-
-  onSaveCreateNew = () => {
-    const data = {
-      category: this.state.showFoodCategory,
-      name: this.state.newFood.Name,
-      price: this.state.newFood.Price,
-      cuisine: this.state.newFood.CuisineID,
-      ingredients: this.state.newFood.MainIngredients,
-      description: this.state.newFood.Description,
-      ImageUrl: this.state.newFood.ImageUrl,
-    };
-    //set the with credentials to true
-    axios.defaults.withCredentials = true;
-    //make a post request with the user data
-    axios.post(serverUrl + 'restaurant/menuInsert', data).then(
-      (response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          console.log(response.data);
-          let newFood = {
-            category: this.state.showFoodCategory,
-            Name: response.data[0][0].Dishname,
-            MainIngredients: response.data[0][0].Main_Ingredients,
-            CuisineID: response.data[0][0].CuisineID,
-            Description: response.data[0][0].Description,
-            Price: response.data[0][0].Price,
-            ImageUrl: response.data[0][0].ImageURL,
-          };
-
-          // newFoodId = { ...newFoodId, ...this.state.newFood };
-          switch (this.state.showFoodCategory) {
-            case 'APPETIZERS':
-              this.setState({
-                APPETIZERS: this.state.APPETIZERS.concat(newFood),
-              });
-              break;
-            case 'SALADS':
-              this.setState({
-                SALADS: this.state.SALADS.concat(newFood),
-              });
-              break;
-            case 'MAIN_COURSE':
-              this.setState({
-                MAIN_COURSE: this.state.MAIN_COURSE.concat(newFood),
-              });
-              break;
-            case 'BEVERAGES':
-              this.setState({
-                BEVERAGES: this.state.BEVERAGES.concat(newFood),
-              });
-              break;
-            case 'DESSERTS':
-              this.setState({
-                DESSERTS: this.state.DESSERTS.concat(newFood),
-              });
-              break;
-            default:
-              console.log('Sorry, bad choice');
-              break;
-          }
-        }
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-    let newFood = {
-      category: '',
-      Dishname: '',
-      Main_Ingredients: '',
-      CuisineID: null,
-      Description: '',
-      Price: null,
-    };
-    this.setState({
-      newFood: { ...this.setState.newFood, ...newFood },
-      addFoodItemForm: false,
-    });
-  };
+  
+  
   render() {
     return (
       <div>
@@ -1043,7 +1468,7 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'APPETIZERS' && this.state.addFoodItemForm && (
                 <div>
                   <NewFoodForm
-                    CUISINES={this.state.CUISINES}
+                    // CUISINES={this.state.CUISINES}
                     // onNameChangeHandler={this.onNameChangeHandler}
                     onPriceChangeHandler={(evt) => this.onPriceChangeHandler(evt)}
                     onCusineChangeHandler={(evt) => this.onCusineChangeHandler(evt)}
@@ -1059,10 +1484,10 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'APPETIZERS' && (
                 <div>
                   <ul>
-                    {this.state.APPETIZERS.map((food) => (
+                    {this.props.menuData.APPETIZERS.map((food) => (
                       <Food
                         food={food}
-                        CUISINES={this.state.CUISINES}
+                        // CUISINES={this.state.CUISINES}
                         editableId={this.state.editableId}
                         makeEditable={(ID) => this.makeEditable(ID)}
                         onDelete={this.deleteFoodItem}
@@ -1084,7 +1509,21 @@ class FoodMenu extends Component {
                         }
                       />
                     ))}
-                  </ul>
+                  </ul> 
+                  <ReactPaginate
+                    previousLabel={'prev'}
+                    nextLabel={'next'}
+                    breakLabel={'...'}
+                    breakClassName={'break-me'}
+                    pageCount={this.props.menuData.PageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={2}
+                    onPageChange={this.handlePageClick}
+                    containerClassName={'pagination'}
+                    subContainerClassName={'pages pagination'}
+                    activeClassName={'active'}
+                  />
+                  {/* Pagination code to be implemented  */}
                 </div>
               )}
             </div>
@@ -1136,7 +1575,7 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'SALADS' && this.state.addFoodItemForm && (
                 <div>
                   <NewFoodForm
-                    CUISINES={this.state.CUISINES}
+                    // CUISINES={this.state.CUISINES}
                     // onNameChangeHandler={this.onNameChangeHandler}
                     onPriceChangeHandler={(evt) => this.onPriceChangeHandler(evt)}
                     onCusineChangeHandler={(evt) => this.onCusineChangeHandler(evt)}
@@ -1152,10 +1591,10 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'SALADS' && (
                 <div>
                   <ul>
-                    {this.state.SALADS.map((food) => (
+                    {this.props.menuData.SALADS.map((food) => (
                       <Food
                         food={food}
-                        CUISINES={this.state.CUISINES}
+                        // CUISINES={this.state.CUISINES}
                         editableId={this.state.editableId}
                         makeEditable={(ID) => this.makeEditable(ID)}
                         onDelete={this.deleteFoodItem}
@@ -1178,6 +1617,19 @@ class FoodMenu extends Component {
                       />
                     ))}
                   </ul>
+                  <ReactPaginate
+                    previousLabel={'prev'}
+                    nextLabel={'next'}
+                    breakLabel={'...'}
+                    breakClassName={'break-me'}
+                    pageCount={this.props.menuData.PageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={2}
+                    onPageChange={this.handlePageClick}
+                    containerClassName={'pagination'}
+                    subContainerClassName={'pages pagination'}
+                    activeClassName={'active'}
+                  />
                 </div>
               )}
             </div>
@@ -1229,7 +1681,7 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'MAIN_COURSE' && this.state.addFoodItemForm && (
                 <div>
                   <NewFoodForm
-                    CUISINES={this.state.CUISINES}
+                    // CUISINES={this.state.CUISINES}
                     // onNameChangeHandler={this.onNameChangeHandler}
                     onPriceChangeHandler={(evt) => this.onPriceChangeHandler(evt)}
                     onCusineChangeHandler={(evt) => this.onCusineChangeHandler(evt)}
@@ -1245,10 +1697,10 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'MAIN_COURSE' && (
                 <div>
                   <ul>
-                    {this.state.MAIN_COURSE.map((food) => (
+                    {this.props.menuData.MAIN_COURSE.map((food) => (
                       <Food
                         food={food}
-                        CUISINES={this.state.CUISINES}
+                        // CUISINES={this.state.CUISINES}
                         editableId={this.state.editableId}
                         makeEditable={(ID) => this.makeEditable(ID)}
                         onDelete={this.deleteFoodItem}
@@ -1271,6 +1723,19 @@ class FoodMenu extends Component {
                       />
                     ))}
                   </ul>
+                  <ReactPaginate
+                    previousLabel={'prev'}
+                    nextLabel={'next'}
+                    breakLabel={'...'}
+                    breakClassName={'break-me'}
+                    pageCount={this.props.menuData.PageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={2}
+                    onPageChange={this.handlePageClick}
+                    containerClassName={'pagination'}
+                    subContainerClassName={'pages pagination'}
+                    activeClassName={'active'}
+                  />
                 </div>
               )}
             </div>
@@ -1322,7 +1787,7 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'BEVERAGES' && this.state.addFoodItemForm && (
                 <div>
                   <NewFoodForm
-                    CUISINES={this.state.CUISINES}
+                    // CUISINES={this.state.CUISINES}
                     // onNameChangeHandler={this.onNameChangeHandler}
                     onPriceChangeHandler={(evt) => this.onPriceChangeHandler(evt)}
                     onCusineChangeHandler={(evt) => this.onCusineChangeHandler(evt)}
@@ -1338,10 +1803,10 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'BEVERAGES' && (
                 <div>
                   <ul>
-                    {this.state.BEVERAGES.map((food) => (
+                    {this.props.menuData.BEVERAGES.map((food) => (
                       <Food
                         food={food}
-                        CUISINES={this.state.CUISINES}
+                        // CUISINES={this.state.CUISINES}
                         editableId={this.state.editableId}
                         makeEditable={(ID) => this.makeEditable(ID)}
                         onDelete={this.deleteFoodItem}
@@ -1364,6 +1829,19 @@ class FoodMenu extends Component {
                       />
                     ))}
                   </ul>
+                  <ReactPaginate
+                    previousLabel={'prev'}
+                    nextLabel={'next'}
+                    breakLabel={'...'}
+                    breakClassName={'break-me'}
+                    pageCount={this.props.menuData.PageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={2}
+                    onPageChange={this.handlePageClick}
+                    containerClassName={'pagination'}
+                    subContainerClassName={'pages pagination'}
+                    activeClassName={'active'}
+                  />
                 </div>
               )}
             </div>
@@ -1415,7 +1893,7 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'DESSERTS' && this.state.addFoodItemForm && (
                 <div>
                   <NewFoodForm
-                    CUISINES={this.state.CUISINES}
+                    // CUISINES={this.state.CUISINES}
                     // onNameChangeHandler={this.onNameChangeHandler}
                     onPriceChangeHandler={(evt) => this.onPriceChangeHandler(evt)}
                     onCusineChangeHandler={(evt) => this.onCusineChangeHandler(evt)}
@@ -1432,10 +1910,10 @@ class FoodMenu extends Component {
               {this.state.showFoodCategory === 'DESSERTS' && (
                 <div>
                   <ul>
-                    {this.state.DESSERTS.map((food) => (
+                    {this.props.menuData.DESSERTS.map((food) => (
                       <Food
                         food={food}
-                        CUISINES={this.state.CUISINES}
+                        // CUISINES={this.state.CUISINES}
                         onDelete={this.deleteFoodItem}
                         editableId={this.state.editableId}
                         makeEditable={(ID) => this.makeEditable(ID)}
@@ -1458,6 +1936,19 @@ class FoodMenu extends Component {
                       />
                     ))}
                   </ul>
+                  <ReactPaginate
+                    previousLabel={'prev'}
+                    nextLabel={'next'}
+                    breakLabel={'...'}
+                    breakClassName={'break-me'}
+                    pageCount={this.props.menuData.PageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={2}
+                    onPageChange={this.handlePageClick}
+                    containerClassName={'pagination'}
+                    subContainerClassName={'pages pagination'}
+                    activeClassName={'active'}
+                  />
                 </div>
               )}
             </div>
@@ -1468,4 +1959,31 @@ class FoodMenu extends Component {
   }
 }
 
-export default FoodMenu;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateCuisineInfo: (payload) => {
+      dispatch({
+        type: 'update-cuisine-field',
+        payload,
+      });
+    },
+    updatefoodMenu: (payload) => {
+      dispatch({
+        type: 'update-menu-items',
+        payload,
+      });
+    },
+  };
+};
+
+const mapStateToProps = (state) => {
+  const { cuisine } = state.cuisineReducer;
+  const { menuData } = state.foodMenuReducer;
+  return { 
+    cuisine: cuisine,
+    menuData: menuData,
+   };
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(FoodMenu);

@@ -8,6 +8,8 @@ import searchTabReducer from './searchTabReducer';
 import restaurantSearchResultReducer from './restaurantSearchResultReducer';
 import staticDataReducer from './staticDataReducer';
 import restaurantDataReducer from './restaurantDataReducer';
+import cuisineReucer from './cuisineReducer';
+import foodMenuReducer from './foodMenuReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -19,6 +21,8 @@ const combReducer = combineReducers({
   restaurantSearchResultReducer: restaurantSearchResultReducer,
   staticDataReducer: staticDataReducer,
   restaurantDataReducer: restaurantDataReducer,
+  cuisineReducer: cuisineReucer,
+  foodMenuReducer: foodMenuReducer,
 
 });
 

@@ -3,23 +3,18 @@ const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
-  menuFetch,
-  menuInsert,
-  menuItemDeletion,
   reviewFetch,
-  // updateRestaurantProfile,
   updateMenu,
   getRestaurantOrders,
   getPersonOrder,
   updateDeliveryStatus,
-  foodImageUpload,
   fetchEvents,
   createNewEvent,
   fetchRegisteredCustomers,
   fetchCustomerDetails,
   fetchRegCustomerDetails,
 } = require('./restaurant/loginRestaurant');
-// const signupRestaurant = require('./restaurant/signupRestaurant');
+
 const {
   signupRestaurant,
   loginRestaurant,
@@ -27,19 +22,24 @@ const {
   restaurantProfile,
   uploadRestaurantProfilePic,
   updateRestaurantProfile,
+  cuisineFetch,
+  foodImageUpload,
+  menuInsert,
+  menuFetch,
+  menuDelete,
 } = require('./restaurantData/restaurantHandling');
 
 const Router = express.Router();
 
-// Login for the Restaurant
-Router.post('/loginRestaurant', async (req, res) => {
-  const value = await loginRestaurant(req, res);
-  return value;
-});
-
 // Signup for the Restaurant
 Router.post('/signupRestaurant', async (req, res) => {
   const value = await signupRestaurant(req, res);
+  return value;
+});
+
+// Login for the Restaurant
+Router.post('/loginRestaurant', async (req, res) => {
+  const value = await loginRestaurant(req, res);
   return value;
 });
 
@@ -66,21 +66,34 @@ Router.post('/updateRestProfile', checkAuth, async (req, res) => {
   const value = await updateRestaurantProfile(req, res);
   return value;
 });
-// Fetching items from menu
-Router.get('/menuFetch', async (req, res) => {
-  const value = await menuFetch(req, res);
+
+// Fetching Cuisine
+Router.get('/cuisineFetch', checkAuth, async (req, res) => {
+  const value = await cuisineFetch(req, res);
+  return value;
+});
+
+// Uploading food photo
+Router.post('/foodImageUpload', checkAuth, async (req, res) => {
+  const value = await foodImageUpload(req, res);
   return value;
 });
 
 // Inserting items in the menu
-Router.post('/menuInsert', async (req, res) => {
+Router.post('/menuInsert', checkAuth, async (req, res) => {
   const value = await menuInsert(req, res);
   return value;
 });
 
-// Deleting items in the menu
-Router.post('/menuDelete', async (req, res) => {
-  const value = await menuItemDeletion(req, res);
+// Fetching items from the menu
+Router.get('/menuFetch', checkAuth, async (req, res) => {
+  const value = await menuFetch(req, res);
+  return value;
+});
+
+// Deleting items from the menu
+Router.post('/menuDelete', checkAuth, async (req, res) => {
+  const value = await menuDelete(req, res);
   return value;
 });
 
@@ -107,11 +120,6 @@ Router.get('/fetchPersonOrder', async (req, res) => {
 
 Router.post('/updateDeliveryStatus', async (req, res) => {
   const value = await updateDeliveryStatus(req, res);
-  return value;
-});
-
-Router.post('/foodImageUpload', async (req, res) => {
-  const value = await foodImageUpload(req, res);
   return value;
 });
 

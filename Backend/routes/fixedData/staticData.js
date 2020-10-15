@@ -1,7 +1,6 @@
 const States = require('../models/StateModel');
 const Country = require('../models/CountryModel');
 const Gender = require('../models/GenderModel');
-// const Cuisine = require('../models/CuisineModel');
 
 const getStateAndCountry = async (req, res) => {
   const data = [];

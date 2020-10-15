@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 class NewFoodForm extends Component {
   constructor(props) {
@@ -80,8 +81,8 @@ class NewFoodForm extends Component {
                     <option className="Dropdown-menu" key="" value="">
                       select
                     </option>
-                    {this.props.CUISINES.map((CUISINE) => (
-                      <option className="Dropdown-menu" key={CUISINE.key} value={CUISINE.key}>
+                    {this.props.cuisine.cuisineNames.map((CUISINE) => (
+                      <option className="Dropdown-menu" key={CUISINE.key} value={CUISINE.value}>
                         {CUISINE.value}
                       </option>
                     ))}
@@ -155,4 +156,11 @@ class NewFoodForm extends Component {
   }
 }
 
-export default NewFoodForm;
+const mapStateToProps = (state) => {
+  const { cuisine } = state.cuisineReducer;
+  return { 
+    cuisine: cuisine,
+   };
+};
+
+export default connect(mapStateToProps,null)(NewFoodForm);
