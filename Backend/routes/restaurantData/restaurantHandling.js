@@ -19,6 +19,7 @@ const Beverage = require('../models/Beverages');
 const MainCourse = require('../models/Main_Course');
 const Salads = require('../models/Salads');
 const Desserts = require('../models/Desserts');
+const Review = require('../models/ReviewsModel');
 
 auth();
 
@@ -484,6 +485,57 @@ const menuDelete = async (req, res) => {
     }
   });
 };
+
+const updateMenu = async (req, res) => {
+  const { category, ID } = req.body;
+  let menuModel = null;
+  if (category === 'APPETIZERS') menuModel = Appetizer;
+  else if (category === 'BEVERAGES') menuModel = Beverage;
+  else if (category === 'MAIN_COURSE') menuModel = MainCourse;
+  else if (category === 'SALADS') menuModel = Salads;
+  else menuModel = Desserts;
+  menuModel.updateOne(
+    { _id: ID },
+    {
+      ...req.body,
+      Dishname: req.body.Name,
+      Main_Ingredients: req.body.MainIngredients,
+      Cuisine: req.body.CuisineID,
+      ImageURL: req.body.ImageUrl,
+    },
+    (er, data) => {
+      if (er) {
+        res.writeHead(500, {
+          'Content-Type': 'text/plain',
+        });
+        res.end();
+      } else {
+        res.writeHead(200, {
+          'Content-Type': 'text/plain',
+        });
+        res.end();
+      }
+    }
+  );
+};
+
+const fetchReview = async (req, res) => {
+  const { RestaurantID, pageNo } = url.parse(req.url, true).query;
+  const result = await Review.find({ RestaurantID })
+    .limit(4)
+    .skip(pageNo * 4)
+    .exec();
+  const count = await Review.find({ RestaurantID }).countDocuments();
+  const noOfPages = Math.ceil(count / 4);
+  const results = [];
+  results.push(result);
+  results.push(noOfPages);
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
+  res.end(JSON.stringify(results));
+};
+
 module.exports = {
   signupRestaurant,
   loginRestaurant,
@@ -496,4 +548,6 @@ module.exports = {
   menuInsert,
   menuFetch,
   menuDelete,
+  updateMenu,
+  fetchReview,
 };

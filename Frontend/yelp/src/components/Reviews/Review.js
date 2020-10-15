@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactPaginate from 'react-paginate';
 
 class Review extends Component {
   constructor(props) {
@@ -10,19 +11,19 @@ class Review extends Component {
       'https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png';
     let rating = { backgroundPosition: '0 -320px' };
     switch (this.props.review.Rating) {
-      case '1':
+      case 1:
         rating = { backgroundPosition: '0 -360px' };
         break;
-      case '2':
+      case 2:
         rating = { backgroundPosition: '0 -400px' };
         break;
-      case '3':
+      case 3:
         rating = { backgroundPosition: '0 -440px' };
         break;
-      case '4':
+      case 4:
         rating = { backgroundPosition: '0 -480px' };
         break;
-      case '5':
+      case 5:
         rating = { backgroundPosition: '0 -500px' };
         break;
     }
