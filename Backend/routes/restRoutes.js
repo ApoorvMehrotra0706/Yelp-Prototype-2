@@ -3,9 +3,7 @@ const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
-  getRestaurantOrders,
   getPersonOrder,
-  updateDeliveryStatus,
   fetchEvents,
   createNewEvent,
   fetchRegisteredCustomers,
@@ -27,6 +25,8 @@ const {
   menuDelete,
   updateMenu,
   fetchReview,
+  fetchOrderandDetails,
+  updateDeliveryStatus,
 } = require('./restaurantData/restaurantHandling');
 
 const Router = express.Router();
@@ -109,18 +109,20 @@ Router.get('/fetchReview', checkAuth, async (req, res) => {
   return value;
 });
 
-Router.get('/orderFetch', async (req, res) => {
-  const value = await getRestaurantOrders(req, res);
+// Fetch order, order details and customer details
+Router.get('/fetchOrderandDetails', checkAuth, async (req, res) => {
+  const value = await fetchOrderandDetails(req, res);
+  return value;
+});
+
+// Updating the order status
+Router.post('/updateDeliveryStatus', checkAuth, async (req, res) => {
+  const value = await updateDeliveryStatus(req, res);
   return value;
 });
 
 Router.get('/fetchPersonOrder', async (req, res) => {
   const value = await getPersonOrder(req, res);
-  return value;
-});
-
-Router.post('/updateDeliveryStatus', async (req, res) => {
-  const value = await updateDeliveryStatus(req, res);
   return value;
 });
 

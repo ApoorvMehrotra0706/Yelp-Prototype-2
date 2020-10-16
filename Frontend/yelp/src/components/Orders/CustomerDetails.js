@@ -13,24 +13,24 @@ class CustomerDetails extends Component {
         },
         {
           label: 'Gender',
-          field: 'gender', // count
+          field: 'gender', 
           sort: 'asc',
         },
         {
           label: 'Yelping Since',
-          field: 'yelpingsince', //price
+          field: 'yelpingsince', 
           sort: 'asc',
         },
         {
           label: 'Contact No',
-          field: 'contact', //totalPrice
+          field: 'contact', 
           sort: 'asc',
         },
       ],
     };
   }
-  handleClick = () => {
-    this.props.toggle();
+  handleClick = (e) => {
+    this.props.toggle(e);
   };
   render() {
     const defaultImage =

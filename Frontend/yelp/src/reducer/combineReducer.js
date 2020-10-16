@@ -11,6 +11,9 @@ import restaurantDataReducer from './restaurantDataReducer';
 import cuisineReucer from './cuisineReducer';
 import foodMenuReducer from './foodMenuReducer';
 import reviewReducer from './reviewReducer';
+import orderReducer from './orderReducer';
+import foodCartReducer from './foodCartReducer';
+import customerDetailsReducer from './customerDetailsReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -25,7 +28,9 @@ const combReducer = combineReducers({
   cuisineReducer: cuisineReucer,
   foodMenuReducer: foodMenuReducer,
   reviewReducer: reviewReducer,
-
+  orderReducer: orderReducer,
+  foodCartReducer: foodCartReducer,
+  customerDetailsReducer: customerDetailsReducer,
 });
 
 export default combReducer;

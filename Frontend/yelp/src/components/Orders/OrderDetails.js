@@ -8,22 +8,22 @@ class OrderDetails extends Component {
       columns: [
         {
           label: 'Food Item',
-          field: 'name',
+          field: 'Dishname',
           sort: 'asc',
         },
         {
           label: 'Count',
-          field: 'count',
+          field: 'Price',
           sort: 'asc',
         },
         {
           label: 'Price per Unit',
-          field: 'price',
+          field: 'Quantity',
           sort: 'asc',
         },
         {
           label: 'Total Price',
-          field: 'totalPrice',
+          field: 'TotalPrice',
           sort: 'asc',
         },
       ],

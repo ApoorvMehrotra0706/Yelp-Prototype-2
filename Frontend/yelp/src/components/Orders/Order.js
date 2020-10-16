@@ -80,7 +80,7 @@ class Order extends Component {
                           target=""
                           name=""
                           rel=""
-                          onClick={() => this.props.openCustomerDetails()}
+                          onClick={(e) => this.props.openCustomerDetails(e)}
                         >
                           {/* Onelia D.*/}
                           {this.props.order.CustomerName}

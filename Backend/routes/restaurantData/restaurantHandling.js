@@ -20,6 +20,7 @@ const MainCourse = require('../models/Main_Course');
 const Salads = require('../models/Salads');
 const Desserts = require('../models/Desserts');
 const Review = require('../models/ReviewsModel');
+const Order = require('../models/OrdersModel');
 
 auth();
 
@@ -536,6 +537,87 @@ const fetchReview = async (req, res) => {
   res.end(JSON.stringify(results));
 };
 
+const fetchOrderandDetails = async (req, res) => {
+  const { RestaurantID, pageNo, sortValue } = url.parse(req.url, true).query;
+  let statusValue = null;
+  if (sortValue === 'All') {
+    statusValue = [
+      { Status: 'Order Received' },
+      { Status: 'Preparing' },
+      { Status: 'On the way' },
+      { Status: 'Pick up Ready' },
+      { Status: 'Delivered' },
+      { Status: 'Picked up' },
+    ];
+  } else if (sortValue === 'New') {
+    statusValue = [
+      { Status: 'Order Received' },
+      { Status: 'Preparing' },
+      { Status: 'On the way' },
+      { Status: 'Pick up Ready' },
+    ];
+  } else if (sortValue === 'Delivered')
+    statusValue = [{ Status: 'Delivered' }, { Status: 'Picked up' }];
+  else statusValue = [{ Status: 'Canceled' }];
+
+  const result = await Order.find({ $and: [{ RestaurantID }, { $or: statusValue }] })
+    .limit(4)
+    .skip(pageNo * 4)
+    .exec();
+  const count = await Order.find({
+    $and: [{ RestaurantID }, { $or: statusValue }],
+  }).countDocuments();
+  const noOfPages = Math.ceil(count / 4);
+  const results = [];
+  results.push(result);
+  results.push(noOfPages);
+  results.push(count);
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
+  res.end(JSON.stringify(results));
+};
+
+const updateDeliveryStatus = async (req, res) => {
+  const { deliveryStatus, orderID } = req.body;
+  let status = null;
+  let state = 'New';
+  if (deliveryStatus === '2') status = 'Preparing';
+  else if (deliveryStatus === '3') status = 'On the way';
+  else if (deliveryStatus === '4') status = 'Pick up Ready';
+  else if (deliveryStatus === '5') {
+    status = 'Delivered';
+    state = 'Delivered';
+  } else if (deliveryStatus === '6') {
+    status = 'Picked up';
+    state = 'Delivered';
+  } else {
+    status = 'Canceled';
+    state = 'Canceled';
+  }
+  Order.updateOne(
+    { _id: orderID },
+    {
+      StatusID: deliveryStatus,
+      Status: status,
+      State: state,
+    },
+    (er, data) => {
+      if (er) {
+        res.writeHead(500, {
+          'Content-Type': 'text/plain',
+        });
+        res.end();
+      } else {
+        res.writeHead(200, {
+          'Content-Type': 'text/plain',
+        });
+        res.end();
+      }
+    }
+  );
+};
+
 module.exports = {
   signupRestaurant,
   loginRestaurant,
@@ -550,4 +632,6 @@ module.exports = {
   menuDelete,
   updateMenu,
   fetchReview,
+  fetchOrderandDetails,
+  updateDeliveryStatus,
 };
