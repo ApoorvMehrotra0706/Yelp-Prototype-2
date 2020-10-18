@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { MDBTable, MDBTableBody, MDBTableHead } from 'mdbreact';
+// import { MDBTable, MDBTableBody, MDBTableHead } from 'mdbreact';
 import './RegisteredCustomers.css';
+import ReactPaginate from 'react-paginate'
+import { connect } from 'react-redux';;
 
 class RegisteredCustomers extends Component {
   constructor(props) {
@@ -31,9 +33,9 @@ class RegisteredCustomers extends Component {
                   <td>
                     <a
                       href="#"
-                      onClick={(event) => this.props.fetchCustomerProfile(event, customer.ID)}
+                      onClick={(event) => this.props.fetchCustomerProfile(event, customer.CustomerID)}
                     >
-                      {customer.cusName}
+                      {customer.CustomerName}
                     </a>
                   </td>
                   <td>{customer.Email}</td>
@@ -41,10 +43,29 @@ class RegisteredCustomers extends Component {
               ))}
             </tbody>
           </table>
+          <ReactPaginate
+              previousLabel={'prev'}
+              nextLabel={'next'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              pageCount={this.props.regCust.PageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={2}
+              onPageChange={(e)=> {this.props.handlePageClick(e)}}
+              containerClassName={'pagination'}
+              subContainerClassName={'pages pagination'}
+              activeClassName={'active'}
+            />
         </div>
       </div>
     );
   }
 }
 
-export default RegisteredCustomers;
+const mapStateToProps = (state) => {
+  const { regCust } = state.regCustReducer;
+  return {
+    regCust: regCust,
+  };
+};
+export default connect(mapStateToProps, null)(RegisteredCustomers);

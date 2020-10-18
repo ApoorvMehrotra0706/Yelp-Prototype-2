@@ -8,22 +8,22 @@ class CustomerDetails extends Component {
       columns: [
         {
           label: 'Name',
-          field: 'name',
+          field: 'CustomerName',
           sort: 'asc',
         },
         {
           label: 'Gender',
-          field: 'gender', // count
-          sort: 'asc',
-        },
-        {
-          label: 'Yelping Since',
-          field: 'yelpingsince', //price
+          field: 'Gender', 
           sort: 'asc',
         },
         {
           label: 'Contact No',
-          field: 'contact', //totalPrice
+          field: 'Contact', 
+          sort: 'asc',
+        },
+        {
+          label: 'Yelping Since',
+          field: 'YelpingSince', 
           sort: 'asc',
         },
       ],

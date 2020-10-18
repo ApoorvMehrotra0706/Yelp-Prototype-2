@@ -1,16 +1,6 @@
 const express = require('express');
 const { checkAuth } = require('../passport');
 
-// eslint-disable-next-line no-unused-vars
-const {
-  getPersonOrder,
-  fetchEvents,
-  createNewEvent,
-  fetchRegisteredCustomers,
-  fetchCustomerDetails,
-  fetchRegCustomerDetails,
-} = require('./restaurant/loginRestaurant');
-
 const {
   signupRestaurant,
   loginRestaurant,
@@ -27,6 +17,9 @@ const {
   fetchReview,
   fetchOrderandDetails,
   updateDeliveryStatus,
+  fetchEvents,
+  createNewEvent,
+  fetchRegisteredCustomers,
 } = require('./restaurantData/restaurantHandling');
 
 const Router = express.Router();
@@ -121,33 +114,21 @@ Router.post('/updateDeliveryStatus', checkAuth, async (req, res) => {
   return value;
 });
 
-Router.get('/fetchPersonOrder', async (req, res) => {
-  const value = await getPersonOrder(req, res);
-  return value;
-});
-
+// Fetching the events
 Router.get('/fetchEvents', async (req, res) => {
   const value = await fetchEvents(req, res);
   return value;
 });
 
-Router.get('/fetchRegisteredCustomers', async (req, res) => {
-  const value = await fetchRegisteredCustomers(req, res);
-  return value;
-});
-
-Router.post('/createNewEvent', async (req, res) => {
+// Creating new events
+Router.post('/createNewEvent', checkAuth, async (req, res) => {
   const value = await createNewEvent(req, res);
   return value;
 });
 
-Router.get('/fetchCustomerDetails', async (req, res) => {
-  const value = await fetchCustomerDetails(req, res);
-  return value;
-});
-
-Router.get('/fetchRegCustomerDetails', async (req, res) => {
-  const value = await fetchRegCustomerDetails(req, res);
+// Fetching the registered customers and their details
+Router.get('/fetchRegisteredCustomers', async (req, res) => {
+  const value = await fetchRegisteredCustomers(req, res);
   return value;
 });
 

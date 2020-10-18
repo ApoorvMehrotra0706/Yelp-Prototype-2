@@ -5,12 +5,12 @@ import '../Orders/Orders.css';
 import axios from 'axios';
 import serverUrl from '../../config';
 import NewEventForm from './NewEventForm';
-// import 'bootstrap/dist/css/bootstrap.css';
 import RegisteredCustomers from './RegisteredCustomers';
 import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
 import RegCustomerDetails from './RegCustomerDetails';
 import SnackBar from '../SharedComponents/Snackbar';
+import ReactPaginate from 'react-paginate';
 
 class EventList extends Component {
   constructor(props) {
@@ -20,59 +20,77 @@ class EventList extends Component {
       visible: true,
       formOpen: false,
       popSeen: false,
-      RegisteredCustomerList: [],
-      customerDetails: [],
-      EVENTS: [],
       popSeen1: false,
+      pageNo: '0',
     };
   }
 
   // get events based on the filter
-  getEventList(e, sortValue = 'upcoming') {
+  getEventList(e, sortValue = 'upcoming',pageNo = '0') {
     this.setState({
-      EVENTS: [],
       eventSortBy: sortValue,
     });
     e.preventDefault();
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
       .get(
         serverUrl + 'restaurant/fetchEvents',
 
-        { params: { sortValue }, withCredentials: true }
+        { params: { RestaurantID: localStorage.getItem('user_id'), pageNo: pageNo, sortValue }, withCredentials: true }
       )
       .then((response) => {
         console.log(response.data);
         let allEvents = response.data[0].map((event) => {
           return {
-            ID: event.EventID,
+            ID: event._id,
             Name: event.EventName,
+            RestaurantID: event.RestaurantID,
             Description: event.Description,
             EventDate: new Date(event.EventDate),
             EventStartTime: event.EventStartTime,
             EventEndTime: event.EventEndTime,
             Address: event.Location,
             hashtags: event.Hashtags,
+            RegisteredCustomers: event.RegisteredCustomers,
           };
         });
+        let payload = {
+          eventDetails: allEvents,
+          PageCount: response.data[1],
+          TotalCount: response.data[2],
+          pageNo,
 
-        this.setState({
-          EVENTS: this.state.EVENTS.concat(allEvents),
-        });
+        }
+        this.props.updateEventsData(payload);
       });
   }
 
   componentDidMount() {
     const sortValue = 'upcoming';
     this.setState({
-      EVENTS: [],
       eventSortBy: sortValue,
     });
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    axios.get(serverUrl + 'restaurant/cuisineFetch',
+    {  params: { RestaurantID: localStorage.getItem('user_id') }, withCredentials: true })
+    .then((response) => {
+      console.log(response.data);
+      let allCuisines = response.data.map((Cusine) => {
+        return { key: Cusine._id, value: Cusine.CuisineName };
+      });
 
+      let payload = {
+        cuisineNames : allCuisines,
+      }
+
+      this.props.updateCuisineInfo(payload);
+    });
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
       .get(
         serverUrl + 'restaurant/fetchEvents',
 
-        { params: { sortValue }, withCredentials: true }
+        { params: { RestaurantID: localStorage.getItem('user_id'), pageNo: '0' }, withCredentials: true }
       )
       .then((response) => {
         console.log(response.data);
@@ -80,6 +98,8 @@ class EventList extends Component {
           return {
             ID: event.EventID,
             Name: event.EventName,
+            RestaurantName: event.RestaurantName,
+            RestaurantID: event.RestaurantID,
             Description: event.Description,
             EventDate: new Date(event.EventDate),
             EventStartTime: event.EventStartTime,
@@ -89,21 +109,32 @@ class EventList extends Component {
           };
         });
 
-        this.setState({
-          EVENTS: this.state.EVENTS.concat(allEvents),
-        });
+        let payload = {
+          eventDetails: allEvents,
+          PageCount: response.data[1],
+          TotalCount: response.data[2],
+          pageNo: this.state.pageNo,
+          
+        };
+        this.props.updateEventsData(payload);
       });
   }
 
-  // open form to create new event
   openNewForm = () => {
     this.setState({
       formOpen: !this.state.formOpen,
     });
   };
 
-  openRegisteredCustomers = (eventID) => {
-    if (this.state.popSeen) {
+  openRegisteredCustomers = (eventID,pageNo = '0') => {
+    let popSeen = this.state.popSeen;
+    if(pageNo !== 0) {
+      popSeen = false;
+      this.setState({
+        popSeen: popSeen,
+      });
+    }
+    if (popSeen) {
       this.setState({
         popSeen: !this.state.popSeen,
         RegisteredCustomerList: [],
@@ -113,20 +144,22 @@ class EventList extends Component {
         .get(
           serverUrl + 'restaurant/fetchRegisteredCustomers',
 
-          { params: { eventID }, withCredentials: true }
+          { params: { eventID, pageNo }, withCredentials: true }
         )
         .then((response) => {
           console.log(response.data);
-          let allCustomer = response.data[0].map((customer) => {
-            return {
-              cusName: customer.Name,
-              Email: customer.EmailID,
-              ID: customer.CustomerID,
-            };
-          });
+          
+          let allCustomer = response.data[0].RegisteredCustomers;
+          let payload = {
+            regCustDetails: allCustomer,
+            PageCount: response.data[1],
+            TotalCount: response.data[2],
+            eventID,
+          }
 
+          this.props.updateRegCustData(payload);
+          
           this.setState({
-            RegisteredCustomerList: this.state.RegisteredCustomerList.concat(allCustomer),
             popSeen: !this.state.popSeen,
           });
         });
@@ -143,24 +176,69 @@ class EventList extends Component {
     });
   };
 
+  handlePageClick = (e) => {
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    axios
+      .get(
+        serverUrl + 'restaurant/fetchEvents',
+
+        { params: { RestaurantID: localStorage.getItem('user_id'), pageNo: e.selected, sortValue: this.state.eventSortBy }, withCredentials: true }
+      )
+      .then((response) => {
+        console.log(response.data);
+        let allEvents = response.data[0].map((event) => {
+          return {
+            ID: event._id,
+            Name: event.EventName,
+            RestaurantID: event.RestaurantID,
+            Description: event.Description,
+            EventDate: new Date(event.EventDate),
+            EventStartTime: event.EventStartTime,
+            EventEndTime: event.EventEndTime,
+            Address: event.Location,
+            hashtags: event.Hashtags,
+            RegisteredCustomers: event.RegisteredCustomers,
+          };
+        });
+        let payload = {
+          eventDetails: allEvents,
+          PageCount: response.data[1],
+          TotalCount: response.data[2],
+          pageNo: e.selected,
+        }
+        this.props.updateEventsData(payload);
+      });
+  }
+
   createNewEvent = (e, eventInfo) => {
     e.preventDefault();
     const data = {
       ...eventInfo,
-      ...{ token: localStorage.getItem('token'), userrole: localStorage.getItem('role') },
+      ...{ RestaurantID: localStorage.getItem('user_id') },
     };
     axios.defaults.withCredentials = true;
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     //make a post request with the user data
     axios.post(serverUrl + 'restaurant/createNewEvent', data).then(
       (response) => {
         console.log('Status Code : ', response.status);
-        if (response.status === 201) {
+        if (response.status === 200) {
           console.log(response.data);
           let payload = {
-            success: true,
-            message: 'Event Created Successfully!',
+            Name: '',
+            Description: '',
+            EventDate: null,
+            EventStartTime: '00:00:00',
+            EventEndTime: '00:00:01',
+            Country: null,
+            State: null,
+            City: null,
+            Zip: null,
+            Street: '',
+            hashtags: '',
           };
-          this.props.updateSnackbarData(payload); // Ask
+          this.props.updateNewEvents(payload);
+          this.getEventList(e,'upcoming',0);
         }
       },
       (error) => {
@@ -170,38 +248,28 @@ class EventList extends Component {
   };
 
   fetchCustomerProfile = (e, CustomerID) => {
-    console.log('getting customer id', CustomerID);
+    console.log('getting   customer id', CustomerID);
     if (this.state.popSeen1) {
       this.setState({
         popSeen1: !this.state.popSeen1,
         customerDetails: [],
       });
     } else {
-      axios
-        .get(
-          serverUrl + 'restaurant/fetchRegCustomerDetails',
+          const index = this.props.regCust.regCustDetails.findIndex((x) => x.CustomerID === CustomerID);
+          let allItems = this.props.regCust.regCustDetails[index];
+          
+          delete allItems.CustomerID;
+          delete allItems.Email;
+          let payload = {
+            CustDetails: [allItems],
+          };
 
-          { params: { CustomerID }, withCredentials: true }
-        )
-        .then((response) => {
-          console.log(response.data);
-          let allItems = response.data[0].map((Item) => {
-            return {
-              name: Item.Name,
-              gender: Item.GenderName,
-              yelpingsince: Item.YelpingSince,
-              contact: Item.Contact,
-            };
-          });
-
+          this.props.updateRegCustData(payload);
           this.setState({
-            customerDetails: this.state.customerDetails.concat(allItems),
+            
             popSeen1: !this.state.popSeen1,
           });
-        })
-        .catch((err) => {
-          console.log('Error');
-        });
+        
     }
   };
 
@@ -228,6 +296,7 @@ class EventList extends Component {
                 </Link>
               </li>
             </ul>
+            
             <ul class="nav navbar-nav navbar-right">
               <li>
                 <Link to="#" onClick={this.openNewForm}>
@@ -240,21 +309,22 @@ class EventList extends Component {
         </nav>
         {this.state.popSeen ? (
           <RegisteredCustomers
-            RegisteredCustomerList={this.state.RegisteredCustomerList}
+            RegisteredCustomerList={this.props.regCust.regCustDetails}
+            handlePageClick={(e)=> {this.openRegisteredCustomers(this.props.regCust.eventID,e.selected)}}
             toggle={this.openRegisteredCustomers}
             fetchCustomerProfile={(event, id) => this.fetchCustomerProfile(event, id)}
           />
         ) : null}
         {this.state.popSeen1 ? (
           <RegCustomerDetails
-            customerDetails={this.state.customerDetails}
+            customerDetails={this.props.regCust.CustDetails}
             toggle={this.fetchCustomerProfile}
           />
         ) : null}
         {this.state.formOpen && (
           <div>
             <NewEventForm
-              CUISINES={this.state.CUISINES}
+              CUISINES={this.props.cuisine.cuisineNames}
               // onNameChangeHandler={this.onNameChangeHandler}
               toggle={this.openNewForm}
               createNewEvent={(e, eventInfo) => this.createNewEvent(e, eventInfo)}
@@ -263,7 +333,7 @@ class EventList extends Component {
         )}
         <div>
           <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
-            {this.state.EVENTS.map((event) => (
+            {this.props.events.eventDetails.map((event) => (
               <Event
                 event={event}
                 openRegisteredCustomers={() => this.openRegisteredCustomers(event.ID)}
@@ -273,6 +343,20 @@ class EventList extends Component {
               />
             ))}
           </ul>
+          <ReactPaginate
+              previousLabel={'prev'}
+              nextLabel={'next'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              pageCount={this.props.events.PageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={2}
+              onPageChange={(e)=> {this.handlePageClick(e)}}
+              containerClassName={'pagination'}
+              subContainerClassName={'pages pagination'}
+              forcePage={this.props.events.pageNo}
+              activeClassName={'active'}
+            />
         </div>
       </div>
     );
@@ -282,8 +366,14 @@ class EventList extends Component {
 // export default EventList;
 const mapStateToProps = (state) => {
   const snackbarData = state.snackBarReducer;
+  const { events } = state.eventReducer;
+  const { regCust } = state.regCustReducer;
+  const { cuisine } = state.cuisineReducer;
   return {
     snackbarData: snackbarData, // Ask
+    events: events,
+    cuisine: cuisine,
+    regCust: regCust,
   };
 };
 
@@ -293,6 +383,30 @@ const mapDispatchToProps = (dispatch) => {
     updateSnackbarData: (payload) => {
       dispatch({
         type: updateSnackbarData,
+        payload,
+      });
+    },
+    updateEventsData: (payload) => {
+      dispatch({
+        type: 'update-events',
+        payload,
+      });
+    },
+    updateRegCustData: (payload) => {
+      dispatch({
+        type: 'update-reg-customer',
+        payload,
+      });
+    },
+    updateCuisineInfo: (payload) => {
+      dispatch({
+        type: 'update-cuisine-field',
+        payload,
+      });
+    },
+    updateNewEvents: (payload) => {
+      dispatch({
+        type: 'update-new-event',
         payload,
       });
     },
