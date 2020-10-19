@@ -1,13 +1,12 @@
 const express = require('express');
+const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
   fetchCustomerDetails,
   fetchCustProfileData,
-  updateProfile,
   getContactInfo,
   updateContactInfo,
-  uploadCustomerProfilePic,
   submitReview,
   generateOrder,
   fetchAllOrders,
@@ -21,12 +20,11 @@ const {
   signupCustomer,
   loginCustomer,
   logoutCustomer,
+  getCustomerCompleteProfile,
+  uploadCustomerProfilePic,
+  updateProfile,
 } = require('./customerData/customerHandling');
 const {
-  statesName,
-  countryName,
-  cuisineFetch,
-  deliveryStatus,
   fetchSearchStrings,
   fetchRestaurantResults,
   menuFetch,
@@ -59,25 +57,21 @@ Router.post('/logoutCustomer', async (req, res) => {
   return value;
 });
 
-// Give state names
-Router.get('/stateNames', async (req, res) => {
-  const value = await statesName(req, res);
+// Fetching customer profile
+Router.get('/getCustomerCompleteProfile', checkAuth, async (req, res) => {
+  const value = await getCustomerCompleteProfile(req, res);
   return value;
 });
 
-// Give country names and codes
-Router.get('/countryNames', async (req, res) => {
-  const value = await countryName(req, res);
+// Uploading customer profile picture
+Router.post('/uploadCustomerProfilePic', checkAuth, async (req, res) => {
+  const value = await uploadCustomerProfilePic(req, res);
   return value;
 });
 
-Router.get('/cuisineFetch', async (req, res) => {
-  const value = await cuisineFetch(req, res);
-  return value;
-});
-
-Router.get('/getOrderDeliveryStatus', async (req, res) => {
-  const value = await deliveryStatus(req, res);
+// Updating customer profile
+Router.put('/updateProfile', async (req, res) => {
+  const value = await updateProfile(req, res);
   return value;
 });
 
@@ -88,16 +82,6 @@ Router.get('/getCustomerCompleteProfile', async (req, res) => {
 
 Router.get('/fetchCustProfileData', async (req, res) => {
   const value = await fetchCustProfileData(req, res);
-  return value;
-});
-
-Router.put('/updateProfile', async (req, res) => {
-  const value = await updateProfile(req, res);
-  return value;
-});
-
-Router.post('/uploadCustomerProfilePic', async (req, res) => {
-  const value = await uploadCustomerProfilePic(req, res);
   return value;
 });
 

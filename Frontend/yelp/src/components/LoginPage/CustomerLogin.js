@@ -101,7 +101,7 @@ class CustomerLogin extends Component {
       localStorage.setItem('user_id', decoded._id);
       localStorage.setItem('username', decoded.username);
       localStorage.setItem('role',decoded.role);
-      redirectVar = <Redirect to="/webPage" />;
+      redirectVar = <Redirect to="/customerProfile" />;
     }
     return (
       <div>

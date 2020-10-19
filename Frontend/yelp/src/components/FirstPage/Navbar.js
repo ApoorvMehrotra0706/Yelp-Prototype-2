@@ -5,6 +5,7 @@ import { Redirect } from 'react-router';
 import axios from 'axios';
 import serverUrl from '../../config';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
 // create the Navbar Component
 class Navbar extends Component {
@@ -46,6 +47,42 @@ class Navbar extends Component {
         genderNames: this.state.genderNames,
       };
       this.props.updateStaticDataInfo(payload);
+
+      // Loading customer Profile
+      if(localStorage.getItem('token') && localStorage.getItem('role') === 'Customer') {
+        axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+        axios
+        .get(
+          serverUrl + 'customer/getCustomerCompleteProfile',
+
+          { params: { CustomerID: localStorage.getItem('user_id') }, withCredentials: true }
+        )
+        .then((response) => {
+          console.log(response.data);
+          let DOB = moment.utc(response.data.DOB);
+          DOB= DOB.format('YYYY-MM-DD');
+          let payload = {
+            Name: response.data.name,
+            NickName: response.data.NickName,
+            DOB: DOB,
+            City: response.data.city,
+            State: response.data.state, 
+            Address: (response.data.city.concat( )).concat(response.data.state), 
+            Gender: response.data.gender,         
+            streetAddress: response.data.streetAddress,
+            Country: response.data.country,
+            zip: response.data.zip,
+            Headline: response.data.Headline,
+            Contact: response.data.contact,
+            ILove: response.data.Things_Customer_Love,
+            Find_Me_In: response.data.Find_Me_In,
+            YelpingSince: response.data.YelpingSince,
+            Website: response.data.Website,
+            ImageURL: response.data.ImageURL,
+          };
+          this.props.updateCustomerProfile(payload);
+        });
+      }
     });
   }
 
@@ -250,6 +287,12 @@ const mapDispatchToProps = (dispatch) => {
     updateStaticDataInfo: (payload) => {
       dispatch({
         type: 'update-static-field',
+        payload,
+      });
+    },
+    updateCustomerProfile: (payload) => {
+      dispatch({
+        type: 'update-customer-profile',
         payload,
       });
     },

@@ -8,16 +8,15 @@ import serverUrl from '../../config';
 import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
 import SnackBar from '../SharedComponents/Snackbar';
-import Moment from 'moment';
 
 class UpdateProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
       errors: { zipError: '', dateError: '' },
-      genders: [],
-      Countries: [],
-      States: [],
+      // genders: [],
+      // Countries: [],
+      // States: [],
       uploadedPic: '',
       Profile: {
         First_Name: '',
@@ -39,95 +38,125 @@ class UpdateProfile extends Component {
     };
   }
   componentWillMount() {
-    console.log('inside Signup');
-    axios
-      .get(serverUrl + 'customer/fetchCustProfileData', {
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log(response.data);
-        const Profile = {
-          First_Name: response.data[0][0].Name,
-          // Last_Name: response.data[0][0].Last_Name,
-          Nick_Name: response.data[0][0].NickName,
-          Gender: response.data[0][0].GenderID,
-          // Date_Of_Birth: new Date(response.data[0][0].Date_Of_Birth),
-          Date_Of_Birth: Moment(response.data[0][0].DOB).format('YYYY-MM-DD'),
-          Country_ID: response.data[0][0].Country,
-          State_ID: response.data[0][0].State,
-          City: response.data[0][0].City,
-          Zip: response.data[0][0].Zip_Code,
-          Street: response.data[0][0].Street_Address,
-          Headline: response.data[0][0].Headline,
-          I_Love: response.data[0][0].Things_Customer_Love,
-          Find_Me_In: response.data[0][0].Find_Me_In,
-          Website: response.data[0][0].Website,
-          ImageUrl: response.data[0][0].ImageURL,
-        };
-        let allCountries = response.data[1].map((country) => {
-          return { key: country.CountryID, value: country.Country_Name };
-        });
-        let allStates = response.data[2].map((state) => {
-          return { key: state.StateID, value: state.State_Name };
-        });
-        let allGenders = response.data[3].map((gender) => {
-          return { key: gender.GenderID, value: gender.GenderName };
-        });
+    // console.log('inside Signup');
+    // axios
+    //   .get(serverUrl + 'customer/fetchCustProfileData', {
+    //     withCredentials: true,
+    //   })
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     const Profile = {
+    //       First_Name: response.data[0][0].Name,
+    //       // Last_Name: response.data[0][0].Last_Name,
+    //       Nick_Name: response.data[0][0].NickName,
+    //       Gender: response.data[0][0].GenderID,
+    //       // Date_Of_Birth: new Date(response.data[0][0].Date_Of_Birth),
+    //       Date_Of_Birth: Moment(response.data[0][0].DOB).format('YYYY-MM-DD'),
+    //       Country_ID: response.data[0][0].Country,
+    //       State_ID: response.data[0][0].State,
+    //       City: response.data[0][0].City,
+    //       Zip: response.data[0][0].Zip_Code,
+    //       Street: response.data[0][0].Street_Address,
+    //       Headline: response.data[0][0].Headline,
+    //       I_Love: response.data[0][0].Things_Customer_Love,
+    //       Find_Me_In: response.data[0][0].Find_Me_In,
+    //       Website: response.data[0][0].Website,
+    //       ImageUrl: response.data[0][0].ImageURL,
+    //     };
+    //     let allCountries = response.data[1].map((country) => {
+    //       return { key: country.CountryID, value: country.Country_Name };
+    //     });
+    //     let allStates = response.data[2].map((state) => {
+    //       return { key: state.StateID, value: state.State_Name };
+    //     });
+    //     let allGenders = response.data[3].map((gender) => {
+    //       return { key: gender.GenderID, value: gender.GenderName };
+    //     });
 
-        this.setState({
-          genders: this.state.genders.concat(allGenders),
-          Countries: this.state.Countries.concat(allCountries),
-          States: this.state.States.concat(allStates),
-          Profile,
-        });
-      });
+    //     this.setState({
+    //       genders: this.state.genders.concat(allGenders),
+    //       Countries: this.state.Countries.concat(allCountries),
+    //       States: this.state.States.concat(allStates),
+    //       Profile,
+    //     });
+    //   });
   }
 
   onFNameChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ First_Name: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ First_Name: e.target.value } },
+    // });
+    let payload = {
+      Name: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
 
   onNickNameChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Nick_Name: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ Nick_Name: e.target.value } },
+    // });
+    let payload = {
+      NickName: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onChangeHandlerGender = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Gender: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ Gender: e.target.value } },
+    // });
+    let payload = {
+      Gender: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onHeadlineChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Headline: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ Headline: e.target.value } },
+    // });
+    let payload = {
+      Headline: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onLoveChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ I_Love: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ I_Love: e.target.value } },
+    // });
+    let payload = {
+      ILove: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onFMIChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Find_Me_In: e.target.value } },
-    });
+    let payload = {
+      Find_Me_In: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onWebsiteChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Website: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ Website: e.target.value } },
+    // });
+    let payload = {
+      Website: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onChangeHandlerCountry = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Country_ID: e.target.value } },
-    });
+    let payload = {
+      Country: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onChangeHandlerState = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ State_ID: e.target.value } },
-    });
+    // this.setState({
+    //   Profile: { ...this.state.Profile, ...{ State_ID: e.target.value } },
+    // });
+    let payload = {
+      State: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onChangeHandlerZipCode = (e) => {
     if (!/^\d+$/.test(e.target.value) && e.target.value.length > 0) {
@@ -136,21 +165,27 @@ class UpdateProfile extends Component {
       });
     } else {
       this.setState({
-        Profile: { ...this.state.Profile, ...{ Zip: e.target.value } },
+        // Profile: { ...this.state.Profile, ...{ Zip: e.target.value } },
 
         errors: { ...this.state.errors, ...{ zipError: '' } },
       });
+      let payload = {
+        zip: e.target.value,
+      }
+      this.props.updateCustomerProfile(payload);
     }
   };
   onChangeHandlerCity = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ City: e.target.value } },
-    });
+    let payload = {
+      City: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onChangeHandlerStreet = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ Street: e.target.value } },
-    });
+    let payload = {
+      streetAddress: e.target.value,
+    }
+    this.props.updateCustomerProfile(payload);
   };
   onChangeDate = (e) => {
     // let errors = {};
@@ -163,10 +198,14 @@ class UpdateProfile extends Component {
       });
     } else {
       this.setState({
-        Profile: { ...this.state.Profile, ...{ Date_Of_Birth: e.target.value } },
+        // Profile: { ...this.state.Profile, ...{ Date_Of_Birth: e.target.value } },
 
         errors: { ...this.state.errors, ...{ dateError: '' } },
       });
+      let payload = {
+        DOB: e.target.value,
+      }
+      this.props.updateCustomerProfile(payload);
     }
   };
 
@@ -185,12 +224,10 @@ class UpdateProfile extends Component {
           console.log('Status Code : ', response.status);
           if (parseInt(response.status) === 200) {
             console.log('Product Saved');
-            this.setState({
-              Profile: { ...this.state.Profile, ...{ ImageUrl: response.data } },
-
-              //authFlag: true,
-              //savedId: response.data.message,
-            });
+            let payload = {
+              ImageURL: response.data,
+            }
+            this.props.updateCustomerProfile(payload);
             //Router.push('/vendor/' + localStorage.getItem('user_id'));
           } else if (parseInt(response.status) === 400) {
             console.log(response.data);
@@ -211,21 +248,18 @@ class UpdateProfile extends Component {
   updateProfile = (e) => {
     e.preventDefault();
     const data = {
-      ...this.state.Profile,
-      ...{ token: localStorage.getItem('token'), userrole: localStorage.getItem('role') },
+      ...this.props.customerData,
+      ...{ token: localStorage.getItem('token'), 
+      ...{ user_id: localStorage.getItem('user_id')}},
     };
     axios.defaults.withCredentials = true;
     //make a post request with the user data
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios.put(serverUrl + 'customer/updateProfile', data).then(
       (response) => {
         console.log('Status Code : ', response.status);
-        if (response.status === 204) {
+        if (response.status === 200) {
           console.log(response.data);
-          let payload = {
-            success: true,
-            message: 'Profile Updated Successfully!',
-          };
-          this.props.updateSnackbarData(payload);
         }
       },
       (error) => {
@@ -238,14 +272,14 @@ class UpdateProfile extends Component {
     const defaultImage =
       'https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png';
     let redirectVar = null;
-    if (!cookie.load('cookie')) {
+    if (!localStorage.getItem('token')) {
       console.log('cookie not found');
       redirectVar = <Redirect to="/customerLogin" />;
     } else {
-      if (cookie.load('role') === 'Customer') {
+      if (localStorage.getItem('role') === 'Customer') {
         redirectVar = null;
-      } else if (cookie.load('role') === 'Restaurant') {
-        redirectVar = <Redirect to="/RestaurantLandingPage" />;
+      } else if (localStorage.getItem('role') === 'Restaurant') {
+        redirectVar = <Redirect to="/restaurantProfile" />;
       } else {
         redirectVar = <Redirect to="/customerLogin" />;
       }
@@ -298,9 +332,9 @@ class UpdateProfile extends Component {
                             alt=""
                             class="photo-box-img"
                             src={
-                              this.state.Profile.ImageUrl !== null &&
-                              this.state.Profile.ImageUrl.length > 0
-                                ? this.state.Profile.ImageUrl
+                              this.props.customerData.ImageURL !== null 
+                              
+                                ? this.props.customerData.ImageURL
                                 : defaultImage
                             }
                             // src="https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png"
@@ -317,7 +351,7 @@ class UpdateProfile extends Component {
                       placeholder=""
                       size="30"
                       type="text"
-                      value={this.state.Profile.First_Name}
+                      value={this.props.customerData.Name}
                       onChange={this.onFNameChangeHandler}
                       required
                     ></input>
@@ -331,7 +365,7 @@ class UpdateProfile extends Component {
                       placeholder=""
                       size="30"
                       type="text"
-                      value={this.state.Profile.Nick_Name}
+                      value={this.props.customerData.NickName}
                       onChange={this.onNickNameChangeHandler}
                     />
                     <label for="gender">Gender</label>
@@ -339,14 +373,14 @@ class UpdateProfile extends Component {
                       placeholder="Gender"
                       className="form-control"
                       onChange={this.onChangeHandlerGender}
-                      value={this.state.Profile.Gender}
+                      value={this.props.customerData.Gender}
                       required
                     >
                       <option className="Dropdown-menu" key="" value="">
                         -Select-
                       </option>
-                      {this.state.genders.map((gender) => (
-                        <option className="Dropdown-menu" key={gender.key} value={gender.key}>
+                      {this.props.staticData.genderNames.map((gender) => (
+                        <option className="Dropdown-menu" key={gender.key} value={gender.value}>
                           {gender.value}
                         </option>
                       ))}
@@ -362,7 +396,7 @@ class UpdateProfile extends Component {
                       placeholder=""
                       size="30"
                       type="text"
-                      value={this.state.Profile.Headline}
+                      value={this.props.customerData.Headline}
                       onChange={this.onHeadlineChangeHandler}
                     />
                     <label for="love_name">I Love...</label>
@@ -375,7 +409,7 @@ class UpdateProfile extends Component {
                       name="love_name"
                       size="30"
                       type="text"
-                      value={this.state.Profile.I_Love}
+                      value={this.props.customerData.ILove}
                       onChange={this.onLoveChangeHandler}
                     ></textarea>
                     <label for="find_me_in">Find Me In</label>
@@ -387,7 +421,7 @@ class UpdateProfile extends Component {
                       placeholder=""
                       size="30"
                       type="text"
-                      value={this.state.Profile.Find_Me_In}
+                      value={this.props.customerData.Find_Me_In}
                       onChange={this.onFMIChangeHandler}
                     />
                     <label for="blog">My Blog Or Website</label>
@@ -399,20 +433,20 @@ class UpdateProfile extends Component {
                       placeholder=""
                       size="30"
                       type="text"
-                      value={this.state.Profile.Website}
+                      value={this.props.customerData.Website}
                       onChange={this.onWebsiteChangeHandler}
                     />
-                    <label for="Cpuntry">Country</label>
+                    <label for="Country">Country</label>
                     <select
                       placeholder="Country"
                       className="form-control"
                       onChange={this.onChangeHandlerCountry}
-                      value={this.state.Profile.Country_ID}
+                      value={this.props.customerData.Country}
                     >
                       <option className="Dropdown-menu" key="" value="">
                         -Select-
                       </option>
-                      {this.state.Countries.map((country) => (
+                      {this.props.staticData.countryNames.map((country) => (
                         <option className="Dropdown-menu" key={country.key} value={country.value}>
                           {country.value}
                         </option>
@@ -423,12 +457,12 @@ class UpdateProfile extends Component {
                       placeholder="State"
                       className="form-control"
                       onChange={this.onChangeHandlerState}
-                      value={this.state.Profile.State_ID}
+                      value={this.props.customerData.State}
                     >
                       <option className="Dropdown-menu" key="" value="">
                         -Select-
                       </option>
-                      {this.state.States.map((state) => (
+                      {this.props.staticData.stateNames.map((state) => (
                         <option className="Dropdown-menu" key={state.key} value={state.value}>
                           {state.value}
                         </option>
@@ -445,7 +479,7 @@ class UpdateProfile extends Component {
                       placeholder="zipCode"
                       type="text"
                       onChange={this.onChangeHandlerZipCode}
-                      value={this.state.Profile.Zip}
+                      value={this.props.customerData.zip}
                     />
                     <label for="City">City</label>
                     <input
@@ -454,7 +488,7 @@ class UpdateProfile extends Component {
                       placeholder="City"
                       type="text"
                       onChange={this.onChangeHandlerCity}
-                      value={this.state.Profile.City}
+                      value={this.props.customerData.City}
                     />
                     <label for="Street">Street</label>
                     <input
@@ -463,7 +497,7 @@ class UpdateProfile extends Component {
                       placeholder="Street"
                       type="text"
                       onChange={this.onChangeHandlerStreet}
-                      value={this.state.Profile.Street}
+                      value={this.props.customerData.streetAddress}
                     />
                     <label for="DOB">
                       Date Of Birth
@@ -477,7 +511,7 @@ class UpdateProfile extends Component {
                       value={this.state.time}
                       placeholder="Date"
                       onChange={this.onChangeDate}
-                      value={this.state.Profile.Date_Of_Birth}
+                      value={this.props.customerData.DOB}
                     />
                     <button
                       disabled={
@@ -490,7 +524,7 @@ class UpdateProfile extends Component {
                     >
                       <span>Save Changes</span>
                     </button>
-                    <Link to="/AboutMe"> Cancel</Link>
+                    <Link to="/customerProfile"> Cancel</Link>
                   </form>
                 </div>
               </div>
@@ -506,8 +540,12 @@ class UpdateProfile extends Component {
 
 const mapStateToProps = (state) => {
   const snackbarData = state.snackBarReducer;
+  const { customerData } = state.customerProfileReducer;
+  const { staticData } = state.staticDataReducer;
   return {
     snackbarData: snackbarData,
+    customerData: customerData,
+    staticData: staticData,
   };
 };
 
@@ -519,6 +557,12 @@ const mapDispatchToProps = (dispatch) => {
         payload,
       });
     },
+    updateCustomerProfile: (payload) => {
+      dispatch({
+        type: 'update-customer-profile',
+        payload,
+      });
+    }
   };
 };
 

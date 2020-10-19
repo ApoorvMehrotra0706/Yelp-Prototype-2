@@ -115,7 +115,7 @@ Router.post('/updateDeliveryStatus', checkAuth, async (req, res) => {
 });
 
 // Fetching the events
-Router.get('/fetchEvents', async (req, res) => {
+Router.get('/fetchEvents', checkAuth, async (req, res) => {
   const value = await fetchEvents(req, res);
   return value;
 });
@@ -127,7 +127,7 @@ Router.post('/createNewEvent', checkAuth, async (req, res) => {
 });
 
 // Fetching the registered customers and their details
-Router.get('/fetchRegisteredCustomers', async (req, res) => {
+Router.get('/fetchRegisteredCustomers', checkAuth, async (req, res) => {
   const value = await fetchRegisteredCustomers(req, res);
   return value;
 });
