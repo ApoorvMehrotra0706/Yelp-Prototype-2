@@ -76,7 +76,7 @@ class CustomerLogin extends Component {
           });
           let payload = {
             emailID: this.state.emailID,
-            role: cookie.load('role'),
+            role: 'Customer',
             loginStatus: 'true',
           };
           this.props.updateLoginInfo(payload);

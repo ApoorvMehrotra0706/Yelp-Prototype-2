@@ -59,6 +59,8 @@ const signupCustomer = async (req, res) => {
             name,
             // eslint-disable-next-line no-underscore-dangle
             CustomerID: data._id,
+            City: req.body.city,
+            state: req.body.stateName,
             YelpingSince: today,
           });
           // eslint-disable-next-line no-unused-vars
@@ -201,6 +203,79 @@ const updateProfile = async (req, res) => {
   );
 };
 
+const updateContactInfo = async (req, res) => {
+  Login.findOne({ _id: req.body.user_id, Role: 'Customer' }, async (error, user) => {
+    if (error) {
+      res.status(500).end('Error Occured');
+    }
+    if (user) {
+      if (req.body.emailID !== req.body.newEmailID) {
+        if (await bcrypt.compare(req.body.Password, user.Password)) {
+          Login.updateOne(
+            { _id: req.body.user_id },
+            {
+              emailID: req.body.newEmailID,
+            },
+            // eslint-disable-next-line no-unused-vars
+            (er, data) => {
+              if (er) {
+                res.writeHead(500, {
+                  'Content-Type': 'text/plain',
+                });
+                res.end();
+              } else {
+                const payload = { _id: user._id, username: req.body.newEmailID, role: user.Role };
+                const token = jwt.sign(payload, secret, {
+                  expiresIn: 1008000,
+                });
+                Customer.updateOne(
+                  { CustomerID: req.body.user_id },
+                  {
+                    ...req.body,
+                  },
+                  // eslint-disable-next-line no-unused-vars
+                  (err, data1) => {
+                    if (err) {
+                      res.writeHead(500, {
+                        'Content-Type': 'text/plain',
+                      });
+                      res.end();
+                    } else {
+                      res.status(200).end(`JWT ${token}`);
+                    }
+                  }
+                );
+              }
+            }
+          );
+        } else {
+          res.status(400).end('Invalid credentials');
+        }
+      } else {
+        Customer.updateOne(
+          { CustomerID: req.body.user_id },
+          {
+            ...req.body,
+          },
+          // eslint-disable-next-line no-unused-vars
+          (err, data1) => {
+            if (err) {
+              res.writeHead(500, {
+                'Content-Type': 'text/plain',
+              });
+              res.end();
+            } else {
+              res.status(200).end(req.body.token);
+            }
+          }
+        );
+      }
+    } else {
+      res.status(401).end('Invalid Credentials');
+    }
+  });
+};
+
 module.exports = {
   signupCustomer,
   loginCustomer,
@@ -208,4 +283,5 @@ module.exports = {
   getCustomerCompleteProfile,
   uploadCustomerProfilePic,
   updateProfile,
+  updateContactInfo,
 };

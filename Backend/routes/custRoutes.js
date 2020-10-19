@@ -3,10 +3,6 @@ const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
-  fetchCustomerDetails,
-  fetchCustProfileData,
-  getContactInfo,
-  updateContactInfo,
   submitReview,
   generateOrder,
   fetchAllOrders,
@@ -23,6 +19,7 @@ const {
   getCustomerCompleteProfile,
   uploadCustomerProfilePic,
   updateProfile,
+  updateContactInfo,
 } = require('./customerData/customerHandling');
 const {
   fetchSearchStrings,
@@ -70,27 +67,13 @@ Router.post('/uploadCustomerProfilePic', checkAuth, async (req, res) => {
 });
 
 // Updating customer profile
-Router.put('/updateProfile', async (req, res) => {
+Router.put('/updateProfile', checkAuth, async (req, res) => {
   const value = await updateProfile(req, res);
   return value;
 });
 
-Router.get('/getCustomerCompleteProfile', async (req, res) => {
-  const value = await fetchCustomerDetails(req, res);
-  return value;
-});
-
-Router.get('/fetchCustProfileData', async (req, res) => {
-  const value = await fetchCustProfileData(req, res);
-  return value;
-});
-
-Router.get('/getContactInfo', async (req, res) => {
-  const value = await getContactInfo(req, res);
-  return value;
-});
-
-Router.put('/updateContactInfo', async (req, res) => {
+// Updating customer contact info
+Router.put('/updateContactInfo', checkAuth, async (req, res) => {
   const value = await updateContactInfo(req, res);
   return value;
 });

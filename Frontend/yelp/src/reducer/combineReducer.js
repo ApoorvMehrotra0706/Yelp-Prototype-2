@@ -18,6 +18,7 @@ import eventReducer from './eventReducer';
 import regCustReducer from './regCustReducer';
 import newEventReducer from './newEventReducer';
 import customerProfileReducer from './customerProfileReducer';
+import customerContactInfoReducer from './customerContactInfoReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -39,6 +40,7 @@ const combReducer = combineReducers({
   regCustReducer: regCustReducer,
   newEventReducer: newEventReducer,
   customerProfileReducer: customerProfileReducer,
+  customerContactInfoReducer: customerContactInfoReducer,
 });
 
 export default combReducer;

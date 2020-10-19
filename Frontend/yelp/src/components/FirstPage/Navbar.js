@@ -65,9 +65,9 @@ class Navbar extends Component {
             Name: response.data.name,
             NickName: response.data.NickName,
             DOB: DOB,
-            City: response.data.city,
+            City: response.data.City,
             State: response.data.state, 
-            Address: (response.data.city.concat( )).concat(response.data.state), 
+            Address: (response.data.City.concat(', ')).concat(response.data.state), 
             Gender: response.data.gender,         
             streetAddress: response.data.streetAddress,
             Country: response.data.country,
@@ -81,6 +81,13 @@ class Navbar extends Component {
             ImageURL: response.data.ImageURL,
           };
           this.props.updateCustomerProfile(payload);
+          payload = {
+            Contact: response.data.contact,
+            EmailID: localStorage.getItem('username'),
+            NewEmailID: localStorage.getItem('username'),
+            NewContact: response.data.contact,
+          };
+          this.props.updateCustomerContactInfo(payload);
         });
       }
     });
@@ -293,6 +300,12 @@ const mapDispatchToProps = (dispatch) => {
     updateCustomerProfile: (payload) => {
       dispatch({
         type: 'update-customer-profile',
+        payload,
+      });
+    },
+    updateCustomerContactInfo: (payload) => {
+      dispatch({
+        type: 'customer-contact-info',
         payload,
       });
     },

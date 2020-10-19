@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import cookie from 'react-cookies';
+// import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
 import './UpdateProfile.css';
 import axios from 'axios';
 import serverUrl from '../../config';
-import { updateSnackbarData } from '../../reducer/action-types';
+import jwt_decode from 'jwt-decode';
 import { connect } from 'react-redux';
 import SnackBar from '../../reducer/snackbarReducer';
 
@@ -14,42 +14,42 @@ class UpdateContactInformation extends Component {
     super(props);
     this.state = {
       errors: { contactError: '', passwordMisMatchError: '', submitError: '' },
-      CountryCodes: [],
+      // CountryCodes: [],
       Profile: {
-        Email: '',
+        // Email: '',
         NewEmail: '',
-        ContactNo: '',
+        // ContactNo: '',
         Password: '',
         RetypePassword: '',
-        CountryCode: '',
+        // CountryCode: '',
       },
     };
   }
   componentWillMount() {
-    console.log('inside Signup');
-    axios
-      .get(serverUrl + 'customer/getContactInfo', {
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log(response.data);
-        const Profile = {
-          Email: response.data[0][0].EmailID,
-          NewEmail: response.data[0][0].EmailID,
-          ContactNo: response.data[0][0].Contact,
-          //   CountryCode: response.data[0][0].CountryCode,
-        };
-        this.setState({
-          Profile,
-        });
-      });
+    // console.log('inside Signup');
+    // axios
+    //   .get(serverUrl + 'customer/getContactInfo', {
+    //     withCredentials: true,
+    //   })
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     const Profile = {
+    //       Email: response.data[0][0].EmailID,
+    //       NewEmail: response.data[0][0].EmailID,
+    //       ContactNo: response.data[0][0].Contact,
+    //       //   CountryCode: response.data[0][0].CountryCode,
+    //     };
+    //     this.setState({
+    //       Profile,
+    //     });
+    //   });
   }
 
   onEmailChangeHandler = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ NewEmail: e.target.value } },
-      errors: { ...this.state.errors, ...{ submitError: '' } },
-    });
+    let payload = {
+      NewEmailID: e.target.value,
+    };
+    this.props.updateCustomerContactInfo(payload);
   };
   onContactNoCHangeHandler = (e) => {
     if (!/^\d+$/.test(e.target.value) && e.target.value.length > 0) {
@@ -58,10 +58,14 @@ class UpdateContactInformation extends Component {
       });
     } else {
       this.setState({
-        Profile: { ...this.state.Profile, ...{ ContactNo: e.target.value } },
+        // Profile: { ...this.state.Profile, ...{ ContactNo: e.target.value } },
 
         errors: { ...this.state.errors, ...{ contactError: '' } },
       });
+      let payload = {
+        NewContact: e.target.value,
+      };
+      this.props.updateCustomerContactInfo(payload);
     }
   };
 
@@ -87,31 +91,41 @@ class UpdateContactInformation extends Component {
       errors,
     });
   };
-  onChangeHandlerCountryCode = (e) => {
-    this.setState({
-      Profile: { ...this.state.Profile, ...{ CountryCode: e.target.value } },
-      errors: { ...this.state.errors, ...{ submitError: '' } },
-    });
-  };
+  
 
   updateContactInformation = (e) => {
     e.preventDefault();
     const data = {
-      ...this.state.Profile,
-      ...{ token: localStorage.getItem('token'), userrole: localStorage.getItem('role') },
+      Password: this.state.Profile.Password,
+      emailID: this.props.customerContactInfo.EmailID,
+      newEmailID: this.props.customerContactInfo.NewEmailID,
+      user_id: localStorage.getItem('user_id'),
+      contact: this.props.customerContactInfo.NewContact, 
+      token: localStorage.getItem('token'),
     };
     axios.defaults.withCredentials = true;
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     //make a post request with the user data
     axios.put(serverUrl + 'customer/updateContactInfo', data).then(
       (response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
+          localStorage.clear();
+          localStorage.setItem('token',response.data);
           console.log(response.data);
           let payload = {
-            success: true,
-            message: 'Contact Information Updated Successfully!',
+            EmailID: this.props.customerContactInfo.NewEmailID,
+            // NewEmailID: '',
+            Contact: this.props.customerContactInfo.NewContact,
+            // NewContact: '',
           };
-          this.props.updateSnackbarData(payload);
+          this.props.updateCustomerContactInfo(payload);
+          if (localStorage.getItem('token')) {
+            const decoded = jwt_decode(localStorage.getItem('token').split(' ')[1]);
+            localStorage.setItem('user_id', decoded._id);
+            localStorage.setItem('username', decoded.username);
+            localStorage.setItem('role',decoded.role);
+          }
           //updateRedirect = <Redirect to="/customerLogin" />;
           alert('Updated Successfully');
         }
@@ -129,13 +143,13 @@ class UpdateContactInformation extends Component {
 
   render() {
     let redirectVar = null;
-    if (!cookie.load('cookie')) {
-      console.log('cookie not found');
+    if (!localStorage.getItem('token')) {
+      console.log('token not found');
       redirectVar = <Redirect to="/customerLogin" />;
     } else {
-      if (cookie.load('role') === 'Customer') {
+      if (localStorage.getItem('role') === 'Customer') {
         redirectVar = null;
-      } else if (cookie.load('role') === 'Restaurant') {
+      } else if (localStorage.getItem('role') === 'Restaurant') {
         redirectVar = <Redirect to="/RestaurantLandingPage" />;
       } else {
         redirectVar = <Redirect to="/customerLogin" />;
@@ -174,7 +188,7 @@ class UpdateContactInformation extends Component {
                         placeholder=""
                         size="30"
                         type="email"
-                        value={this.state.Profile.NewEmail}
+                        value={this.props.customerContactInfo.NewEmailID}
                         onChange={this.onEmailChangeHandler}
                         required
                       ></input>
@@ -196,7 +210,7 @@ class UpdateContactInformation extends Component {
                         placeholder=""
                         size="30"
                         type="text"
-                        value={this.state.Profile.ContactNo}
+                        value={this.props.customerContactInfo.NewContact}
                         onChange={this.onContactNoCHangeHandler}
                         required
                       />
@@ -259,17 +273,17 @@ class UpdateContactInformation extends Component {
 // export default UpdateProfile;
 
 const mapStateToProps = (state) => {
-  const snackbarData = state.snackBarReducer;
+  const { customerContactInfo } = state.customerContactInfoReducer;
   return {
-    snackbarData: snackbarData,
+    customerContactInfo: customerContactInfo,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateSnackbarData: (payload) => {
+    updateCustomerContactInfo: (payload) => {
       dispatch({
-        type: updateSnackbarData,
+        type: 'customer-contact-info',
         payload,
       });
     },
