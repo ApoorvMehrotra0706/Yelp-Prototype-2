@@ -7,6 +7,7 @@ import serverUrl from '../../config';
 import { updateRestaurantArray } from '../../reducer/action-types';
 import MapDisplay from './MapDisplay';
 import { history } from '../../App';
+import ReactPaginate from 'react-paginate';
 
 import { connect } from 'react-redux';
 
@@ -21,12 +22,14 @@ class RestaurantList extends Component {
 
   componentDidMount() {
     console.log('inside Signup');
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
       .get(serverUrl + 'customer/fetchRestaurantResults', {
         // Do
         params: {
           filter: localStorage.getItem('SearchFilter'),
           searchString: localStorage.getItem('SearchedString'),
+          pageNo: 0,
         },
         withCredentials: true,
       })
@@ -34,23 +37,23 @@ class RestaurantList extends Component {
         console.log(response.data);
         let mapCoordinates = response.data[0].map((restaurant) => {
           return {
-            title: restaurant.Name,
+            title: restaurant.name,
             coordinates: { lat: restaurant.Latitude, lng: restaurant.Longitude },
           };
         });
         let allRestaurants = response.data[0].map((restaurant) => {
           return {
             // From restaurant, delivery_methods, reviews
-            ID: restaurant.ID,
-            Name: restaurant.Name,
-            DineIn: restaurant.DineIn,
-            YelpDelivery: restaurant.YelpDelivery,
-            CurbsidePickup: restaurant.CurbsidePickup,
-            AvgRating: restaurant.AvgRating,
-            ReviewCounts: restaurant.ReviewCounts,
-            ImageUrl: restaurant.ImageUrl,
-            OpeningTime: restaurant.OpeningTime,
-            ClosingTime: restaurant.ClosingTime,
+            ID: restaurant.RestaurantID,
+            Name: restaurant.name,
+            DineIn: restaurant.Dine_In,
+            YelpDelivery: restaurant.Yelp_Delivery,
+            CurbsidePickup: restaurant.Curbside_Pickup,
+            // AvgRatingcd: restaurant.AvgRating,
+            // ReviewCounts: restaurant.ReviewCounts,
+            ImageUrl: restaurant.ImageURL,
+            OpeningTime: restaurant.Opening_Time,
+            ClosingTime: restaurant.Closing_Time,
           };
         });
 
@@ -58,7 +61,12 @@ class RestaurantList extends Component {
           BackupRestaurantsList: allRestaurants,
           mapCoordinates: mapCoordinates,
         });
-        const payload = { restaurantSearchResults: allRestaurants };
+        const payload = { 
+          restaurantSearchResults: allRestaurants,
+          mapCoordinates: mapCoordinates,
+          Count: response.data[1],
+          noOfPages: response.data[2],
+                           };
         this.props.updateRestaurantArray(payload);
       });
 
@@ -94,6 +102,83 @@ class RestaurantList extends Component {
     history.push('/RestaurantPage'); // Will be made
     window.location.reload(false);
   };
+
+  handlePageClick = (e) => {
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    axios
+      .get(serverUrl + 'customer/fetchRestaurantResults', {
+        // Do
+        params: {
+          filter: localStorage.getItem('SearchFilter'),
+          searchString: localStorage.getItem('SearchedString'),
+          pageNo: e.selected,
+        },
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log(response.data);
+        let mapCoordinates = response.data[0].map((restaurant) => {
+          return {
+            title: restaurant.name,
+            coordinates: { lat: restaurant.Latitude, lng: restaurant.Longitude },
+          };
+        });
+        let allRestaurants = response.data[0].map((restaurant) => {
+          return {
+            // From restaurant, delivery_methods, reviews
+            ID: restaurant.RestaurantID,
+            Name: restaurant.name,
+            DineIn: restaurant.Dine_In,
+            YelpDelivery: restaurant.Yelp_Delivery,
+            CurbsidePickup: restaurant.Curbside_Pickup,
+            // AvgRatingcd: restaurant.AvgRating,
+            // ReviewCounts: restaurant.ReviewCounts,
+            ImageUrl: restaurant.ImageURL,
+            OpeningTime: restaurant.Opening_Time,
+            ClosingTime: restaurant.Closing_Time,
+          };
+        });
+
+        this.setState({
+          BackupRestaurantsList: allRestaurants,
+          mapCoordinates: mapCoordinates,
+        });
+        const payload = { 
+          restaurantSearchResults: allRestaurants,
+          mapCoordinates: mapCoordinates,
+          Count: response.data[1],
+          noOfPages: response.data[2],
+        };
+        this.props.updateRestaurantArray(payload);
+      });
+
+    this.setState({
+      authFlag: false,
+    });
+  }
+  filterDeliverMode = (filterMode) => {
+    let filterResult = [];
+    if (filterMode === 'Both') {
+      const payload = { restaurantSearchResults: this.state.BackupRestaurantsList };
+      this.props.updateRestaurantArray(payload);
+    } else if (filterMode === 'CurbsidePickup') {
+      filterResult = this.state.BackupRestaurantsList.filter(
+        (restaurant) => restaurant.CurbsidePickup === true
+      );
+      const payload = { restaurantSearchResults: filterResult };
+      this.props.updateRestaurantArray(payload);
+    } else {
+      filterResult = this.state.BackupRestaurantsList.filter(
+        (restaurant) => restaurant.YelpDelivery === true
+      );
+      const payload = { restaurantSearchResults: filterResult };
+      this.props.updateRestaurantArray(payload);
+    }
+    return this.props.searchTabInfo.SearchStrings.filter((string) =>
+      string.toLowerCase().includes(this.props.searchTabInfo.serchedString.toLowerCase())
+    );
+
+  }
 
   render() {
     let redirectVar = null;
@@ -187,6 +272,19 @@ class RestaurantList extends Component {
                         />
                       ))}
                     </ul>
+                    <ReactPaginate
+                      previousLabel={'prev'}
+                      nextLabel={'next'}
+                      breakLabel={'...'}
+                      breakClassName={'break-me'}
+                      pageCount={this.props.restaurantArray.noOfPages}
+                      marginPagesDisplayed={2}
+                      pageRangeDisplayed={2}
+                      onPageChange={this.handlePageClick}
+                      containerClassName={'pagination'}
+                      subContainerClassName={'pages pagination'}
+                      activeClassName={'active'}
+                    />
                   </div>
                 </div>
               </div>
@@ -201,7 +299,7 @@ class RestaurantList extends Component {
                 >
                   <div className="lemon--div__09f24__1mboc container__09f24__11Ola border-color--default__09f24__R1nRO">
                     <div className="lemon--div__09f24__1mboc outer__09f24__2nI2R border-color--default__09f24__R1nRO">
-                      <MapDisplay mapCoordinates={this.state.mapCoordinates}></MapDisplay>
+                      <MapDisplay mapCoordinates={this.props.restaurantArray.mapCoordinates}></MapDisplay>
                     </div>
                   </div>
                 </div>

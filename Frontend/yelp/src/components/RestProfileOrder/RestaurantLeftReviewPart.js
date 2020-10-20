@@ -51,7 +51,7 @@ class RestaurantLeftReviewPart extends Component {
         this.setState({
           REVIEWS: this.state.REVIEWS.concat(allReviews),
         });
-      });
+      }); 
 
     axios
       .get(serverUrl + 'customer/fetchRestaurantProfileForCustomer', {

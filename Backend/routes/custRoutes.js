@@ -20,10 +20,10 @@ const {
   uploadCustomerProfilePic,
   updateProfile,
   updateContactInfo,
-} = require('./customerData/customerHandling');
-const {
   fetchSearchStrings,
   fetchRestaurantResults,
+} = require('./customerData/customerHandling');
+const {
   menuFetch,
   fetchReviews,
   fetchRestaurantProfileForCustomer,
@@ -78,11 +78,13 @@ Router.put('/updateContactInfo', checkAuth, async (req, res) => {
   return value;
 });
 
+// Fetching search strings
 Router.get('/fetchSearchStrings', async (req, res) => {
   const value = await fetchSearchStrings(req, res);
   return value;
 });
 
+// Fetching Restaurant Search Results
 Router.get('/fetchRestaurantResults', async (req, res) => {
   const value = await fetchRestaurantResults(req, res);
   return value;

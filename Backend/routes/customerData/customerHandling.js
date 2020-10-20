@@ -7,6 +7,13 @@ const multerS3 = require('multer-s3');
 const url = require('url');
 const Login = require('../models/LoginModel');
 const Customer = require('../models/CustomerModel');
+const Appetizer = require('../models/Appetizer');
+const Beverage = require('../models/Beverages');
+const Desserts = require('../models/Desserts');
+const MainCourse = require('../models/Main_Course');
+const Salads = require('../models/Salads');
+const Cuisine = require('../models/CuisineModel');
+const Restaurant = require('../models/RestaurantModel');
 const { secret } = require('../../config');
 const { auth } = require('../../passport');
 
@@ -276,6 +283,313 @@ const updateContactInfo = async (req, res) => {
   });
 };
 
+const fetchSearchStrings = async (req, res) => {
+  const data = [];
+  await Appetizer.find({}, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result) {
+      data.push(result);
+    } else {
+      data.push(0);
+    }
+  });
+  await Beverage.find({}, (error1, result1) => {
+    if (error1) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result1) {
+      data.push(result1);
+    } else {
+      data.push(0);
+    }
+  });
+  await MainCourse.find({}, (error2, result2) => {
+    if (error2) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result2) {
+      data.push(result2);
+    } else {
+      data.push(0);
+    }
+  });
+  await Salads.find({}, (error3, result3) => {
+    if (error3) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result3) {
+      data.push(result3);
+    } else {
+      data.push(0);
+    }
+  });
+  await Desserts.find({}, (error4, result4) => {
+    if (error4) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result4) {
+      data.push(result4);
+    } else {
+      data.push(0);
+    }
+  });
+  await Cuisine.find({}, (error5, result5) => {
+    if (error5) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result5) {
+      data.push(result5);
+    } else {
+      data.push(0);
+    }
+  });
+  await Restaurant.find({}, (error6, result6) => {
+    if (error6) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+    if (result6) {
+      data.push(result6);
+    } else {
+      data.push(0);
+    }
+  });
+  res.writeHead(200, {
+    'Content-Type': 'application/json',
+  });
+  res.end(JSON.stringify(data));
+};
+
+const fetchRestaurantResults = async (req, res) => {
+  const { filter, searchString, pageNo } = url.parse(req.url, true).query;
+  let restaurantData = [];
+  let count = 0;
+  if (filter === '1') {
+    restaurantData = await Restaurant.find({
+      name: { $regex: `${searchString}`, $options: 'i' },
+    })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    count = await Restaurant.find({
+      name: { $regex: `${searchString}`, $options: 'i' },
+    }).countDocuments();
+  } else if (filter === '2') {
+    const appetizerRestID = await Appetizer.find(
+      {
+        Dishname: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const beveragesRestID = await Beverage.find(
+      {
+        Dishname: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const mainCourseRestID = await MainCourse.find(
+      {
+        Dishname: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const dessertRestID = await Desserts.find(
+      {
+        Dishname: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const saladRestID = await Salads.find(
+      {
+        Dishname: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const apptizerRestaurantID = appetizerRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const beverageRestaurantID = beveragesRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const mainCourdeRestaurantID = mainCourseRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const saladsRestaurantID = saladRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const dessertsRestaurantID = dessertRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+
+    restaurantData = await Restaurant.find({
+      RestaurantID: {
+        $in: [
+          ...apptizerRestaurantID,
+          ...beverageRestaurantID,
+          ...mainCourdeRestaurantID,
+          ...saladsRestaurantID,
+          ...dessertsRestaurantID,
+        ],
+      },
+    })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+
+    count = await Restaurant.find({
+      RestaurantID: {
+        $in: [
+          ...apptizerRestaurantID,
+          ...beverageRestaurantID,
+          ...mainCourdeRestaurantID,
+          ...saladsRestaurantID,
+          ...dessertsRestaurantID,
+        ],
+      },
+    }).countDocuments();
+  } else if (filter === '3') {
+    const appetizerRestID = await Appetizer.find(
+      {
+        Cuisine: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const beveragesRestID = await Beverage.find(
+      {
+        Cuisine: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const mainCourseRestID = await MainCourse.find(
+      {
+        Cuisine: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const dessertRestID = await Desserts.find(
+      {
+        Cuisine: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const saladRestID = await Salads.find(
+      {
+        Cuisine: { $regex: `${searchString}`, $options: 'i' },
+      },
+      { _id: 0, RestaurantID: 1 }
+    );
+    const apptizerRestaurantID = appetizerRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const beverageRestaurantID = beveragesRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const mainCourdeRestaurantID = mainCourseRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const saladsRestaurantID = saladRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+    const dessertsRestaurantID = dessertRestID.map((restID) => {
+      return restID.RestaurantID;
+    });
+
+    restaurantData = await Restaurant.find({
+      RestaurantID: {
+        $in: [
+          ...apptizerRestaurantID,
+          ...beverageRestaurantID,
+          ...mainCourdeRestaurantID,
+          ...saladsRestaurantID,
+          ...dessertsRestaurantID,
+        ],
+      },
+    })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+
+    count = await Restaurant.find({
+      RestaurantID: {
+        $in: [
+          ...apptizerRestaurantID,
+          ...beverageRestaurantID,
+          ...mainCourdeRestaurantID,
+          ...saladsRestaurantID,
+          ...dessertsRestaurantID,
+        ],
+      },
+    }).countDocuments();
+  } else {
+    restaurantData = await Restaurant.aggregate([
+      {
+        $addFields: {
+          restLocation: {
+            $concat: ['$state', ', ', '$city', ', ', '$streetAddress'],
+          },
+        },
+      },
+      {
+        $match: {
+          restLocation: {
+            $regex: `${searchString}`,
+            $options: 'i',
+          },
+        },
+      },
+    ])
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+
+    count = await Restaurant.aggregate([
+      {
+        $addFields: {
+          restLocation: {
+            $concat: ['$state', ', ', '$city', ', ', '$streetAddress'],
+          },
+        },
+      },
+      {
+        $match: {
+          restLocation: {
+            $regex: `${searchString}`,
+            $options: 'i',
+          },
+        },
+      },
+      {
+        $count: 'count',
+      },
+    ]);
+  }
+  const noOfPages = Math.ceil(count / 4);
+  const result = [restaurantData, count, noOfPages];
+  res.status(200).end(JSON.stringify(result));
+};
+
 module.exports = {
   signupCustomer,
   loginCustomer,
@@ -284,4 +598,6 @@ module.exports = {
   uploadCustomerProfilePic,
   updateProfile,
   updateContactInfo,
+  fetchSearchStrings,
+  fetchRestaurantResults,
 };

@@ -78,8 +78,8 @@ const signupRestaurant = async (req, res) => {
               ...req.body,
               name,
               RestaurantID: data._id,
-              latitude,
-              longitude,
+              Latitude: latitude,
+              Longitude: longitude,
             });
             // eslint-disable-next-line no-unused-vars
             restaurant.save((er, data1) => {

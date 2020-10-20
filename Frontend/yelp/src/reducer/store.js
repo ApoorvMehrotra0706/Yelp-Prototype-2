@@ -9,6 +9,19 @@ if (process.env.NODE_ENV !== 'production') {
   middleware = [...middleware, logger];
 }
 
+const composeEnhancers =
+  typeof window === 'object' && window._REDUX_DEVTOOLS_EXTENSION_COMPOSE_
+    ? window._REDUX_DEVTOOLS_EXTENSION_COMPOSE_({
+        // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
+      })
+    : compose;
+
+// const enhancer = composeEnhancers(
+//   applyMiddleware(...middleware)
+//   // other store enhancers if any
+// );
+// const store = createStore(combReducer, enhancer);
+
 const store = createStore(
   combReducer,
   compose(

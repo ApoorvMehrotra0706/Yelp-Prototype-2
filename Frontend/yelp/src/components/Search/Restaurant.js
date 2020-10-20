@@ -25,24 +25,24 @@ class Restaurant extends Component {
     const defaultImage =
       'https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png';
 
-    let rating = { backgroundPosition: '0 -320px' };
-    switch (this.props.restaurant.AvgRating) {
-      case '1':
-        rating = { backgroundPosition: '0 -360px' };
-        break;
-      case '2':
-        rating = { backgroundPosition: '0 -400px' };
-        break;
-      case '3':
-        rating = { backgroundPosition: '0 -440px' };
-        break;
-      case '4':
-        rating = { backgroundPosition: '0 -480px' };
-        break;
-      case '5':
-        rating = { backgroundPosition: '0 -500px' };
-        break;
-    }
+    // let rating = { backgroundPosition: '0 -320px' };
+    // switch (this.props.restaurant.AvgRating) {
+    //   case '1':
+    //     rating = { backgroundPosition: '0 -360px' };
+    //     break;
+    //   case '2':
+    //     rating = { backgroundPosition: '0 -400px' };
+    //     break;
+    //   case '3':
+    //     rating = { backgroundPosition: '0 -440px' };
+    //     break;
+    //   case '4':
+    //     rating = { backgroundPosition: '0 -480px' };
+    //     break;
+    //   case '5':
+    //     rating = { backgroundPosition: '0 -500px' };
+    //     break;
+    // }
     return (
       <li class="lemon--li__09f24__1r9wz border-color--default__09f24__R1nRO">
         <div class="lemon--div__09f24__1mboc container__09f24__21w3G hoverable__09f24__2nTf3 margin-t3__09f24__5bM2Z margin-b3__09f24__1DQ9x padding-t3__09f24__-R_5x padding-r3__09f24__1pBFG padding-b3__09f24__1vW6j padding-l3__09f24__1yCJf border--top__09f24__1H_WE border--right__09f24__28idl border--bottom__09f24__2FjZW border--left__09f24__33iol border-color--default__09f24__R1nRO">
@@ -137,7 +137,7 @@ class Restaurant extends Component {
                                 <div class="lemon--div__09f24__1mboc attribute__09f24__3znwq display--inline-block__09f24__FsgS4 margin-r1__09f24__BCulR border-color--default__09f24__R1nRO">
                                   <span class="lemon--span__09f24__3997G display--inline__09f24__3iACj border-color--default__09f24__R1nRO">
                                     <div
-                                      style={rating}
+                                      // style={rating}
                                       class="lemon--div__09f24__1mboc i-stars__09f24__1T6rz i-stars--regular-2__09f24__3LFi9 border-color--default__09f24__R1nRO overflow--hidden__09f24__3u-sw"
                                       aria-label="2 star rating"
                                       role="img"
@@ -154,7 +154,7 @@ class Restaurant extends Component {
                                 </div>
                                 <div class="lemon--div__09f24__1mboc attribute__09f24__3znwq display--inline-block__09f24__FsgS4 border-color--default__09f24__R1nRO">
                                   <span class="lemon--span__09f24__3997G text__09f24__2tZKC reviewCount__09f24__EUXPN text-color--black-extra-light__09f24__38DtK text-align--left__09f24__3Drs0">
-                                    {this.props.restaurant.ReviewCounts}
+                                    {/* {this.props.restaurant.ReviewCounts} */}
                                   </span>
                                 </div>
                               </div>

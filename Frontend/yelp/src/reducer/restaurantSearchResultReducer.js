@@ -3,6 +3,8 @@ import { updateRestaurantArray } from './action-types';
 const defaultState = {
   restaurantArray: {
     restaurantSearchResults: [],
+    mapCoordinates:[],
+    Count: '',
   },
 };
 const restaurantSearchResultReducer = (state = defaultState, action) => {
