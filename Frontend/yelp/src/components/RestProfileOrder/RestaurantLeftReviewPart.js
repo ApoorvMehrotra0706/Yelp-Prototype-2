@@ -4,7 +4,6 @@ import serverUrl from '../../config';
 import Review from '../Reviews/Review';
 import cookie from 'react-cookies';
 import WriteAReview from './WriteAReview';
-import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
 import SnackBar from '../SharedComponents/Snackbar';
 
@@ -27,52 +26,29 @@ class RestaurantLeftReviewPart extends Component {
     };
   }
   componentDidMount() {
-    console.log('inside Reviews');
-    axios
-      .get(serverUrl + 'customer/fetchReviews', {
-        params: { restroId: localStorage.getItem('restaurantPageID') },
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log('Review list Fetched', response.data);
-        let allReviews = response.data[0].map((Review) => {
-          return {
-            ID: Review.ID,
-            Rating: Review.Ratings,
-            Date: new Date(Review.Date),
-            Description: Review.Review,
-            CustomerId: Review.CustomerID,
-            CustomerName: Review.Name,
-            CustomerAddr: Review.Address,
-            ImageUrl: Review.ImageURL,
-          };
-        });
-
-        this.setState({
-          REVIEWS: this.state.REVIEWS.concat(allReviews),
-        });
-      }); 
-
     axios
       .get(serverUrl + 'customer/fetchRestaurantProfileForCustomer', {
-        params: { restroId: localStorage.getItem('restaurantPageID') },
+        params: { RestaurantID: localStorage.getItem('restaurantPageID') },
         withCredentials: true,
       })
       .then((response) => {
-        console.log('Review list Fetched', response.data);
-
-        this.setState({
-          ID: response.data[0][0].ID,
-          Name: response.data[0][0].Name,
-          CurbsidePickup: response.data[0][0].CurbsidePickup,
-          DineIn: response.data[0][0].DineIn,
-          YelpDelivery: response.data[0][0].YelpDelivery,
-          ImageUrl: response.data[0][0].ImageUrl,
-          OpeningTime: response.data[0][0].OpeningTime,
-          ClosingTime: response.data[0][0].ClosingTime,
-          ReviewCounts: response.data[0][0].ReviewCounts,
-          AvgRating: response.data[0][0].AvgRating,
-        });
+        console.log('Restaurant Profile Fetched', response.data);
+        let avgRating = 0;
+        if(response.data.TotalReviewCount !== 0)
+          avgRating = response.data.TotalRatings/response.data.TotalReviewCount;
+        let payload = {
+          ID: response.data.RestaurantID,
+          Name: response.data.name,
+          CurbsidePickup: response.data.Curbside_Pickup,
+          DineIn: response.data.Dine_In,
+          YelpDelivery: response.data.Yelp_Delivery,
+          ImageUrl: response.data.ImageURL,
+          OpeningTime: response.data.Opening_Time,
+          ClosingTime: response.data.Closing_Time,
+          ReviewCounts: response.data.TotalReviewCount,
+          AvgRating: avgRating,
+        };
+        this.props.updateRestaurantProfile(payload);
       });
   }
 
@@ -84,13 +60,15 @@ class RestaurantLeftReviewPart extends Component {
   };
   submitReview = (event, review, rating) => {
     const data = {
-      RestroId: localStorage.getItem('restaurantPageID'),
-      review,
-      rating,
-
-      token: localStorage.getItem('token'),
-      userrole: localStorage.getItem('role'),
+      RestaurantID: localStorage.getItem('restaurantPageID'),
+      RestaurantName: this.props.restaurantProfile.Name,
+      review: this.props.customerReview.review,
+      rating: this.props.customerReview.rating,
+      CustomerID: localStorage.getItem('user_id'),
+      CustomerName: this.props.customerData.Name,
+      ImageUrl: this.props.customerData.ImageURL,
     };
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios.defaults.withCredentials = true;
     //make a post request with the user data
     axios.post(serverUrl + 'customer/submitReview', data).then(
@@ -102,12 +80,19 @@ class RestaurantLeftReviewPart extends Component {
             showFoodMenu: !this.state.showFoodMenu,
             //RegisteredCustomerList: [],
           });
-          let payload = {
-            success: true,
-            message: 'Review Submitted Successfully, Refresh page to check in Review list!',
-          };
-          this.props.updateSnackbarData(payload);
           alert('Submitted your review, re-visit the page to see it');
+          let totalRatings = this.props.restaurantProfile.ReviewCounts * this.props.restaurantProfile.AvgRating;
+          let avgRating = (totalRatings + this.props.customerReview.rating) / (this.props.restaurantProfile.ReviewCounts + 1);
+          let payload = {
+            AvgRating: avgRating,
+            ReviewCounts: this.props.restaurantProfile.ReviewCounts + 1,
+          }
+          this.props.updateRestaurantProfile(payload);
+          payload = {
+            review: '',
+            rating:'',
+          }
+          this.props.updateCustomerReview(payload);
         }
       },
       (error) => {
@@ -123,7 +108,7 @@ class RestaurantLeftReviewPart extends Component {
       <path d="M13.41 12l5.3-5.29a1.004 1.004 0 10-1.42-1.42L12 10.59l-5.29-5.3a1.004 1.004 0 00-1.42 1.42l5.3 5.29-5.3 5.29a1 1 0 000 1.42 1 1 0 001.42 0l5.29-5.3 5.29 5.3a1 1 0 001.42 0 1 1 0 000-1.42L13.41 12z"></path>
     );
     let rating = { backgroundPosition: '0 0' };
-    switch (this.state.AvgRating) {
+    switch (this.props.restaurantProfile.AvgRating) {
       case 1:
         rating = { backgroundPosition: '0 -64px' };
         break;
@@ -161,7 +146,7 @@ class RestaurantLeftReviewPart extends Component {
                   }
                   class="lemon--h1__373c0__2ZHSL heading--h1__373c0__dvYgw undefined heading--inline__373c0__10ozy"
                 >
-                  {this.state.Name}
+                  {this.props.restaurantProfile.Name}
                 </h1>
               </div>
               <div class="lemon--div__373c0__1mboc arrange__373c0__2C9bH gutter-1-5__373c0__2vL-3 vertical-align-middle__373c0__1SDTo margin-b1__373c0__1khoT border-color--default__373c0__3-ifU">
@@ -171,7 +156,7 @@ class RestaurantLeftReviewPart extends Component {
                       class="lemon--div__373c0__1mboc i-stars__373c0__1T6rz i-stars--large-5__373c0__1GcGD border-color--default__373c0__3-ifU overflow--hidden__373c0__2y4YK"
                       aria-label="5 star rating"
                       role="img"
-                      style={{ rating }}
+                      style={ rating }
                     >
                       <img
                         class="lemon--img__373c0__3GQUb offscreen__373c0__1KofL"
@@ -185,7 +170,7 @@ class RestaurantLeftReviewPart extends Component {
                 </div>
                 <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT border-color--default__373c0__3-ifU nowrap__373c0__35McF">
                   <p class="lemon--p__373c0__3Qnnj text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa- text-size--large__373c0__3t60B">
-                    {this.state.ReviewCounts} reviews
+                    {this.props.restaurantProfile.ReviewCounts} reviews
                   </p>
                 </div>
               </div>
@@ -198,7 +183,7 @@ class RestaurantLeftReviewPart extends Component {
                       </span>
                       <span class="lemon--span__373c0__3997G display--inline__373c0__3JqBP margin-l1__373c0__1khIQ border-color--default__373c0__3-ifU">
                         <span class="lemon--span__373c0__3997G text__373c0__2Kxyz text-color--black-extra-light__373c0__2OyzO text-align--left__373c0__2XGa- text-weight--semibold__373c0__2l0fe text-size--large__373c0__3t60B">
-                          {this.state.OpeningTime} - {this.state.ClosingTime}
+                          {this.props.restaurantProfile.OpeningTime} - {this.props.restaurantProfile.ClosingTime}
                         </span>
                       </span>
                     </div>
@@ -210,11 +195,10 @@ class RestaurantLeftReviewPart extends Component {
         </div>
         <div class="lemon--div__373c0__1mboc arrange__373c0__2C9bH gutter-1__373c0__2l5bx border-color--default__373c0__3-ifU">
           <div class="lemon--div__373c0__1mboc arrange-unit__373c0__o3tjT border-color--default__373c0__3-ifU nowrap__373c0__35McF">
-            {this.props.snackbarData != null && <SnackBar />}
             {this.state.showReview ? (
               <WriteAReview
                 openReviewForm={() => this.openReviewForm()}
-                submitReview={(event, review, rating) => this.submitReview(event, review, rating)}
+                submitReview={(event) => this.submitReview(event)}
 
                 // RegisteredCustomerList={this.state.RegisteredCustomerList}
                 // toggle={this.openRegisteredCustomers}
@@ -224,7 +208,7 @@ class RestaurantLeftReviewPart extends Component {
               />
             ) : null}
 
-            {cookie.load('cookie') ? (
+            {localStorage.getItem('token') ? (
               <a
                 onClick={this.openReviewForm}
                 class="lemon--a__373c0__IEZFH button__373c0__3lYgT primary__373c0__2ZWOb"
@@ -272,7 +256,7 @@ class RestaurantLeftReviewPart extends Component {
                         height="24"
                         class="icon_svg"
                       >
-                        {this.state.YelpDelivery ? rightPath : wrongPath}{' '}
+                        {this.props.restaurantProfile.YelpDelivery ? rightPath : wrongPath}{' '}
                       </svg>
                     </span>
                   </div>
@@ -289,7 +273,7 @@ class RestaurantLeftReviewPart extends Component {
                         height="24"
                         class="icon_svg"
                       >
-                        {this.state.CurbsidePickup ? rightPath : wrongPath}{' '}
+                        {this.props.restaurantProfile.CurbsidePickup ? rightPath : wrongPath}{' '}
                       </svg>
                     </span>
                   </div>
@@ -306,7 +290,7 @@ class RestaurantLeftReviewPart extends Component {
                         height="24"
                         class="icon_svg"
                       >
-                        {this.state.DineIn ? rightPath : wrongPath}{' '}
+                        {this.props.restaurantProfile.DineIn ? rightPath : wrongPath}{' '}
                       </svg>
                     </span>
                   </div>
@@ -423,17 +407,27 @@ class RestaurantLeftReviewPart extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const snackbarData = state.snackBarReducer;
+  const { restaurantProfile } = state.restaurantProfileReducer;
+  const { customerReview } = state.customerReviewReducer;
+  const { customerData } = state.customerProfileReducer;
   return {
-    snackbarData: snackbarData,
+    restaurantProfile: restaurantProfile,
+    customerReview: customerReview,
+    customerData: customerData,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateSnackbarData: (payload) => {
+    updateRestaurantProfile: (payload) => {
       dispatch({
-        type: updateSnackbarData,
+        type: 'update-restaurant-info',
+        payload,
+      });
+    },
+    updateCustomerReview: (payload) => {
+      dispatch({
+        type: 'update-restaurant-review',
         payload,
       });
     },

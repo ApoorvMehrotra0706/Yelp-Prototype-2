@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import serverUrl from '../../config';
+import { connect } from 'react-redux';
+
 class WriteAReview extends Component {
   constructor(props) {
     super(props);
-    this.state = { review: '', rating: '1' };
   }
   onChangeReviewHandler = (event) => {
-    this.setState({
+    let payload = {
       review: event.target.value,
-    });
+    };
+    this.props.updateCustomerReview(payload);
   };
   onChangeRatingHandler = (event) => {
-    this.setState({
+    let payload = {
       rating: event.target.value,
-    });
+    };
+    this.props.updateCustomerReview(payload);
   };
   render() {
     return (
@@ -28,7 +29,7 @@ class WriteAReview extends Component {
           </span>
           <form
             onSubmit={(event) =>
-              this.props.submitReview(event, this.state.review, this.state.rating)
+              this.props.submitReview(event)
             }
             className="profile-bio yform yform-vertical-spacing"
           >
@@ -43,7 +44,7 @@ class WriteAReview extends Component {
                   name="review"
                   size="30"
                   type="text"
-                  value={this.state.review}
+                  value={this.props.customerReview.review}
                   onChange={this.onChangeReviewHandler}
                 ></textarea>
               </li>
@@ -54,7 +55,7 @@ class WriteAReview extends Component {
                   placeholder="Gender"
                   className="form-control"
                   onChange={this.onChangeRatingHandler}
-                  value={this.state.rating}
+                  value={this.props.customerReview.rating}
                   required
                 >
                   <option className="Dropdown-menu" key="1" value="1">
@@ -89,4 +90,22 @@ class WriteAReview extends Component {
   }
 }
 
-export default WriteAReview;
+const mapStateToProps = (state) => {
+  const { customerReview } = state.customerReviewReducer;
+  return {
+    customerReview: customerReview,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateCustomerReview: (payload) => {
+      dispatch({
+        type: 'update-restaurant-review',
+        payload,
+      });
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(WriteAReview);

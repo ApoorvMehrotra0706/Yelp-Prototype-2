@@ -80,6 +80,8 @@ const signupRestaurant = async (req, res) => {
               RestaurantID: data._id,
               Latitude: latitude,
               Longitude: longitude,
+              TotalReviewCount: 0,
+              TotalRatings: 0,
             });
             // eslint-disable-next-line no-unused-vars
             restaurant.save((er, data1) => {

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -14,6 +15,7 @@ const MainCourse = require('../models/Main_Course');
 const Salads = require('../models/Salads');
 const Cuisine = require('../models/CuisineModel');
 const Restaurant = require('../models/RestaurantModel');
+const Review = require('../models/ReviewsModel');
 const { secret } = require('../../config');
 const { auth } = require('../../passport');
 
@@ -590,6 +592,72 @@ const fetchRestaurantResults = async (req, res) => {
   res.status(200).end(JSON.stringify(result));
 };
 
+const fetchRestaurantProfileForCustomer = async (req, res) => {
+  const { RestaurantID } = url.parse(req.url, true).query;
+  Restaurant.findOne({ RestaurantID }, (error, result) => {
+    if (error) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    } else {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      });
+      res.end(JSON.stringify(result));
+    }
+  });
+};
+
+const submitReview = async (req, res) => {
+  const review = new Review({
+    ...req.body,
+    Ratings: req.body.rating,
+    Review: req.body.review,
+  });
+  // eslint-disable-next-line no-unused-vars
+  review.save((e, data) => {
+    if (e) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    } else {
+      Restaurant.findOne({ RestaurantID: req.body.RestaurantID }, (error, result) => {
+        if (error) {
+          res.writeHead(500, {
+            'Content-Type': 'text/plain',
+          });
+          res.end();
+        } else {
+          const totalReviewCount = Number(result.TotalReviewCount);
+          const totalRatings = result.TotalRatings;
+          Restaurant.updateOne(
+            { RestaurantID: req.body.RestaurantID },
+            {
+              TotalReviewCount: totalReviewCount + 1,
+              TotalRatings: totalRatings + Number(req.body.rating),
+            },
+            (er, data1) => {
+              if (er) {
+                res.writeHead(500, {
+                  'Content-Type': 'text/plain',
+                });
+                res.end();
+              } else {
+                res.writeHead(200, {
+                  'Content-Type': 'text/plain',
+                });
+                res.end();
+              }
+            }
+          );
+        }
+      });
+    }
+  });
+};
+
 module.exports = {
   signupCustomer,
   loginCustomer,
@@ -600,4 +668,6 @@ module.exports = {
   updateContactInfo,
   fetchSearchStrings,
   fetchRestaurantResults,
+  fetchRestaurantProfileForCustomer,
+  submitReview,
 };

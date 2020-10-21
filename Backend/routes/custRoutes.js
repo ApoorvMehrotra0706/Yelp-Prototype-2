@@ -3,7 +3,6 @@ const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
-  submitReview,
   generateOrder,
   fetchAllOrders,
   fetchOrderDetails,
@@ -22,11 +21,12 @@ const {
   updateContactInfo,
   fetchSearchStrings,
   fetchRestaurantResults,
+  fetchRestaurantProfileForCustomer,
+  submitReview,
 } = require('./customerData/customerHandling');
 const {
   menuFetch,
   fetchReviews,
-  fetchRestaurantProfileForCustomer,
   createState,
   createCountry,
   createGender,
@@ -90,6 +90,18 @@ Router.get('/fetchRestaurantResults', async (req, res) => {
   return value;
 });
 
+// Fetching specific restaurant profile for customer
+Router.get('/fetchRestaurantProfileForCustomer', async (req, res) => {
+  const value = await fetchRestaurantProfileForCustomer(req, res);
+  return value;
+});
+
+// Submit the review given by the customer
+Router.post('/submitReview', checkAuth, async (req, res) => {
+  const value = await submitReview(req, res);
+  return value;
+});
+
 Router.get('/menuFetch', async (req, res) => {
   const value = await menuFetch(req, res);
   return value;
@@ -97,16 +109,6 @@ Router.get('/menuFetch', async (req, res) => {
 
 Router.get('/fetchReviews', async (req, res) => {
   const value = await fetchReviews(req, res);
-  return value;
-});
-
-Router.get('/fetchRestaurantProfileForCustomer', async (req, res) => {
-  const value = await fetchRestaurantProfileForCustomer(req, res);
-  return value;
-});
-
-Router.post('/submitReview', async (req, res) => {
-  const value = await submitReview(req, res);
   return value;
 });
 

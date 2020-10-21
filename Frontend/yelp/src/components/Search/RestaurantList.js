@@ -42,15 +42,17 @@ class RestaurantList extends Component {
           };
         });
         let allRestaurants = response.data[0].map((restaurant) => {
+          let avgRating = 0;
+          if(restaurant.TotalReviewCount)
+            avgRating = restaurant.TotalRatings/restaurant.TotalReviewCount;
           return {
-            // From restaurant, delivery_methods, reviews
             ID: restaurant.RestaurantID,
             Name: restaurant.name,
             DineIn: restaurant.Dine_In,
             YelpDelivery: restaurant.Yelp_Delivery,
             CurbsidePickup: restaurant.Curbside_Pickup,
-            // AvgRatingcd: restaurant.AvgRating,
-            // ReviewCounts: restaurant.ReviewCounts,
+            AvgRating: avgRating,
+            ReviewCounts: restaurant.TotalReviewCount,
             ImageUrl: restaurant.ImageURL,
             OpeningTime: restaurant.Opening_Time,
             ClosingTime: restaurant.Closing_Time,
@@ -124,15 +126,17 @@ class RestaurantList extends Component {
           };
         });
         let allRestaurants = response.data[0].map((restaurant) => {
+          let avgRating = 0;
+          if(restaurant.TotalReviewCount)
+            avgRating = restaurant.TotalRatings/restaurant.TotalReviewCount;
           return {
-            // From restaurant, delivery_methods, reviews
             ID: restaurant.RestaurantID,
             Name: restaurant.name,
             DineIn: restaurant.Dine_In,
             YelpDelivery: restaurant.Yelp_Delivery,
             CurbsidePickup: restaurant.Curbside_Pickup,
-            // AvgRatingcd: restaurant.AvgRating,
-            // ReviewCounts: restaurant.ReviewCounts,
+            AvgRating: avgRating,
+            ReviewCounts: restaurant.ReviewCounts,
             ImageUrl: restaurant.ImageURL,
             OpeningTime: restaurant.Opening_Time,
             ClosingTime: restaurant.Closing_Time,

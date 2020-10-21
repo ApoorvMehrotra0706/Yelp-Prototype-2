@@ -14,7 +14,7 @@ class Restaurant extends Component {
       this.props.restaurant.ClosingTime !== null &&
       this.props.restaurant.ClosingTime.length > 0
     ) {
-      timmingInfo = `Open FROM ${this.props.restaurant.OpeningTime} To ${this.props.restaurant.ClosingTime}`;
+      timmingInfo = `Open From ${this.props.restaurant.OpeningTime} To ${this.props.restaurant.ClosingTime}`;
     }
     const rightPath = (
       <path d="M9.46 17.52a1 1 0 01-.71-.29l-4-4a1.004 1.004 0 111.42-1.42l3.25 3.26 8.33-8.34a1.004 1.004 0 011.42 1.42l-9 9a1 1 0 01-.71.37z"></path>
@@ -25,24 +25,24 @@ class Restaurant extends Component {
     const defaultImage =
       'https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png';
 
-    // let rating = { backgroundPosition: '0 -320px' };
-    // switch (this.props.restaurant.AvgRating) {
-    //   case '1':
-    //     rating = { backgroundPosition: '0 -360px' };
-    //     break;
-    //   case '2':
-    //     rating = { backgroundPosition: '0 -400px' };
-    //     break;
-    //   case '3':
-    //     rating = { backgroundPosition: '0 -440px' };
-    //     break;
-    //   case '4':
-    //     rating = { backgroundPosition: '0 -480px' };
-    //     break;
-    //   case '5':
-    //     rating = { backgroundPosition: '0 -500px' };
-    //     break;
-    // }
+    let rating = { backgroundPosition: '0 -320px' };
+    switch (this.props.restaurant.AvgRating) {
+      case 1:
+        rating = { backgroundPosition: '0 -360px' };
+        break;
+      case 2:
+        rating = { backgroundPosition: '0 -400px' };
+        break;
+      case 3:
+        rating = { backgroundPosition: '0 -440px' };
+        break;
+      case 4:
+        rating = { backgroundPosition: '0 -480px' };
+        break;
+      case 5:
+        rating = { backgroundPosition: '0 -500px' };
+        break;
+    }
     return (
       <li class="lemon--li__09f24__1r9wz border-color--default__09f24__R1nRO">
         <div class="lemon--div__09f24__1mboc container__09f24__21w3G hoverable__09f24__2nTf3 margin-t3__09f24__5bM2Z margin-b3__09f24__1DQ9x padding-t3__09f24__-R_5x padding-r3__09f24__1pBFG padding-b3__09f24__1vW6j padding-l3__09f24__1yCJf border--top__09f24__1H_WE border--right__09f24__28idl border--bottom__09f24__2FjZW border--left__09f24__33iol border-color--default__09f24__R1nRO">
@@ -137,7 +137,7 @@ class Restaurant extends Component {
                                 <div class="lemon--div__09f24__1mboc attribute__09f24__3znwq display--inline-block__09f24__FsgS4 margin-r1__09f24__BCulR border-color--default__09f24__R1nRO">
                                   <span class="lemon--span__09f24__3997G display--inline__09f24__3iACj border-color--default__09f24__R1nRO">
                                     <div
-                                      // style={rating}
+                                      style={rating}
                                       class="lemon--div__09f24__1mboc i-stars__09f24__1T6rz i-stars--regular-2__09f24__3LFi9 border-color--default__09f24__R1nRO overflow--hidden__09f24__3u-sw"
                                       aria-label="2 star rating"
                                       role="img"
@@ -246,7 +246,7 @@ class Restaurant extends Component {
                       <div class="lemon--div__09f24__1mboc arrange__09f24__AiSIM gutter-auto__09f24__2WJTk vertical-align-middle__09f24__zNCcM border-color--default__09f24__R1nRO">
                         <div class="lemon--div__09f24__1mboc arrange-unit__09f24__1gZC1 arrange-unit-fill__09f24__O6JFU border-color--default__09f24__R1nRO">
                           <p class="lemon--p__09f24__3Qnnj text__09f24__2tZKC text-color--black-extra-light__09f24__38DtK text-align--left__09f24__3Drs0">
-                            {/* Open FROM {this.props.restaurant.OpeningTime} To{' '}
+                            {/* Open From {this.props.restaurant.OpeningTime} To{' '}
                                                     {this.props.restaurant.ClosingTime}*/}
                             {timmingInfo}
                             <span class="lemon--span__09f24__3997G text__09f24__2tZKC text-color--inherit__09f24__1jgBv text-align--left__09f24__3Drs0 text-size--inherit__09f24__2rwpp">

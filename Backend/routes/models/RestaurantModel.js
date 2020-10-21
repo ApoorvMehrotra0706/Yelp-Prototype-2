@@ -22,6 +22,8 @@ const restaurantSchema = new Schema(
     Yelp_Delivery: { type: Boolean },
     Latitude: { type: String },
     Longitude: { type: String },
+    TotalReviewCount: { type: String },
+    TotalRatings: { type: Number },
     Reviews: [
       {
         CustomerID: { type: String, required: true },
