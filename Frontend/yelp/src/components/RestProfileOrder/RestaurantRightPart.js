@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
-// import { Link } from 'react-router-dom';
 import axios from 'axios';
 import serverUrl from '../../config';
 import FoodOrderCart from './FoodOrderCart';
-import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
-import SnackBar from '../SharedComponents/Snackbar';
-import cookie from 'react-cookies';
 
-// import FoodOrderCart from './FoodOrderCart_tmp';
 class RestaurantRightPart extends Component {
   constructor(props) {
     super(props);
@@ -40,45 +35,52 @@ class RestaurantRightPart extends Component {
     if (Price === 0) alert('Please select food items to place order');
     else {
       const data = {
-        RestroId: localStorage.getItem('restaurantPageID'),
-        Price,
-        foodCart: foodCart,
-        address: this.state.address,
-        deliveryMode: this.state.currentMode,
-        token: cookie.load('cookie'),
-        userrole: cookie.load('role'),
+        RestaurantID: localStorage.getItem('restaurantPageID'),
+        RestaurantName: this.props.restaurantProfile.Name,
+        CustomerID: localStorage.getItem('user_id'),
+        CustomerName: this.props.customerData.Name,
+        ImageURL: this.props.customerData.ImageURL,
+        CustomerGender: this.props.customerData.Gender,
+        CustomerContact: this.props.customerData.Contact,
+        CustomerYelpingSince: this.props.customerData.YelpingSince,
+        Date: new Date(),
+        Bill: Price,
+        StatusID: 1,
+        Status: 'Order Received',
+        State: 'New',
+        
+        Orders: foodCart,
+        Address: this.state.address,
+        DeliveryMode: this.state.currentMode,
       };
+      axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
       axios.defaults.withCredentials = true;
       //make a post request with the user data
       axios.post(serverUrl + 'customer/generateOrder', data).then(
         (response) => {
-          console.log('Status Code : ', response.status);
           if (response.status === 200) {
-            console.log(response.data);
             this.setState({
               showFoodMenu: !this.state.showFoodMenu,
-              //RegisteredCustomerList: [],
             });
-            let payload = {
-              success: true,
-              message: 'Order Created Successfully!',
-            };
-            this.props.updateSnackbarData(payload);
             alert('Order Placed');
           }
         },
         (error) => {
-          console.log(error);
         }
       );
-
-      console.log('Order Confirmed', foodCart);
+      
+      const payload = {
+        FoodMenu: [],
+        PageCount: '',
+        Total: '',
+      };
+      this.props.updateCustomerMenu(payload);
     }
   };
 
   render() {
     let selected = 'translateX(0px)';
-    if (this.state.currentMode === 'Takeout') {
+    if (this.state.currentMode === 'Pickup') {
       selected = 'translateX(95px)';
     }
 
@@ -127,7 +129,7 @@ class RestaurantRightPart extends Component {
                                   </span>
                                 </div>
                                 <div
-                                  onClick={() => this.updateMode('Takeout')}
+                                  onClick={() => this.updateMode('Pickup')}
                                   class="lemon--div__373c0__1mboc tab__373c0__24QGW tabNavItem__373c0__3X-YR tab--section__373c0__3V0A9 tab--no-outline__373c0__3adQG"
                                   tabindex="-1"
                                   role="tab"
@@ -135,9 +137,9 @@ class RestaurantRightPart extends Component {
                                   <span class="lemon--span__373c0__3997G text__373c0__2Kxyz text-color--inherit__373c0__1lczC text-align--left__373c0__2XGa- text-weight--semibold__373c0__2l0fe text-size--large__373c0__3t60B">
                                     <div
                                       class="lemon--div__373c0__1mboc tabLabel__373c0__2-upa"
-                                      title="Takeout"
+                                      title="Pickup"
                                     >
-                                      Takeout
+                                      Pickup
                                     </div>
                                   </span>
                                 </div>
@@ -201,7 +203,7 @@ class RestaurantRightPart extends Component {
                         <div class="lemon--div__373c0__1mboc margin-t1__373c0__oLmO6 border-color--default__373c0__3-ifU">
                           <div class="lemon--div__373c0__1mboc border-color--default__373c0__3-ifU">
                             <div class="lemon--div__373c0__1mboc border-color--default__373c0__3-ifU">
-                              {this.props.snackbarData != null && <SnackBar />}
+                              
                               {this.state.showFoodMenu ? (
                                 <FoodOrderCart
                                   openFoodMenu={() => this.openFoodMenu()}
@@ -210,17 +212,12 @@ class RestaurantRightPart extends Component {
                                   orderFood={(foodCart, Price) => {
                                     this.orderFood(foodCart, Price);
                                   }}
-                                  // RegisteredCustomerList={this.state.RegisteredCustomerList}
-                                  // toggle={this.openRegisteredCustomers}
-                                  // fetchCustomerProfile={(event, id) =>
-                                  //   this.fetchCustomerProfile(event, id)
-                                  // }
                                 />
                               ) : null}
-                              {cookie.load('cookie') && this.state.currentMode === 'Delivery' ? (
+                              {(localStorage.getItem('token')) && this.state.currentMode === 'Delivery' ? (
                                 <p>Please Enter Delivery Address before ordering!!!</p>
                               ) : null}
-                              {cookie.load('cookie') ? (
+                              {localStorage.getItem('token') ? (
                                 <button
                                   disabled={
                                     this.state.currentMode === 'Delivery' &&
@@ -260,21 +257,22 @@ class RestaurantRightPart extends Component {
   }
 }
 
-// export default RestaurantRightPart;
-
-// export default EventList;
 const mapStateToProps = (state) => {
-  const snackbarData = state.snackBarReducer;
+  const { restaurantProfile } = state.restaurantProfileReducer;
+  const { customerData } = state.customerProfileReducer;
+  const { menuOrder } = state.foodOrderMenuReducer;
   return {
-    snackbarData: snackbarData,
+    restaurantProfile: restaurantProfile,
+    customerData: customerData,
+    menuOrder: menuOrder,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateSnackbarData: (payload) => {
+    updateCustomerMenu: (payload) => {
       dispatch({
-        type: updateSnackbarData,
+        type: 'update-customer-menu',
         payload,
       });
     },

@@ -5,7 +5,6 @@ import Review from '../Reviews/Review';
 import cookie from 'react-cookies';
 import WriteAReview from './WriteAReview';
 import { connect } from 'react-redux';
-import SnackBar from '../SharedComponents/Snackbar';
 
 class RestaurantLeftReviewPart extends Component {
   constructor(props) {
@@ -35,7 +34,7 @@ class RestaurantLeftReviewPart extends Component {
         console.log('Restaurant Profile Fetched', response.data);
         let avgRating = 0;
         if(response.data.TotalReviewCount !== 0)
-          avgRating = response.data.TotalRatings/response.data.TotalReviewCount;
+          avgRating = Math.round(response.data.TotalRatings/Number(response.data.TotalReviewCount));
         let payload = {
           ID: response.data.RestaurantID,
           Name: response.data.name,
@@ -81,11 +80,11 @@ class RestaurantLeftReviewPart extends Component {
             //RegisteredCustomerList: [],
           });
           alert('Submitted your review, re-visit the page to see it');
-          let totalRatings = this.props.restaurantProfile.ReviewCounts * this.props.restaurantProfile.AvgRating;
-          let avgRating = (totalRatings + this.props.customerReview.rating) / (this.props.restaurantProfile.ReviewCounts + 1);
+          let totalRatings = Number(this.props.restaurantProfile.ReviewCounts) * this.props.restaurantProfile.AvgRating;
+          let avgRating = Math.round((totalRatings + this.props.customerReview.rating) / (Number(this.props.restaurantProfile.ReviewCounts) + 1));
           let payload = {
             AvgRating: avgRating,
-            ReviewCounts: this.props.restaurantProfile.ReviewCounts + 1,
+            ReviewCounts: Number(this.props.restaurantProfile.ReviewCounts + 1),
           }
           this.props.updateRestaurantProfile(payload);
           payload = {

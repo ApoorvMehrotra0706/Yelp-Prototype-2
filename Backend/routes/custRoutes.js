@@ -3,7 +3,6 @@ const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
 const {
-  generateOrder,
   fetchAllOrders,
   fetchOrderDetails,
   fetchEventList,
@@ -23,9 +22,10 @@ const {
   fetchRestaurantResults,
   fetchRestaurantProfileForCustomer,
   submitReview,
+  generateOrder,
+  menuFetch,
 } = require('./customerData/customerHandling');
 const {
-  menuFetch,
   fetchReviews,
   createState,
   createCountry,
@@ -102,6 +102,13 @@ Router.post('/submitReview', checkAuth, async (req, res) => {
   return value;
 });
 
+// Generate order for customer
+Router.post('/generateOrder', async (req, res) => {
+  const value = await generateOrder(req, res);
+  return value;
+});
+
+// Fetch menu for the customer
 Router.get('/menuFetch', async (req, res) => {
   const value = await menuFetch(req, res);
   return value;
@@ -109,11 +116,6 @@ Router.get('/menuFetch', async (req, res) => {
 
 Router.get('/fetchReviews', async (req, res) => {
   const value = await fetchReviews(req, res);
-  return value;
-});
-
-Router.post('/generateOrder', async (req, res) => {
-  const value = await generateOrder(req, res);
   return value;
 });
 

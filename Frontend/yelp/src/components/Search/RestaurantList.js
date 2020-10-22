@@ -44,7 +44,7 @@ class RestaurantList extends Component {
         let allRestaurants = response.data[0].map((restaurant) => {
           let avgRating = 0;
           if(restaurant.TotalReviewCount)
-            avgRating = restaurant.TotalRatings/restaurant.TotalReviewCount;
+            avgRating = Math.round(restaurant.TotalRatings/Number(restaurant.TotalReviewCount));
           return {
             ID: restaurant.RestaurantID,
             Name: restaurant.name,
@@ -128,7 +128,7 @@ class RestaurantList extends Component {
         let allRestaurants = response.data[0].map((restaurant) => {
           let avgRating = 0;
           if(restaurant.TotalReviewCount)
-            avgRating = restaurant.TotalRatings/restaurant.TotalReviewCount;
+            avgRating = Math.round(restaurant.TotalRatings/Number(restaurant.TotalReviewCount));
           return {
             ID: restaurant.RestaurantID,
             Name: restaurant.name,

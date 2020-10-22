@@ -16,6 +16,7 @@ const Salads = require('../models/Salads');
 const Cuisine = require('../models/CuisineModel');
 const Restaurant = require('../models/RestaurantModel');
 const Review = require('../models/ReviewsModel');
+const Order = require('../models/OrdersModel');
 const { secret } = require('../../config');
 const { auth } = require('../../passport');
 
@@ -658,6 +659,105 @@ const submitReview = async (req, res) => {
   });
 };
 
+const generateOrder = async (req, res) => {
+  const order = new Order({
+    ...req.body,
+  });
+  // eslint-disable-next-line no-unused-vars
+  order.save((e, data) => {
+    if (e) {
+      res.writeHead(500, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    } else {
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      res.end();
+    }
+  });
+};
+
+const menuFetch = async (req, res) => {
+  const { RestaurantID, pageNo, category } = url.parse(req.url, true).query;
+  if (category === 'APPETIZERS') {
+    const result = await Appetizer.find({ RestaurantID })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await Appetizer.find({ RestaurantID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(result);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } else if (category === 'BEVERAGES') {
+    const result = await Beverage.find({ RestaurantID })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await Beverage.find({ RestaurantID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(result);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } else if (category === 'MAIN_COURSE') {
+    const result = await MainCourse.find({ RestaurantID })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await MainCourse.find({ RestaurantID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(result);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } else if (category === 'SALADS') {
+    const result = await Salads.find({ RestaurantID })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await Salads.find({ RestaurantID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(result);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } else {
+    const result = await Desserts.find({ RestaurantID })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await Desserts.find({ RestaurantID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(result);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  }
+};
 module.exports = {
   signupCustomer,
   loginCustomer,
@@ -670,4 +770,6 @@ module.exports = {
   fetchRestaurantResults,
   fetchRestaurantProfileForCustomer,
   submitReview,
+  generateOrder,
+  menuFetch,
 };
