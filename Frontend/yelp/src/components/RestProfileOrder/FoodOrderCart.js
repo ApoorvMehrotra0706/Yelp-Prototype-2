@@ -301,7 +301,7 @@ class FoodOrderCart extends Component {
                   </tr>
                   {this.props.menuOrder.FoodMenu.map((food) => (
                     <tr>
-                      <td><img src={food.ImageURL} style={{width: '20%', height: '10%'}}></img></td>
+                      <td><img src={food.ImageURL} style={{width: '100px', height: '100px'}}></img></td>
                       <td>{food.Dishname}</td>
                       <td>{food.Cuisine}</td>
                       <td>{food.Description}</td>
@@ -374,7 +374,7 @@ class FoodOrderCart extends Component {
                   </tr>
                   {this.props.menuOrder.FoodMenu.map((food) => (
                     <tr>
-                      <td><img src={food.ImageURL} style={{width: '20%', height: '10%'}}></img></td>
+                      <td><img src={food.ImageURL} style={{width: '100px', height: '100px'}}></img></td>
                       <td>{food.Dishname}</td>
                       <td>{food.Cuisine}</td>
                       <td>{food.Description}</td>
@@ -447,7 +447,7 @@ class FoodOrderCart extends Component {
                   </tr>
                   {this.props.menuOrder.FoodMenu.map((food) => (
                     <tr>
-                      <td><img src={food.ImageURL} style={{width: '20%', height: '10%'}}></img></td>
+                      <td><img src={food.ImageURL} style={{width: '100px', height: '100px'}}></img></td>
                       <td>{food.Dishname}</td>
                       <td>{food.Cuisine}</td>
                       <td>{food.Description}</td>
@@ -518,7 +518,7 @@ class FoodOrderCart extends Component {
                   </tr>
                   {this.props.menuOrder.FoodMenu.map((food) => (
                     <tr>
-                      <td><img src={food.ImageURL} style={{width: '20%', height: '10%'}}></img></td>
+                      <td><img src={food.ImageURL} style={{width: '100px', height: '100px'}}></img></td>
                       <td>{food.Dishname}</td>
                       <td>{food.Cuisine}</td>
                       <td>{food.Description}</td>

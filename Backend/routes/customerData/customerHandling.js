@@ -758,6 +758,48 @@ const menuFetch = async (req, res) => {
     res.end(JSON.stringify(results));
   }
 };
+
+const fetchAllOrders = async (req, res) => {
+  const { CustomerID, filter1, filter2, sortOrder, pageNo } = url.parse(req.url, true).query;
+  let orderDetails = [];
+  if (filter1 !== 'All') {
+    orderDetails = await Order.find({ CustomerID, DeliveryMode: filter1, Status: filter2 })
+      .sort({ Date: sortOrder })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await Order.find({
+      CustomerID,
+      DeliveryMode: filter1,
+      Status: filter2,
+    }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(orderDetails);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } else {
+    orderDetails = await Order.find({ CustomerID })
+      .sort({ Date: sortOrder })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await Order.find({ CustomerID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(orderDetails);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  }
+};
 module.exports = {
   signupCustomer,
   loginCustomer,
@@ -772,4 +814,5 @@ module.exports = {
   submitReview,
   generateOrder,
   menuFetch,
+  fetchAllOrders,
 };

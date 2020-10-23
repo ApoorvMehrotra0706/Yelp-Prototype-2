@@ -12,7 +12,7 @@ const ordersSchema = new Schema(
     CustomerGender: { type: String },
     CustomerContact: { type: String },
     CustomerYelpingSince: { type: Date },
-    Date: { type: String },
+    Date: { type: Date },
     Bill: { type: Number },
     DeliveryMode: {
       type: String,

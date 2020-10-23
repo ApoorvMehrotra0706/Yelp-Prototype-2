@@ -22,6 +22,7 @@ import customerContactInfoReducer from './customerContactInfoReducer';
 import restaurantProfileReducer from './restaurantProfileReducer';
 import customerReviewReducer from './customerReviewReducer';
 import foodOrderMenuReducer from './foodOrderMenuReducer';
+import orderHistoryReduer from './orderHistoryReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -47,6 +48,7 @@ const combReducer = combineReducers({
   restaurantProfileReducer: restaurantProfileReducer,
   customerReviewReducer: customerReviewReducer,
   foodOrderMenuReducer: foodOrderMenuReducer,
+  orderHistoryReducer: orderHistoryReduer,
 });
 
 export default combReducer;

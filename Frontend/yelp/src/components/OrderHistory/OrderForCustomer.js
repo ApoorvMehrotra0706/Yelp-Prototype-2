@@ -87,7 +87,7 @@ class OrderForCustomer extends Component {
                   style={{ justifyContent: 'space-between', display: 'flex' }}
                 >
                   <span class="lemon--span__373c0__3997G text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa-">
-                    <p>Current Status:</p>
+                    <p>{this.props.order.RestaurantName}</p>
                     {/* 8/22/2020*/}
                   </span>
                   <span class="lemon--span__373c0__3997G text__373c0__2Kxyz text-color--mid__373c0__jCeOG text-align--left__373c0__2XGa-">

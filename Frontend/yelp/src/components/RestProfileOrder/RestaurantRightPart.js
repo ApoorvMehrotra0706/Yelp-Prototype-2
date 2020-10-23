@@ -68,7 +68,9 @@ class RestaurantRightPart extends Component {
         (error) => {
         }
       );
-      
+      this.setState({
+        address: '',
+      })
       const payload = {
         FoodMenu: [],
         PageCount: '',

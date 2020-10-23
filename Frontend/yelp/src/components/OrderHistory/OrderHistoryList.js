@@ -5,173 +5,123 @@ import OrderForCustomer from './OrderForCustomer';
 import axios from 'axios';
 import serverUrl from '../../config';
 import OrderDetails from '../Orders/OrderDetails';
+import { connect } from 'react-redux';
+import ReactPaginate from 'react-paginate';
 
 class OrdersList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      filter1: '',
-      filter2: '',
-      OrdersOrignalCopy: [],
+      // filter1: '',
+      // filter2: '',
+      // OrdersOrignalCopy: [],
       popSeen: false,
-      ORDERS: [],
-      orderDetails: [],
+      // ORDERS: [],
+      // orderDetails: [],
     };
   }
 
-  componentDidMount() {
+  componentDidMount = async () => {
+    let payload = {
+      filter1: 'All',
+      filter2: 'Order Received',
+      sortOrder: -1,
+    };
+    await this.props.updateOrderHistory(payload);
+    this.fetchOrders();
+  }
+
+  fetchOrders = (pageNo = 0) => {
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
       .get(
         serverUrl + 'customer/fetchAllOrders',
 
-        { withCredentials: true }
+        { params: { CustomerID: localStorage.getItem('user_id'), 
+        filter1: this.props.orderHistory.filter1,
+        filter2: this.props.orderHistory.filter2,
+        sortOrder: this.props.orderHistory.sortOrder, pageNo, }, withCredentials: true }
       )
       .then(
         (response) => {
           console.log(response.data);
           let allOrders = response.data[0].map((order) => {
             return {
-              restroId: order.RestaurantId,
-              ID: order.OrderID,
+              RestaurantID: order.RestaurantID,
+              RestaurantName: order.RestaurantName,
+              ID: order._id,
               Bill: order.Bill,
-              DeliverStatusValue: order.Delivery_Status,
+              DeliverStatusValue: order.Status,
               OrderedTime: order.Date,
               OrderType: order.DeliveryMode,
+              orders: order.Orders,
             };
           });
 
-          this.setState({
-            OrdersOrignalCopy: allOrders,
-            ORDERS: allOrders,
-            filter1: 'All',
-          });
+          let payload = {
+            orderDetails: allOrders, 
+            PageCount: response.data[1],
+            TotalCount: response.data[2],
+            PageNo: pageNo,
+          }
+          this.props.updateOrderHistory(payload);
         },
-        (error) => {
-          console.log(error);
-        }
-      );
+        (error) => {});
   }
 
-  fetchOrdersFilter1 = (event, filter1) => {
-    let newOrdersList = [];
-    event.preventDefault();
-    if (filter1 === 'Pickup') {
-      newOrdersList = this.state.OrdersOrignalCopy.filter(
-        (order) => order.DeliverStatusValue === 'Order Received' && order.OrderType === 'Pickup'
-      );
-    } else if (filter1 === 'Delivery') {
-      newOrdersList = this.state.OrdersOrignalCopy.filter(
-        (order) => order.DeliverStatusValue === 'Order Received' && order.OrderType === 'Delivery'
-      );
-    } else {
-      newOrdersList = this.state.OrdersOrignalCopy;
+  fetchOrdersFilter1 = async (event, filter1) => {
+    let payload = {
+      filter1,
+    };
+    await this.props.updateOrderHistory(payload);
+    this.fetchOrders();
+  };
+
+  fetchOrdersFilter2 = async (event, filter2) => {
+    let payload = {
+      filter2,
     }
-    this.setState({ filter1, filter2: 'Recieved', ORDERS: newOrdersList });
+    await this.props.updateOrderHistory(payload);
+    this.fetchOrders();   
   };
 
-  fetchOrdersFilter2 = (event, filter2) => {
-    let newOrdersList = [];
-    if (this.state.filter1 === 'Delivery') {
-      switch (filter2) {
-        case 'Recieved':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) =>
-              order.DeliverStatusValue === 'Order Received' && order.OrderType === 'Delivery'
-          );
-          break;
-        case 'preparing':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'Preparing' && order.OrderType === 'Delivery'
-          );
-          break;
-        case 'onTheWay':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'On the way' && order.OrderType === 'Delivery'
-          );
-          break;
-        case 'Delivered':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'Delivered' && order.OrderType === 'Delivery'
-          );
-          console.log(newOrdersList);
-          break;
-
-        default:
-          break;
-      }
-    } else {
-      switch (filter2) {
-        case 'Recieved':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'Order Received' && order.OrderType === 'Pickup'
-          );
-          break;
-        case 'preparing':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'Preparing' && order.OrderType === 'Pickup'
-          );
-          break;
-        case 'pickupReady':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'Pick up Ready' && order.OrderType === 'Pickup'
-          );
-          break;
-        case 'pickedUp':
-          newOrdersList = this.state.OrdersOrignalCopy.filter(
-            (order) => order.DeliverStatusValue === 'Picked up' && order.OrderType === 'Pickup'
-          );
-          break;
-
-        default:
-          break;
-      }
-    }
-
-    event.preventDefault();
-    this.setState({ filter2, ORDERS: newOrdersList });
+  setSortOrder = async (event, sortOrder) => {
+      let payload = {
+        sortOrder,
+      };
+      await this.props.updateOrderHistory(payload);
+      this.fetchOrders();
   };
 
-  onStatusChangeHandler = (value, orderID) => {
-    const index = this.state.ORDERS.findIndex((x) => x.ID === Number(orderID));
-    let ORDERS = [...this.state.ORDERS];
-    let order = { ...ORDERS[index] };
-    order.tmpStatus = value;
-    ORDERS[index] = order;
-    this.setState({ ORDERS });
-  };
-
-  openOrderDetails = (orderID, restroId) => {
+  handlePageClick = (e) => {
+    this.fetchOrders(e.selected);
+  }
+  openOrderDetails = (orderID, restaurantID) => {
     if (this.state.popSeen) {
       this.setState({
         popSeen: !this.state.popSeen,
-        orderDetails: [],
       });
     } else {
-      axios
-        .get(
-          serverUrl + 'customer/fetchOrderDetails',
-
-          { params: { orderID, restroId }, withCredentials: true }
-        )
-        .then((response) => {
-          console.log(response.data);
-          let allItems = response.data[0].map((Item) => {
+      let index = this.props.orderHistory.orderDetails.findIndex(
+        (x) => x.ID === orderID && x.RestaurantID === restaurantID
+      ); 
+          let allItems = this.props.orderHistory.orderDetails[index].orders.map((order)=> {
             return {
-              first: Item.DishName,
-              count: Item.Quantity,
-              price: Item.Price,
-              totalPrice: Item.Total_Price,
-            };
-          });
+              first: order.Dishname,
+              count: order.Quantity,
+              price: order.Price,
+              totalPrice: order.TotalPrice,
+            }
 
+          });
+          
           this.setState({
-            orderDetails: this.state.orderDetails.concat(allItems),
             popSeen: !this.state.popSeen,
           });
-        })
-        .catch((error) => {
-          console.log('Got the error');
-        });
+          let payload = {
+            custOrder: allItems,
+          };
+          this.props.updateOrderHistory(payload);
     }
   };
 
@@ -224,13 +174,13 @@ class OrdersList extends Component {
         </div>*/}
                       <ul class="nav navbar-nav">
                         <li className={this.state.filter1 === 'All' && 'active'}>
-                          <Link to="/#" onClick={(event) => this.fetchOrdersFilter1(event, 'All')}>
+                          <Link to="#" onClick={(event) => this.fetchOrdersFilter1(event, 'All')}>
                             All Orders
                           </Link>
                         </li>
                         <li className={this.state.filter1 === 'Delivery' && 'active'}>
                           <Link
-                            to="/#"
+                            to="#"
                             onClick={(event) => this.fetchOrdersFilter1(event, 'Delivery')}
                           >
                             Delivery Type
@@ -238,7 +188,7 @@ class OrdersList extends Component {
                         </li>
                         <li className={this.state.filter1 === 'Pickup' && 'active'}>
                           <Link
-                            to="/#"
+                            to="#"
                             onClick={(event) => this.fetchOrdersFilter1(event, 'Pickup')}
                           >
                             Pickup Type
@@ -246,61 +196,81 @@ class OrdersList extends Component {
                         </li>
                       </ul>
 
+                      <ul class="nav navbar-nav navbar-right">
+                        <li>
+                          <Link
+                            to="#"
+                            onClick={(event) => this.setSortOrder(event, -1)}
+                          >
+                            <span class="glyphicon glyphicon-arrow-down"></span>
+                            Descending
+                          </Link>
+                        </li>
+                        <li>
+                        <Link
+                          to="#"
+                          onClick={(event) => this.setSortOrder(event, 1)}
+                        >
+                          <span class="glyphicon glyphicon-arrow-up"></span>
+                          Ascending
+                        </Link>
+                        </li>
+                      </ul> 
                       <ul class="nav navbar-nav">
-                        {(this.state.filter1 === 'Pickup' || this.state.filter1 === 'Delivery') && (
-                          <li className={this.state.filter2 === 'Recieved' && 'active'}>
+                        {(this.props.orderHistory.filter1 === 'Pickup' || this.props.orderHistory.filter1 === 'Delivery') && (
+                          <li className={this.props.orderHistory.filter2 === 'Order Received' && 'active'}>
                             <Link
-                              to="/#"
-                              onClick={(event) => this.fetchOrdersFilter2(event, 'Recieved')}
+                              to="#"
+                              onClick={(event) => this.fetchOrdersFilter2(event, 'Order Received')}
                             >
-                              Recieved
+                              Received
                             </Link>
                           </li>
                         )}
-                        {(this.state.filter1 === 'Pickup' || this.state.filter1 === 'Delivery') && (
-                          <li className={this.state.filter2 === 'preparing' && 'active'}>
+                        {(this.props.orderHistory.filter1 === 'Pickup' || this.props.orderHistory.filter1 === 'Delivery') && (
+                          <li className={this.props.orderHistory.filter2 === 'preparing' && 'active'}>
                             <Link
-                              to="/#"
+                              to="#"
                               onClick={(event) => this.fetchOrdersFilter2(event, 'preparing')}
                             >
                               Preparing
                             </Link>
                           </li>
                         )}
-                        {this.state.filter1 === 'Delivery' && (
-                          <li className={this.state.filter2 === 'onTheWay' && 'active'}>
+                        {this.props.orderHistory.filter1 === 'Delivery' && (
+                          <li className={this.props.orderHistory.filter2 === 'onTheWay' && 'active'}>
                             <Link
-                              to="/#"
+                              to="#"
                               onClick={(event) => this.fetchOrdersFilter2(event, 'onTheWay')}
                             >
                               On The Way
                             </Link>
                           </li>
                         )}
-                        {this.state.filter1 === 'Delivery' && (
-                          <li className={this.state.filter2 === 'Delivered' && 'active'}>
+                        {this.props.orderHistory.filter1 === 'Delivery' && (
+                          <li className={this.props.orderHistory.filter2 === 'Delivered' && 'active'}>
                             <Link
-                              to="/#"
+                              to="#"
                               onClick={(event) => this.fetchOrdersFilter2(event, 'Delivered')}
                             >
                               Delivered
                             </Link>
                           </li>
                         )}
-                        {this.state.filter1 === 'Pickup' && (
-                          <li className={this.state.filter2 === 'pickupReady' && 'active'}>
+                        {this.props.orderHistory.filter1 === 'Pickup' && (
+                          <li className={this.props.orderHistory.filter2 === 'pickupReady' && 'active'}>
                             <Link
-                              to="/#"
+                              to="#"
                               onClick={(event) => this.fetchOrdersFilter2(event, 'pickupReady')}
                             >
                               Pickup Ready
                             </Link>
                           </li>
                         )}
-                        {this.state.filter1 === 'Pickup' && (
-                          <li className={this.state.filter2 === 'pickedUp' && 'active'}>
+                        {this.props.orderHistory.filter1 === 'Pickup' && (
+                          <li className={this.props.orderHistory.filter2 === 'pickedUp' && 'active'}>
                             <Link
-                              to="/#"
+                              to="#"
                               onClick={(event) => this.fetchOrdersFilter2(event, 'pickedUp')}
                             >
                               Picked up
@@ -315,19 +285,33 @@ class OrdersList extends Component {
                   {this.state.popSeen ? (
                     <OrderDetails
                       modeTop={'20%'}
-                      orderDetails={this.state.orderDetails}
+                      orderDetails={this.props.orderHistory.custOrder}
                       toggle={this.openOrderDetails}
                     />
                   ) : null}
-                  <div>
                     <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
-                      {this.state.ORDERS.map((order) => (
+                      {this.props.orderHistory.orderDetails.map((order) => (
                         <OrderForCustomer
                           order={order}
-                          openOrderDetails={() => this.openOrderDetails(order.ID, order.restroId)}
+                          openOrderDetails={() => this.openOrderDetails(order.ID, order.RestaurantID)}
                         />
                       ))}
                     </ul>
+                    <ReactPaginate
+                      previousLabel={'prev'}
+                      nextLabel={'next'}
+                      breakLabel={'...'}
+                      breakClassName={'break-me'}
+                      pageCount={this.props.orderHistory.PageCount}
+                      marginPagesDisplayed={2}
+                      pageRangeDisplayed={2}
+                      onPageChange={this.handlePageClick}
+                      containerClassName={'pagination'}
+                      subContainerClassName={'pages pagination'}
+                      forcePage={this.props.orderHistory.PageNo}
+                      activeClassName={'active'}
+                  />
+                  <div>
                   </div>
                 </div>
               </div>
@@ -339,4 +323,23 @@ class OrdersList extends Component {
   }
 }
 
-export default OrdersList;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateOrderHistory: (payload) => {
+      dispatch({
+        type: 'update-order-history',
+        payload,
+      });
+    },
+  };
+};
+
+const mapStateToProps = (state) => {
+  const { orderHistory } = state.orderHistoryReducer;
+  return { 
+    orderHistory: orderHistory,
+   };
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersList);
