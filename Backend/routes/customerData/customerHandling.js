@@ -889,7 +889,35 @@ const eventRegistration = async (req, res) => {
         );
       }
     });
-  } catch (errorrr) {};
+  } catch (errorrr) {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
+    res.end();
+  }
+};
+
+const fetchSearchedEventList = async (req, res) => {
+  const { searchString, filter, pageNo } = url.parse(req.url, true).query;
+  const events = await Events.find({
+    EventName: { $regex: `${searchString}`, $options: 'i' },
+  })
+    .sort({ EventDate: filter })
+    .limit(4)
+    .skip(pageNo * 4)
+    .exec();
+  const count = await Events.find({
+    EventName: { $regex: `${searchString}`, $options: 'i' },
+  }).countDocuments();
+  const noOfPages = Math.ceil(count / 4);
+  const results = [];
+  results.push(events);
+  results.push(noOfPages);
+  results.push(count);
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
+  res.end(JSON.stringify(results));
 };
 
 const getCustRegisteredEvents = async (req, res) => {
@@ -936,4 +964,5 @@ module.exports = {
   fetchEventList,
   eventRegistration,
   getCustRegisteredEvents,
+  fetchSearchedEventList,
 };

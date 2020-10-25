@@ -22,6 +22,7 @@ const {
   fetchEventList,
   eventRegistration,
   getCustRegisteredEvents,
+  fetchSearchedEventList,
 } = require('./customerData/customerHandling');
 const {
   fetchReviews,
@@ -133,6 +134,12 @@ Router.post('/eventRegistration', checkAuth, async (req, res) => {
 // Get events registered by the customer
 Router.get('/getCustRegisteredEvents', checkAuth, async (req, res) => {
   const value = await getCustRegisteredEvents(req, res);
+  return value;
+});
+
+// Get searched events by the customer
+Router.get('/fetchSearchedEventList', checkAuth, async (req, res) => {
+  const value = await fetchSearchedEventList(req, res);
   return value;
 });
 

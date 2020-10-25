@@ -52,7 +52,7 @@ class Events extends Component {
     await this.props.updateCustomerEvents(payload);
     if(sortOrder ===  'upcoming'){
       axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
-     axios
+      axios
         .get(
           serverUrl + 'customer/fetchEventList',
 
@@ -141,6 +141,7 @@ class Events extends Component {
       RegisteredCustomers,
     };
     axios.defaults.withCredentials = true;
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     //make a post request with the user data
     axios.post(serverUrl + 'customer/eventRegistration', data).then(
       (response) => {
@@ -167,17 +168,51 @@ class Events extends Component {
 
   handlePageClick = async (e) =>{
     let payload = {
-      pageNo: e.selected
+      PageNo: e.selected
     };
     await this.props.updateCustomerEvents(payload);
 
     if(this.props.customerEvents.sortOrder === 'upcoming') {
       this.getEventList(this.props.customerEvents.sortOrder, this.props.customerEvents.filter,
         e.selected);
-    }
-    else {
+    } else if(this.props.customerEvents.sortOrder === 'registered'){
       this.getRegEventList('registered', this.props.customerEvents.filter, e.selected);
+    } else {
+      this.getSearchedEventList(this.state.searchString,this.props.customerEvents.filter, e.selected);
     }
+  }
+
+  getSearchedEventList = (searchString, filter = -1, pageNo = 0) => {
+      axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+      axios
+        .get(
+          serverUrl + 'customer/fetchSearchedEventList',
+
+          { params: { searchString, filter, pageNo }, withCredentials: true }
+        )
+        .then((response) => {
+          console.log(response.data);
+          let allEvents = response.data[0].map((event) => {
+            return {
+              ID: event._id,
+              Name: event.EventName,
+              Description: event.Description,
+              EventDate: new Date(event.EventDate),
+              EventStartTime: event.EventStartTime,
+              EventEndTime: event.EventEndTime,
+              Address: event.Location,
+              hashtags: event.Hashtags,
+            };
+          });
+
+          let payload = {
+            sortOrder: 'searched',
+            Events: allEvents,
+            PageCount: response.data[1],
+            TotalCount: response.data[2],
+          }
+          this.props.updateCustomerEvents(payload);
+      });
   }
 
   getFilter = async (event, filter) => {
@@ -190,9 +225,11 @@ class Events extends Component {
     if(this.props.customerEvents.sortOrder === 'upcoming') {
       this.getEventList('upcoming',filter);
     }
-    else {
+    else if(this.props.customerEvents.sortOrder === 'registered'){
       this.getEventList('registered', filter);
     }
+    else
+      this.getSearchedEventList(this.state.searchString,filter);
   }
 
   onChangeSearchStringHandler = (event) => {
@@ -274,7 +311,7 @@ class Events extends Component {
                         <li className={this.state.eventSortBy === 'registered' && 'active'}>
                           <button
                             style={{ marginTop: '14px' }}
-                            onClick={(event) => this.getEventList(this.state.searchString)}
+                            onClick={(event) => this.getSearchedEventList(this.state.searchString,-1)}
                           >
                             Search
                           </button>
