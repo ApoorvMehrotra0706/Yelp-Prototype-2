@@ -17,6 +17,7 @@ const defaultState = {
         YelpingSince: '',
         ImageURL: ' ',
         Website: '',
+        Events: [],
     },
   };
   

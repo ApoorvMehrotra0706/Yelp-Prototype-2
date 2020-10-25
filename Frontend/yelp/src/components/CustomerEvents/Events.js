@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-// import CustomerNavBar from '../CommonArea/CustomerNavBar';
-import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
-// import LeftPannel from '../LeftPannel/LeftPannel';
-// import GreyArea from '../CommonArea/GreyArea';
 import EventForCustomer from './EventForCustomer';
 import axios from 'axios';
 import serverUrl from '../../config';
-import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
-import SnackBar from '../SharedComponents/Snackbar';
+import ReactPaginate from 'react-paginate';
 
 class Events extends Component {
   constructor(props) {
@@ -18,98 +13,132 @@ class Events extends Component {
     this.state = { EVENTS: [], registeredEventIds: [], searchString: '' };
   }
   componentDidMount() {
-    const sortValue = 'upcoming';
-    this.setState({
-      EVENTS: [],
-      eventSortBy: sortValue,
-    });
+    const sortOrder = 'upcoming';
+    let payload = {
+      sortOrder, 
+    };
+    this.props.updateCustomerEvents(payload);
+    
+    this.getEventList('upcoming');
+    // axios
+    //   .get(
+    //     serverUrl + 'customer/getCustRegisteredEvents',
 
-    axios
-      .get(
-        serverUrl + 'customer/fetchEventList',
+    //     { withCredentials: true }
+    //   )
+    //   .then((response) => {
+    //     console.log(response.data);
+    //     let allRegisteredEvents = response.data[0].map((event) => {
+    //       return {
+    //         ID: event.EventID,
+    //       };
+    //     });
 
-        { params: { sortValue }, withCredentials: true }
-      )
-      .then((response) => {
-        console.log(response.data);
-        let allEvents = response.data[0].map((event) => {
-          return {
-            ID: event.EventID,
-            Name: event.EventName,
-            Description: event.Description,
-            EventDate: new Date(event.EventDate),
-            EventStartTime: event.EventStartTime,
-            EventEndTime: event.EventEndTime,
-            Address: event.Location,
-            hashtags: event.Hashtags,
-          };
-        });
+    //     this.setState({
+    //       registeredEventIds: this.state.registeredEventIds.concat(allRegisteredEvents),
+    //     });
+    //   })
+    //   .catch((e) => {
+    //     console.log('Error');
+    //   });
+  }
 
-        this.setState({
-          EVENTS: allEvents,
-        });
+  getEventList = async (sortOrder, filter = -1, pageNo = 0) => {
+    let payload = {
+      filter,
+      sortOrder,
+      PageNo: pageNo,
+    };
+    await this.props.updateCustomerEvents(payload);
+    if(sortOrder ===  'upcoming'){
+      axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+     axios
+        .get(
+          serverUrl + 'customer/fetchEventList',
+
+          { params: { filter, pageNo }, withCredentials: true }
+        )
+        .then((response) => {
+          console.log(response.data);
+          let allEvents = response.data[0].map((event) => {
+            return {
+              ID: event._id,
+              Name: event.EventName,
+              Description: event.Description,
+              EventDate: new Date(event.EventDate),
+              EventStartTime: event.EventStartTime,
+              EventEndTime: event.EventEndTime,
+              Address: event.Location,
+              hashtags: event.Hashtags,
+            };
+          });
+
+          let payload = {
+            Events: allEvents,
+            PageCount: response.data[1],
+            TotalCount: response.data[2],
+          }
+          this.props.updateCustomerEvents(payload);
       });
-
-    axios
+    } else {
+      axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+      axios
       .get(
         serverUrl + 'customer/getCustRegisteredEvents',
-
-        { withCredentials: true }
+  
+        { params: { CustomerID: localStorage.getItem('user_id'),filter, pageNo }, withCredentials: true }
       )
       .then((response) => {
         console.log(response.data);
         let allRegisteredEvents = response.data[0].map((event) => {
           return {
             ID: event.EventID,
+              Name: event.EventName,
+              Description: event.Description,
+              EventDate: new Date(event.EventDate),
+              EventStartTime: event.EventStartTime,
+              EventEndTime: event.EventEndTime,
+              Address: event.Address,
+              hashtags: event.Hashtags,
           };
-        });
-
-        this.setState({
-          registeredEventIds: this.state.registeredEventIds.concat(allRegisteredEvents),
-        });
+        });  
+        let payload = {
+          Events: allRegisteredEvents,
+          PageCount: response.data[1],
+          TotalCount: response.data[2],
+        }
+  
+        this.props.updateCustomerEvents(payload);
       })
       .catch((e) => {
         console.log('Error');
       });
+    }
   }
 
-  getEventList(e, sortValue = 'upcoming') {
-    this.setState({
-      EVENTS: [],
-      eventSortBy: sortValue,
-    });
-    e.preventDefault();
-    axios
-      .get(
-        serverUrl + 'customer/fetchEventList',
-
-        { params: { sortValue }, withCredentials: true }
-      )
-      .then((response) => {
-        console.log(response.data);
-        let allEvents = response.data[0].map((event) => {
-          return {
-            ID: event.EventID,
-            Name: event.EventName,
-            Description: event.Description,
-            EventDate: new Date(event.EventDate),
-            EventStartTime: event.EventStartTime,
-            EventEndTime: event.EventEndTime,
-            Address: event.Location,
-            hashtags: event.Hashtags,
-          };
-        });
-
-        this.setState({
-          EVENTS: allEvents,
-        });
-      });
-  }
   registerForEvent = (eventId) => {
+    let index = this.props.customerEvents.Events.findIndex((x) => x.ID === eventId);
+    let date = this.props.customerEvents.Events[index].EventDate;
+    const RegisteredCustomers = {
+      EventID: eventId, 
+      EventName: this.props.customerEvents.Events[index].Name,
+      Description: this.props.customerEvents.Events[index].Description,
+      EventStartTime: this.props.customerEvents.Events[index].EventStartTime,
+      EventEndTime: this.props.customerEvents.Events[index].EventEndTime,
+      Address: this.props.customerEvents.Events[index].Address,
+      Hashtags: this.props.customerEvents.Events[index].hashtags,
+      CustomerID: localStorage.getItem('user_id'),
+      CustomerName: this.props.customerData.Name,
+      Email: localStorage.getItem('username'),
+      Gender: this.props.customerData.Gender,
+      EventDate: date,
+      Contact: this.props.customerData.Contact,
+      YelpingSince: this.props.customerData.YelpingSince,
+    };
     const data = {
-      eventId,
-      token: cookie.load('cookie'),
-      userrole: cookie.load('role'),
+      EventID: eventId,
+      CustomerID: localStorage.getItem('user_id'),
+      RegisteredCustomers,
     };
     axios.defaults.withCredentials = true;
     //make a post request with the user data
@@ -119,22 +148,52 @@ class Events extends Component {
         if (response.status === 200) {
           console.log(response.data);
           const tmp = { ID: eventId };
-          this.setState({
-            registeredEventIds: this.state.registeredEventIds.concat(tmp),
-          });
+          let events = this.props.customerData.Events;
+          events.push(tmp);
           let payload = {
-            success: true,
-            message: 'Registeration Successfull!',
-          };
-          this.props.updateSnackbarData(payload);
+            Events: events,
+          }
+          this.props.updateCustomerProfile(payload);
           alert('Registration Successful');
+          this.getEventList(-1,0);
         }
       },
       (error) => {
         console.log(error);
       }
     );
+
   };
+
+  handlePageClick = async (e) =>{
+    let payload = {
+      pageNo: e.selected
+    };
+    await this.props.updateCustomerEvents(payload);
+
+    if(this.props.customerEvents.sortOrder === 'upcoming') {
+      this.getEventList(this.props.customerEvents.sortOrder, this.props.customerEvents.filter,
+        e.selected);
+    }
+    else {
+      this.getRegEventList('registered', this.props.customerEvents.filter, e.selected);
+    }
+  }
+
+  getFilter = async (event, filter) => {
+    let payload = {
+      filter,
+      PageNo: 0,
+    };
+    await this.props.updateCustomerEvents(payload);
+
+    if(this.props.customerEvents.sortOrder === 'upcoming') {
+      this.getEventList('upcoming',filter);
+    }
+    else {
+      this.getEventList('registered', filter);
+    }
+  }
 
   onChangeSearchStringHandler = (event) => {
     this.setState({
@@ -144,13 +203,13 @@ class Events extends Component {
 
   render() {
     let redirectVar = null;
-    if (!cookie.load('cookie')) {
-      console.log('cookie not found');
+    if (!localStorage.getItem('token')) {
+      console.log('token not found');
       redirectVar = <Redirect to="/customerLogin" />;
     } else {
-      if (cookie.load('role') === 'Customer') {
+      if (localStorage.getItem('role') === 'Customer') {
         redirectVar = null;
-      } else if (cookie.load('role') === 'Restaurant') {
+      } else if (localStorage.getItem('role') === 'Restaurant') {
         redirectVar = <Redirect to="/restaurantProfile" />;
       } else {
         redirectVar = <Redirect to="/customerLogin" />;
@@ -158,7 +217,6 @@ class Events extends Component {
     }
     return (
       <div style={{ background: 'white' }}>
-        {this.props.snackbarData != null && <SnackBar />}
         {redirectVar}
         {}
         <span id="page-content" class="offscreen">
@@ -189,13 +247,13 @@ class Events extends Component {
                         <a class="navbar-brand">Events</a>
                       </div>
                       <ul class="nav navbar-nav">
-                        <li className={this.state.eventSortBy === 'upcoming' && 'active'}>
-                          <Link to="/#" onClick={(event) => this.getEventList(event, 'upcoming')}>
+                        <li className={this.props.customerEvents.sortOrder === 'upcoming' && 'active'}>
+                          <Link to="#" onClick={(event) => this.getEventList('upcoming',-1)}>
                             Upcoming Events
                           </Link>
                         </li>
-                        <li className={this.state.eventSortBy === 'registered' && 'active'}>
-                          <Link to="/#" onClick={(event) => this.getEventList(event, 'registered')}>
+                        <li className={this.props.customerEvents.sortOrder === 'registered' && 'active'}>
+                          <Link to="#" onClick={(event) => this.getEventList('registered',-1)}>
                             Registered Events
                           </Link>
                         </li>
@@ -216,22 +274,35 @@ class Events extends Component {
                         <li className={this.state.eventSortBy === 'registered' && 'active'}>
                           <button
                             style={{ marginTop: '14px' }}
-                            onClick={(event) => this.getEventList(event, this.state.searchString)}
+                            onClick={(event) => this.getEventList(this.state.searchString)}
                           >
                             Search
                           </button>
                         </li>
                       </ul>
-
+                      <ul class="nav navbar-nav navbar-right">
+                        <li className={this.props.customerEvents.filter === -1 && 'active'}>
+                          <Link to="#" onClick={(event) => this.getFilter(event, -1)}>
+                          <span class="glyphicon glyphicon-arrow-down"></span>
+                            Descending
+                          </Link>
+                        </li>
+                        <li className={this.props.customerEvents.filter === 1 && 'active'}>
+                          <Link to="#" onClick={(event) => this.getFilter(event, 1)}>
+                          <span class="glyphicon glyphicon-arrow-up"></span>
+                            Ascending
+                          </Link>
+                        </li>
+                      </ul>
                       {/*navLogin*/}
                     </div>
                   </nav>
                   <div>
                     <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
-                      {this.state.EVENTS.map((event) => (
+                      {this.props.customerEvents.Events.map((event) => (
                         <EventForCustomer
                           event={event}
-                          registeredEventIds={this.state.registeredEventIds}
+                          registeredEventIds={this.props.customerData.Events}
                           registerForEvent={() => {
                             this.registerForEvent(event.ID);
                           }}
@@ -242,13 +313,20 @@ class Events extends Component {
                         />
                       ))}
                     </ul>
-                    {/*<Pagination
-            activePage={this.state.activePage}
-            itemsCountPerPage={5}
-            //totalItemsCount={450}
-            pageRangeDisplayed={5}
-            onChange={this.handlePageChange.bind(this)}
-         />*/}
+                    <ReactPaginate
+                      previousLabel={'prev'}
+                      nextLabel={'next'}
+                      breakLabel={'...'}
+                      breakClassName={'break-me'}
+                      pageCount={this.props.customerEvents.PageCount}
+                      marginPagesDisplayed={2}
+                      pageRangeDisplayed={2}
+                      onPageChange={this.handlePageClick}
+                      containerClassName={'pagination'}
+                      subContainerClassName={'pages pagination'}
+                      forcePage={this.props.customerEvents.PageNo}
+                      activeClassName={'active'}
+                  />
                   </div>
                 </div>
               </div>
@@ -263,17 +341,25 @@ class Events extends Component {
 // export default Events;
 // export default EventList;
 const mapStateToProps = (state) => {
-  const snackbarData = state.snackBarReducer;
+  const { customerEvents } = state.customerEventsReducer;
+  const { customerData } = state.customerProfileReducer;
   return {
-    snackbarData: snackbarData,
+    customerEvents: customerEvents,
+    customerData: customerData,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateSnackbarData: (payload) => {
+    updateCustomerEvents: (payload) => {
       dispatch({
-        type: updateSnackbarData,
+        type: 'customer-profile-events',
+        payload,
+      });
+    },
+    updateCustomerProfile: (payload) => {
+      dispatch({
+        type: 'update-customer-profile',
         payload,
       });
     },

@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import serverUrl from '../../config';
-import cookie from 'react-cookies';
 import '../FirstPage/RestaurantHome.css';
 import { connect } from 'react-redux';
 

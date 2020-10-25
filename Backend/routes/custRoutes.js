@@ -2,12 +2,7 @@ const express = require('express');
 const { checkAuth } = require('../passport');
 
 // eslint-disable-next-line no-unused-vars
-const {
-  fetchOrderDetails,
-  fetchEventList,
-  eventRegistration,
-  getCustRegisteredEvents,
-} = require('./customer/loginCustomer');
+const { fetchOrderDetails } = require('./customer/loginCustomer');
 // const signupCustomer = require('./customer/signupCustomer');
 const {
   signupCustomer,
@@ -24,6 +19,9 @@ const {
   generateOrder,
   menuFetch,
   fetchAllOrders,
+  fetchEventList,
+  eventRegistration,
+  getCustRegisteredEvents,
 } = require('./customerData/customerHandling');
 const {
   fetchReviews,
@@ -120,6 +118,24 @@ Router.get('/fetchAllOrders', checkAuth, async (req, res) => {
   return value;
 });
 
+// Fetch event list for the customer
+Router.get('/fetchEventList', checkAuth, async (req, res) => {
+  const value = await fetchEventList(req, res);
+  return value;
+});
+
+// Register customer to an event
+Router.post('/eventRegistration', checkAuth, async (req, res) => {
+  const value = await eventRegistration(req, res);
+  return value;
+});
+
+// Get events registered by the customer
+Router.get('/getCustRegisteredEvents', checkAuth, async (req, res) => {
+  const value = await getCustRegisteredEvents(req, res);
+  return value;
+});
+
 Router.get('/fetchReviews', async (req, res) => {
   const value = await fetchReviews(req, res);
   return value;
@@ -127,21 +143,6 @@ Router.get('/fetchReviews', async (req, res) => {
 
 Router.get('/fetchOrderDetails', async (req, res) => {
   const value = await fetchOrderDetails(req, res);
-  return value;
-});
-
-Router.get('/fetchEventList', async (req, res) => {
-  const value = await fetchEventList(req, res);
-  return value;
-});
-
-Router.post('/eventRegistration', async (req, res) => {
-  const value = await eventRegistration(req, res);
-  return value;
-});
-
-Router.get('/getCustRegisteredEvents', async (req, res) => {
-  const value = await getCustRegisteredEvents(req, res);
   return value;
 });
 

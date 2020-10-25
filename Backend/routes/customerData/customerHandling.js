@@ -17,6 +17,8 @@ const Cuisine = require('../models/CuisineModel');
 const Restaurant = require('../models/RestaurantModel');
 const Review = require('../models/ReviewsModel');
 const Order = require('../models/OrdersModel');
+const Events = require('../models/EventsModel');
+const CustEvents = require('../models/CustomerRegisteredEvents');
 const { secret } = require('../../config');
 const { auth } = require('../../passport');
 
@@ -800,6 +802,122 @@ const fetchAllOrders = async (req, res) => {
     res.end(JSON.stringify(results));
   }
 };
+
+const fetchEventList = async (req, res) => {
+  const { filter, pageNo } = url.parse(req.url, true).query;
+  const eventDetails = await Events.find({ EventDate: { $gte: new Date() } })
+    .sort({ EventDate: filter })
+    .limit(4)
+    .skip(pageNo * 4)
+    .exec();
+  const count = await Events.find({ EventDate: { $gte: new Date() } }).countDocuments();
+  const noOfPages = Math.ceil(count / 4);
+  const results = [];
+  results.push(eventDetails);
+  results.push(noOfPages);
+  results.push(count);
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
+  res.end(JSON.stringify(results));
+};
+
+const eventRegistration = async (req, res) => {
+  try {
+    Events.findOne({ _id: req.body.EventID }, async (error, result) => {
+      if (error) {
+        res.writeHead(500, {
+          'Content-Type': 'text/plain',
+        });
+        res.end();
+      }
+      if (result) {
+        Events.updateOne(
+          { _id: req.body.EventID },
+          { $push: { RegisteredCustomers: req.body.RegisteredCustomers } },
+          // eslint-disable-next-line no-unused-vars
+          (er, data) => {
+            if (er) {
+              res.writeHead(500, {
+                'Content-Type': 'text/plain',
+              });
+              res.end();
+            } else {
+              const custRegEvents = new CustEvents({
+                ...req.body.RegisteredCustomers,
+              });
+              // eslint-disable-next-line no-unused-vars
+              custRegEvents.save((e, data1) => {
+                if (e) {
+                  res.writeHead(500, {
+                    'Content-Type': 'text/plain',
+                  });
+                  res.end();
+                } else {
+                  Customer.findOne({ CustomerID: req.body.CustomerID }, async (error1, result1) => {
+                    if (error1) {
+                      res.writeHead(500, {
+                        'Content-Type': 'text/plain',
+                      });
+                      res.end();
+                    }
+                    if (result1) {
+                      Customer.updateOne(
+                        { CustomerID: req.body.CustomerID },
+                        { $push: { Events: req.body } },
+                        // eslint-disable-next-line no-unused-vars
+                        (er1, data2) => {
+                          if (er1) {
+                            res.writeHead(500, {
+                              'Content-Type': 'text/plain',
+                            });
+                            res.end();
+                          } else {
+                            res.writeHead(200, {
+                              'Content-Type': 'text/plain',
+                            });
+                            res.end();
+                          }
+                        }
+                      );
+                    }
+                  });
+                }
+              });
+            }
+          }
+        );
+      }
+    });
+  } catch (errorrr) {};
+};
+
+const getCustRegisteredEvents = async (req, res) => {
+  try {
+    const { CustomerID, filter, pageNo } = url.parse(req.url, true).query;
+    const eventDetails = await CustEvents.find({ CustomerID })
+      .sort({ EventDate: filter })
+      .limit(4)
+      .skip(pageNo * 4)
+      .exec();
+    const count = await CustEvents.find({ CustomerID }).countDocuments();
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(eventDetails);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
+    res.end();
+  }
+};
+
 module.exports = {
   signupCustomer,
   loginCustomer,
@@ -815,4 +933,7 @@ module.exports = {
   generateOrder,
   menuFetch,
   fetchAllOrders,
+  fetchEventList,
+  eventRegistration,
+  getCustRegisteredEvents,
 };

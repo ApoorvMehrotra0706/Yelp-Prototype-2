@@ -15,10 +15,18 @@ const eventsSchema = new Schema(
     EventEndTime: { type: String, required: true },
     RegisteredCustomers: [
       {
+        EventID: { type: String },
+        EventName: { type: String },
+        Description: { type: String },
+        EventStartTime: { type: String },
+        EventEndTime: { type: String },
+        Address: { type: String },
+        Hashtags: { type: String },
         CustomerID: { type: String, required: true },
         CustomerName: { type: String, reuired: true },
         Email: { type: String, required: true },
         Gender: { type: String, required: true },
+        EventDate: { type: Date },
         Contact: { type: Number, max: 10 },
         YelpingSince: { type: Date },
       },

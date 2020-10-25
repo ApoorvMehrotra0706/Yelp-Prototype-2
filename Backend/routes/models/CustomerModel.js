@@ -22,6 +22,11 @@ const customerSchema = new Schema(
     YelpingSince: { type: Date },
     Things_Customer_Love: { type: String },
     Website: { type: String },
+    Events: [
+      {
+        EventID: { type: String },
+      },
+    ],
   },
   {
     versionKey: false,

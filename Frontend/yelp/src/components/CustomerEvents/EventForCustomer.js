@@ -10,7 +10,7 @@ class EventForCustomer extends Component {
 
   verifyRegistered = (id) => {
     for (const item of this.props.registeredEventIds) {
-      if (item.ID === id) {
+      if (item.EventID === id) {
         return false;
       }
     }

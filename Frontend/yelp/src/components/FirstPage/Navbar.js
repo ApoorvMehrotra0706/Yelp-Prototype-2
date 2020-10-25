@@ -79,6 +79,7 @@ class Navbar extends Component {
             YelpingSince: response.data.YelpingSince,
             Website: response.data.Website,
             ImageURL: response.data.ImageURL,
+            Events: response.data.Events,
           };
           this.props.updateCustomerProfile(payload);
           payload = {
