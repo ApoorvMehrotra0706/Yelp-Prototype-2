@@ -43,6 +43,7 @@ class AboutMe extends Component {
             Website: response.data.Website,
             ImageURL: response.data.ImageURL,
             Events: response.data.Events,
+            FollowingIDs: response.data.FollowingCustomerIDs,
           };
           this.props.updateCustomerProfile(payload);
           payload = {

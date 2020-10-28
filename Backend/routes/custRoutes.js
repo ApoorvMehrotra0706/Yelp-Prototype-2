@@ -1,9 +1,6 @@
 const express = require('express');
 const { checkAuth } = require('../passport');
 
-// eslint-disable-next-line no-unused-vars
-const { fetchOrderDetails } = require('./customer/loginCustomer');
-// const signupCustomer = require('./customer/signupCustomer');
 const {
   signupCustomer,
   loginCustomer,
@@ -23,15 +20,10 @@ const {
   eventRegistration,
   getCustRegisteredEvents,
   fetchSearchedEventList,
+  fetchYelpUserList,
+  followUser,
+  fetchSearchedYelpUser,
 } = require('./customerData/customerHandling');
-const {
-  fetchReviews,
-  createState,
-  createCountry,
-  createGender,
-  createCuisine,
-  deleteCuisine,
-} = require('./customer/states');
 
 const Router = express.Router();
 
@@ -143,38 +135,21 @@ Router.get('/fetchSearchedEventList', checkAuth, async (req, res) => {
   return value;
 });
 
-Router.get('/fetchReviews', async (req, res) => {
-  const value = await fetchReviews(req, res);
+// Get the list of Yelp users
+Router.get('/fetchYelpUserList', checkAuth, async (req, res) => {
+  const value = await fetchYelpUserList(req, res);
   return value;
 });
 
-Router.get('/fetchOrderDetails', async (req, res) => {
-  const value = await fetchOrderDetails(req, res);
+// Adding the user to the fllow list of customer
+Router.post('/followUser', checkAuth, async (req, res) => {
+  const value = await followUser(req, res);
   return value;
 });
 
-Router.post('/stateCreate', async (req, res) => {
-  const value = await createState(req, res);
-  return value;
-});
-
-Router.post('/createCountry', async (req, res) => {
-  const value = await createCountry(req, res);
-  return value;
-});
-
-Router.post('/createGender', async (req, res) => {
-  const value = await createGender(req, res);
-  return value;
-});
-
-Router.post('/createCuisine', async (req, res) => {
-  const value = await createCuisine(req, res);
-  return value;
-});
-
-Router.delete('/deleteCuisine', async (req, res) => {
-  const value = await deleteCuisine(req, res);
+// Fetched searched yelp user
+Router.get('/fetchSearchedYelpUser', checkAuth, async (req, res) => {
+  const value = await fetchSearchedYelpUser(req, res);
   return value;
 });
 

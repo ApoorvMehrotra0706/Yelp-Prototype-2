@@ -30,6 +30,7 @@ const s3Storage = new AWS.S3({
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
 });
 
+// Customer signup
 const signupCustomer = async (req, res) => {
   Login.findOne({ emailID: req.body.emailID, Role: 'Customer' }, async (error, result) => {
     if (error) {
@@ -215,6 +216,7 @@ const updateProfile = async (req, res) => {
   );
 };
 
+// Customer contact details update
 const updateContactInfo = async (req, res) => {
   Login.findOne({ _id: req.body.user_id, Role: 'Customer' }, async (error, user) => {
     if (error) {
@@ -243,7 +245,7 @@ const updateContactInfo = async (req, res) => {
                 Customer.updateOne(
                   { CustomerID: req.body.user_id },
                   {
-                    ...req.body,
+                    contact: req.body.contact,
                   },
                   // eslint-disable-next-line no-unused-vars
                   (err, data1) => {
@@ -288,6 +290,7 @@ const updateContactInfo = async (req, res) => {
   });
 };
 
+// Fetching restaurant search strings
 const fetchSearchStrings = async (req, res) => {
   const data = [];
   await Appetizer.find({}, (error, result) => {
@@ -387,6 +390,7 @@ const fetchSearchStrings = async (req, res) => {
   res.end(JSON.stringify(data));
 };
 
+// Fetching all possible restaurant searches
 const fetchRestaurantResults = async (req, res) => {
   const { filter, searchString, pageNo } = url.parse(req.url, true).query;
   let restaurantData = [];
@@ -595,6 +599,7 @@ const fetchRestaurantResults = async (req, res) => {
   res.status(200).end(JSON.stringify(result));
 };
 
+// Restaurant profile fetch for customer view
 const fetchRestaurantProfileForCustomer = async (req, res) => {
   const { RestaurantID } = url.parse(req.url, true).query;
   Restaurant.findOne({ RestaurantID }, (error, result) => {
@@ -612,6 +617,7 @@ const fetchRestaurantProfileForCustomer = async (req, res) => {
   });
 };
 
+// Submitting the review for a restaurant
 const submitReview = async (req, res) => {
   const review = new Review({
     ...req.body,
@@ -661,6 +667,7 @@ const submitReview = async (req, res) => {
   });
 };
 
+// Generating an order
 const generateOrder = async (req, res) => {
   const order = new Order({
     ...req.body,
@@ -681,6 +688,7 @@ const generateOrder = async (req, res) => {
   });
 };
 
+// Fetching menu
 const menuFetch = async (req, res) => {
   const { RestaurantID, pageNo, category } = url.parse(req.url, true).query;
   if (category === 'APPETIZERS') {
@@ -761,6 +769,7 @@ const menuFetch = async (req, res) => {
   }
 };
 
+// Fetching the orders placed by the customer
 const fetchAllOrders = async (req, res) => {
   const { CustomerID, filter1, filter2, sortOrder, pageNo } = url.parse(req.url, true).query;
   let orderDetails = [];
@@ -803,6 +812,7 @@ const fetchAllOrders = async (req, res) => {
   }
 };
 
+// Fetching the event listy for customer
 const fetchEventList = async (req, res) => {
   const { filter, pageNo } = url.parse(req.url, true).query;
   const eventDetails = await Events.find({ EventDate: { $gte: new Date() } })
@@ -822,6 +832,7 @@ const fetchEventList = async (req, res) => {
   res.end(JSON.stringify(results));
 };
 
+// Registering customer to an event
 const eventRegistration = async (req, res) => {
   try {
     Events.findOne({ _id: req.body.EventID }, async (error, result) => {
@@ -897,6 +908,7 @@ const eventRegistration = async (req, res) => {
   }
 };
 
+// Fetching searched event list for customer
 const fetchSearchedEventList = async (req, res) => {
   const { searchString, filter, pageNo } = url.parse(req.url, true).query;
   const events = await Events.find({
@@ -920,6 +932,7 @@ const fetchSearchedEventList = async (req, res) => {
   res.end(JSON.stringify(results));
 };
 
+// Fetching customer registered events
 const getCustRegisteredEvents = async (req, res) => {
   try {
     const { CustomerID, filter, pageNo } = url.parse(req.url, true).query;
@@ -932,6 +945,165 @@ const getCustRegisteredEvents = async (req, res) => {
     const noOfPages = Math.ceil(count / 4);
     const results = [];
     results.push(eventDetails);
+    results.push(noOfPages);
+    results.push(count);
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+    });
+    res.end(JSON.stringify(results));
+  } catch (error) {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
+    res.end();
+  }
+};
+
+// Fetching yelp users list
+const fetchYelpUserList = async (req, res) => {
+  try {
+    const { CustomerID, pageNo, category } = url.parse(req.url, true).query;
+    if (category === 'All') {
+      const customer = await Customer.find({ CustomerID: { $nin: [CustomerID] } })
+        .limit(4)
+        .skip(pageNo * 4)
+        .exec();
+      const count = await Customer.find({ CustomerID: { $nin: [CustomerID] } }).countDocuments();
+      const noOfPages = Math.ceil(count / 4);
+      const results = [];
+      results.push(customer);
+      results.push(noOfPages);
+      results.push(count);
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      res.end(JSON.stringify(results));
+    } else {
+      const start = Number(pageNo) * 4;
+      const end = start + 4;
+      const customer = await Customer.find({ CustomerID }, { Following: { $slice: [start, end] } });
+      const record = await Customer.find({ CustomerID });
+      const count = record[0].FollowingCustomerIDs.length;
+      const noOfPages = Math.ceil(count / 4);
+      const results = [];
+      results.push(customer);
+      results.push(noOfPages);
+      results.push(count);
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+      });
+      res.end(JSON.stringify(results));
+    }
+  } catch (error) {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
+    res.end();
+  }
+};
+
+// Following a user on yelp
+const followUser = async (req, res) => {
+  try {
+    Customer.findOne({ CustomerID: req.body.CustomerID }, async (error, result) => {
+      if (error) {
+        res.writeHead(500, {
+          'Content-Type': 'text/plain',
+        });
+        res.end();
+      }
+      if (result) {
+        Customer.updateOne(
+          { CustomerID: req.body.CustomerID },
+          {
+            $push: {
+              Following: req.body.Following,
+              FollowingCustomerIDs: req.body.FollowingCustomerIDs,
+            },
+          },
+          // eslint-disable-next-line no-unused-vars
+          (er, data) => {
+            if (er) {
+              res.writeHead(500, {
+                'Content-Type': 'text/plain',
+              });
+              res.end();
+            } else {
+              res.writeHead(200, {
+                'Content-Type': 'text/plain',
+              });
+              res.end();
+            }
+          }
+        );
+      }
+    });
+  } catch (errorrr) {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
+    res.end();
+  }
+};
+
+// Fetching searched yelp user
+const fetchSearchedYelpUser = async (req, res) => {
+  try {
+    let customerData = [];
+    let count = 0;
+    const { CustomerID, searchString, searchCriteria, pageNo } = url.parse(req.url, true).query;
+    if (searchCriteria === 'First Name') {
+      customerData = await Customer.find({
+        $and: [
+          { CustomerID: { $nin: [CustomerID] } },
+          { name: { $regex: `${searchString}`, $options: 'i' } },
+        ],
+      })
+        .limit(4)
+        .skip(pageNo * 4)
+        .exec();
+      count = await Customer.find({
+        $and: [
+          { CustomerID: { $nin: [CustomerID] } },
+          { name: { $regex: `${searchString}`, $options: 'i' } },
+        ],
+      }).countDocuments();
+    } else if (searchCriteria === 'NickName') {
+      customerData = await Customer.find({
+        $and: [
+          { CustomerID: { $nin: [CustomerID] } },
+          { NickName: { $regex: `${searchString}`, $options: 'i' } },
+        ],
+      })
+        .limit(4)
+        .skip(pageNo * 4)
+        .exec();
+      count = await Customer.find({
+        $and: [
+          { CustomerID: { $nin: [CustomerID] } },
+          { NickName: { $regex: `${searchString}`, $options: 'i' } },
+        ],
+      }).countDocuments();
+    } else {
+      customerData = await Customer.find({
+        $and: [
+          { CustomerID: { $nin: [CustomerID] } },
+          { City: { $regex: `${searchString}`, $options: 'i' } },
+        ],
+      })
+        .limit(4)
+        .skip(pageNo * 4)
+        .exec();
+      count = await Customer.find({
+        $and: [
+          { CustomerID: { $nin: [CustomerID] } },
+          { City: { $regex: `${searchString}`, $options: 'i' } },
+        ],
+      }).countDocuments();
+    }
+    const noOfPages = Math.ceil(count / 4);
+    const results = [];
+    results.push(customerData);
     results.push(noOfPages);
     results.push(count);
     res.writeHead(200, {
@@ -965,4 +1137,7 @@ module.exports = {
   eventRegistration,
   getCustRegisteredEvents,
   fetchSearchedEventList,
+  fetchYelpUserList,
+  followUser,
+  fetchSearchedYelpUser,
 };

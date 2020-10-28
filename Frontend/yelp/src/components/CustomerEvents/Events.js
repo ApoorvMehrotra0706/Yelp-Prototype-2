@@ -20,27 +20,7 @@ class Events extends Component {
     this.props.updateCustomerEvents(payload);
     
     this.getEventList('upcoming');
-    // axios
-    //   .get(
-    //     serverUrl + 'customer/getCustRegisteredEvents',
-
-    //     { withCredentials: true }
-    //   )
-    //   .then((response) => {
-    //     console.log(response.data);
-    //     let allRegisteredEvents = response.data[0].map((event) => {
-    //       return {
-    //         ID: event.EventID,
-    //       };
-    //     });
-
-    //     this.setState({
-    //       registeredEventIds: this.state.registeredEventIds.concat(allRegisteredEvents),
-    //     });
-    //   })
-    //   .catch((e) => {
-    //     console.log('Error');
-    //   });
+    
   }
 
   getEventList = async (sortOrder, filter = -1, pageNo = 0) => {
@@ -147,7 +127,6 @@ class Events extends Component {
       (response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
-          console.log(response.data);
           const tmp = { ID: eventId };
           let events = this.props.customerData.Events;
           events.push(tmp);
@@ -259,7 +238,6 @@ class Events extends Component {
         <span id="page-content" class="offscreen">
           &nbsp;
         </span>
-        {/* <div className="main-content-wrap main-content-wrap--full">{<GreyArea />}</div> */}
         <div
           className="super-container"
           style={{
@@ -375,8 +353,6 @@ class Events extends Component {
   }
 }
 
-// export default Events;
-// export default EventList;
 const mapStateToProps = (state) => {
   const { customerEvents } = state.customerEventsReducer;
   const { customerData } = state.customerProfileReducer;

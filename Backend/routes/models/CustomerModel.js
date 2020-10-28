@@ -27,6 +27,23 @@ const customerSchema = new Schema(
         EventID: { type: String },
       },
     ],
+    FollowingCustomerIDs: [
+      {
+        CustomerID: { type: String },
+      },
+    ],
+    Following: [
+      {
+        CustomerID: { type: String },
+        CustomerName: { type: String },
+        DOB: { type: String },
+        Gender: { type: String },
+        Contact: { type: Number, min: 1000000000, max: 9999999999 },
+        ImageURL: { type: String },
+        YelpingSince: { type: Date },
+        Address: { type: String },
+      },
+    ],
   },
   {
     versionKey: false,

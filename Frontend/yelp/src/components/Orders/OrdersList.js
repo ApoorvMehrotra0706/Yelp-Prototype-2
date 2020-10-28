@@ -26,10 +26,6 @@ class ordersList extends Component {
   }
 
   fetchOrders(sortValue,pageNo='0') {
-    // const orderUpdate = [];
-    // this.setState({
-    //   ORDERS: orderUpdate,
-    // });
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
       .get(
@@ -108,29 +104,18 @@ class ordersList extends Component {
         // orderDetails: [],
       });
     } else {
-      // axios
-      //   .get(
-      //     serverUrl + 'restaurant/fetchPersonOrder',
+      const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
+      let allItems = this.props.orders.orderDetails[index].Orders;
+      let payload = {
+        cartDetails: allItems,
+      }
 
-      //     { params: { orderID }, withCredentials: true }
-      //   )
-      //   .then((response) => {
-          // console.log(response.data);
-          const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
-          let allItems = this.props.orders.orderDetails[index].Orders;
-          let payload = {
-            cartDetails: allItems,
-          }
-
-          this.props.updateCartInfo(payload); // Removed orderDetails state
-          
-          this.setState({
-            popSeen: !this.state.popSeen,
-          });
-        // });
+      this.props.updateCartInfo(payload); // Removed orderDetails state
+      
+      this.setState({
+        popSeen: !this.state.popSeen,
+      });
     }
-
-    // console.log('fetching food details');
   };
 
   // new
@@ -142,31 +127,19 @@ class ordersList extends Component {
       }
       this.props.updateCustomerInfo(payload);
     } else {
-      // axios
-      //   .get(
-      //     serverUrl + 'restaurant/fetchCustomerDetails',
+      const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
+      let allItems = {
+        name: this.props.orders.orderDetails[index].CustomerName,
+        gender: this.props.orders.orderDetails[index].Gender,
+        yelpingsince: this.props.orders.orderDetails[index].YelpingSince,
+        contact: this.props.orders.orderDetails[index].Contact,
 
-      //     { params: { orderID }, withCredentials: true }
-      //   )
-      //   .then((response) => {
-      //     console.log(response.data);
-          const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
-          let allItems = {
-            name: this.props.orders.orderDetails[index].CustomerName,
-            gender: this.props.orders.orderDetails[index].Gender,
-            yelpingsince: this.props.orders.orderDetails[index].YelpingSince,
-            contact: this.props.orders.orderDetails[index].Contact,
-
-          };
-          let payload = {
-            customer: [allItems],
-            popSeen: !this.props.customerDetails.popSeen,
-          }
-          this.props.updateCustomerInfo(payload);
-          // this.setState({
-          //   popSeen1: !this.state.popSeen1,
-          // }); 
-          
+      };
+      let payload = {
+        customer: [allItems],
+        popSeen: !this.props.customerDetails.popSeen,
+      }
+      this.props.updateCustomerInfo(payload); 
     }
   };
 
@@ -177,26 +150,12 @@ class ordersList extends Component {
     let data = {
       deliveryStatus: newStatus,
       orderID,
-      //  token: cookie.load('cookie'),
-      // userrole: cookie.load('role'),
     };
     event.preventDefault();
     axios.post(serverUrl + 'restaurant/updateDeliveryStatus', data).then(
       (response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
-          // console.log(response.data);
-          // foodItem = { ...foodItem, DeliverStatusID: foodItem.tmpStatus };
-          // let ORDERS = [...this.props.orders.orderDetails];
-          // ORDERS.splice(index, 1);
-          // ORDERS.push(foodItem);
-          // if (Number(foodItem.tmpStatus) < 5) {
-          //   ORDERS.splice(index, 0, foodItem);
-          // }
-          // this.setState({
-          //   ORDERS,
-          // });
-         
           if(localStorage.getItem('orderSortBy') === 'All') {
             if(newStatus === "7") {
               if(this.props.orders.TotalCount % 4 === 1) {
@@ -219,11 +178,6 @@ class ordersList extends Component {
             }
           }
           this.fetchOrders(localStorage.getItem('orderSortBy'), this.props.orders.pageNo);
-          // let payload = {
-          //   orderDetails: ORDERS,
-          // };
-          // this.props.updateOrderInfo(payload);
-          // newFoodId = { ...newFoodId, ...this.state.newFood };
         }
       },
       (error) => {

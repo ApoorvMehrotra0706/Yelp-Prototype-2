@@ -18,6 +18,7 @@ const defaultState = {
         ImageURL: ' ',
         Website: '',
         Events: [],
+        FollowingIDs: [],
     },
   };
   

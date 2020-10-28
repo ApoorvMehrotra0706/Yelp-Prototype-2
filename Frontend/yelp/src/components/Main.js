@@ -19,6 +19,7 @@ import RestaurantList from '../components/Search/RestaurantList';
 import RestaurantPage from './RestProfileOrder/RestaurantPage';
 import OrderHistoryList from './OrderHistory/OrderHistoryList';
 import Events from './CustomerEvents/Events';
+import Users from './Users/Users';
 
 // import MenuMain from './Menu/MenuMain';
 // Create a Main Component
@@ -47,6 +48,7 @@ class Main extends Component {
         <Route path="/RestaurantPage" component={RestaurantPage} />
         <Route path="/orderHistory" component={OrderHistoryList} />
         <Route path="/customerEvents" component={Events} />
+        <Route path="/users" component={Users} />
       </div>
     );
   }

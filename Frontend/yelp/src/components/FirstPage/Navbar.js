@@ -80,6 +80,7 @@ class Navbar extends Component {
             Website: response.data.Website,
             ImageURL: response.data.ImageURL,
             Events: response.data.Events,
+            FollowingIDs: response.data.FollowingCustomerIDs,
           };
           this.props.updateCustomerProfile(payload);
           payload = {
@@ -248,6 +249,9 @@ class Navbar extends Component {
           </li>
           <li class={this.props.location.pathname === '/orderHistory' && 'active'}>
             <Link to="/orderHistory">Order History</Link>
+          </li>
+          <li class={this.props.location.pathname === '/users' && 'active'}>
+            <Link to="/users">Yelp Users</Link>
           </li>
         </ul>
       );

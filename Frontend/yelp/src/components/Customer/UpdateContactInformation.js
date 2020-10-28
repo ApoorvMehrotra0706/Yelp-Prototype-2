@@ -26,23 +26,7 @@ class UpdateContactInformation extends Component {
     };
   }
   componentWillMount() {
-    // console.log('inside Signup');
-    // axios
-    //   .get(serverUrl + 'customer/getContactInfo', {
-    //     withCredentials: true,
-    //   })
-    //   .then((response) => {
-    //     console.log(response.data);
-    //     const Profile = {
-    //       Email: response.data[0][0].EmailID,
-    //       NewEmail: response.data[0][0].EmailID,
-    //       ContactNo: response.data[0][0].Contact,
-    //       //   CountryCode: response.data[0][0].CountryCode,
-    //     };
-    //     this.setState({
-    //       Profile,
-    //     });
-    //   });
+    
   }
 
   onEmailChangeHandler = (e) => {
@@ -58,8 +42,6 @@ class UpdateContactInformation extends Component {
       });
     } else {
       this.setState({
-        // Profile: { ...this.state.Profile, ...{ ContactNo: e.target.value } },
-
         errors: { ...this.state.errors, ...{ contactError: '' } },
       });
       let payload = {
@@ -124,7 +106,7 @@ class UpdateContactInformation extends Component {
             const decoded = jwt_decode(localStorage.getItem('token').split(' ')[1]);
             localStorage.setItem('user_id', decoded._id);
             localStorage.setItem('username', decoded.username);
-            localStorage.setItem('role',decoded.role);
+            localStorage.setItem('role', decoded.role);
           }
           //updateRedirect = <Redirect to="/customerLogin" />;
           alert('Updated Successfully');
