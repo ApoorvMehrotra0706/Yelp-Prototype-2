@@ -105,7 +105,15 @@ class ordersList extends Component {
       });
     } else {
       const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
-      let allItems = this.props.orders.orderDetails[index].Orders;
+      let allItems = this.props.orders.orderDetails[index].Orders.map((order)=> {
+        return {
+          first: order.Dishname,
+          count: order.Quantity,
+          price: order.Price,
+          totalPrice: order.TotalPrice,
+        }
+
+      });
       let payload = {
         cartDetails: allItems,
       }

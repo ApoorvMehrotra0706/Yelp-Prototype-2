@@ -97,7 +97,6 @@ class Navbar extends Component {
 
   // handle logout to destroy the cookie
   handleLogout = () => {
-    localStorage.clear();
     const data = {
       token: localStorage.getItem('token'),
       role: localStorage.getItem('role'),
@@ -141,7 +140,7 @@ class Navbar extends Component {
           errorFlag: 1,
         });
       });
-    cookie.remove('cookie', { path: '/' });
+      localStorage.clear();
   };
   render() {
     // if Token is set render Logout Button

@@ -472,9 +472,8 @@ class Profile extends Component {
                   alt=""
                   class="photo-box-img"
                   src={
-                    // this.state.ImageUrl !== null && this.state.ImageUrl.length > 0
                     this.props.restaurantData.ImageUrl !== null
-                      ? this.state.ImageUrl
+                      ? this.props.restaurantData.ImageUrl
                       : defaultImage
                   }
                   // src="https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png"

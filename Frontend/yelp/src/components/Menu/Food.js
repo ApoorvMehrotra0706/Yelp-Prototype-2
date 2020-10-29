@@ -20,7 +20,7 @@ class Food extends Component {
       >
         <div data-ui="group">
           <form
-            onSubmit={this.props.onSave}
+            onSubmit={(e) => {this.props.onSave(e)}}
             class="yform signup-form  city-hidden"
             id="signup-form"
           >

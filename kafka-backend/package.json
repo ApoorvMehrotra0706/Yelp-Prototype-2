@@ -1,8 +1,8 @@
 {
-  "name": "backend",
+  "name": "kafka-backend",
   "version": "1.0.0",
-  "description": "Yel-prototype backend code handling",
-  "main": "index.js",
+  "description": "Yelp-prototype kafka backend code handling",
+  "main": "server.js",
   "scripts": {
     "test": "mocha"
   },

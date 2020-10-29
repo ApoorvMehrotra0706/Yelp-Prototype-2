@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 
 const session = require('express-session');
 
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const cors = require('cors');
 const restaurantRoutes = require('./routes/restRoutes');
 
@@ -19,9 +19,13 @@ const customerRoutes = require('./routes/custRoutes');
 
 const staticRoutes = require('./routes/staticRoutes');
 
-const { mongoDB, frontendURL } = require('./config');
+const { frontendURL } = require('./config');
 
 const app = express();
+
+const { auth } = require('./passport');
+
+auth();
 
 app.use(cors({ origin: frontendURL, credentials: true }));
 app.use(cookieParser());
@@ -50,22 +54,22 @@ app.use(function (req, res, next) {
   next();
 });
 
-const options = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  poolSize: 500,
-  bufferMaxEntries: 0,
-};
+// const options = {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   poolSize: 500,
+//   bufferMaxEntries: 0,
+// };
 
-// eslint-disable-next-line no-unused-vars
-mongoose.connect(mongoDB, options, (err, res) => {
-  if (err) {
-    console.log(err);
-    console.log('MongoDB connection failed');
-  } else {
-    console.log('MongoDB connected');
-  }
-});
+// // eslint-disable-next-line no-unused-vars
+// mongoose.connect(mongoDB, options, (err, res) => {
+//   if (err) {
+//     console.log(err);
+//     console.log('MongoDB connection failed');
+//   } else {
+//     console.log('MongoDB connected');
+//   }
+// });
 
 app.use('/restaurant', restaurantRoutes);
 

@@ -58,6 +58,7 @@ class RestaurantLeftReviewPart extends Component {
     });
   };
   submitReview = (event, review, rating) => {
+    event.preventDefault();
     const data = {
       RestaurantID: localStorage.getItem('restaurantPageID'),
       RestaurantName: this.props.restaurantProfile.Name,
@@ -66,6 +67,7 @@ class RestaurantLeftReviewPart extends Component {
       CustomerID: localStorage.getItem('user_id'),
       CustomerName: this.props.customerData.Name,
       ImageUrl: this.props.customerData.ImageURL,
+      Date: new Date(),
     };
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios.defaults.withCredentials = true;
@@ -79,12 +81,12 @@ class RestaurantLeftReviewPart extends Component {
             showFoodMenu: !this.state.showFoodMenu,
             //RegisteredCustomerList: [],
           });
-          alert('Submitted your review, re-visit the page to see it');
+          alert('Submitted your review');
           let totalRatings = Number(this.props.restaurantProfile.ReviewCounts) * this.props.restaurantProfile.AvgRating;
-          let avgRating = Math.round((totalRatings + this.props.customerReview.rating) / (Number(this.props.restaurantProfile.ReviewCounts) + 1));
+          let avgRating = Math.round((totalRatings + Number(this.props.customerReview.rating)) / (Number(this.props.restaurantProfile.ReviewCounts) + 1));
           let payload = {
             AvgRating: avgRating,
-            ReviewCounts: Number(this.props.restaurantProfile.ReviewCounts + 1),
+            ReviewCounts: Number(this.props.restaurantProfile.ReviewCounts) + 1,
           }
           this.props.updateRestaurantProfile(payload);
           payload = {
@@ -98,6 +100,10 @@ class RestaurantLeftReviewPart extends Component {
         console.log(error);
       }
     );
+    this.setState({
+      showReview: !this.state.showReview,
+      
+    });
   };
   render() {
     const rightPath = (

@@ -1053,7 +1053,8 @@ class FoodMenu extends Component {
   };
 
   // update old food item
-  updateFoodItem = (FoodId, menuCategory) => {
+  updateFoodItem = (event,FoodId, menuCategory) => {
+    event.preventDefault();
     let index = null;
     let foodItem = null;
     switch (this.state.showFoodCategory) {
@@ -1382,7 +1383,7 @@ class FoodMenu extends Component {
                         makeEditable={(ID) => this.makeEditable(ID)}
                         onDelete={this.deleteFoodItem}
                         onCancelUpdate={() => this.cancelFoodUpdate(food.ID)}
-                        onSave={() => this.updateFoodItem(food.ID)}
+                        onSave={(event) => this.updateFoodItem(event, food.ID)}
                         onNameChangeHandler={(evt, id) => this.onNameChangeHandlerUpdate(evt, id)}
                         onPriceChangeHandler={(evt, id) => this.onPriceChangeHandlerUpdate(evt, id)}
                         onCusineChangeHandler={(evt, id) =>

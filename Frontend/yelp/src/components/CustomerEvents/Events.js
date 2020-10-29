@@ -127,7 +127,7 @@ class Events extends Component {
       (response) => {
         console.log('Status Code : ', response.status);
         if (response.status === 200) {
-          const tmp = { ID: eventId };
+          const tmp = { EventID: eventId };
           let events = this.props.customerData.Events;
           events.push(tmp);
           let payload = {
@@ -155,7 +155,7 @@ class Events extends Component {
       this.getEventList(this.props.customerEvents.sortOrder, this.props.customerEvents.filter,
         e.selected);
     } else if(this.props.customerEvents.sortOrder === 'registered'){
-      this.getRegEventList('registered', this.props.customerEvents.filter, e.selected);
+      this.getEventList('registered', this.props.customerEvents.filter, e.selected);
     } else {
       this.getSearchedEventList(this.state.searchString,this.props.customerEvents.filter, e.selected);
     }

@@ -90,7 +90,7 @@ class EventList extends Component {
       .get(
         serverUrl + 'restaurant/fetchEvents',
 
-        { params: { RestaurantID: localStorage.getItem('user_id'), pageNo: '0' }, withCredentials: true }
+        { params: { RestaurantID: localStorage.getItem('user_id'), pageNo: '0', sortValue: 'upcoming' }, withCredentials: true }
       )
       .then((response) => {
         console.log(response.data);
@@ -149,7 +149,16 @@ class EventList extends Component {
         .then((response) => {
           console.log(response.data);
           
-          let allCustomer = response.data[0].RegisteredCustomers;
+          // let allCustomer = response.data[0].RegisteredCustomers;
+          let allCustomer = response.data[0].RegisteredCustomers.map((customer)=> {
+            return {
+              CustomerName: customer.CustomerName,
+              Gender: customer.Gender,
+              Contact: customer.Contact,
+              YelpingSince: customer.YelpingSince,
+            }
+    
+          });
           let payload = {
             regCustDetails: allCustomer,
             PageCount: response.data[1],
@@ -238,7 +247,7 @@ class EventList extends Component {
             hashtags: '',
           };
           this.props.updateNewEvents(payload);
-          this.getEventList(e,'upcoming',0);
+          this.getEventList(e);
         }
       },
       (error) => {
