@@ -6,6 +6,7 @@ import axios from 'axios';
 import serverUrl from '../../config';
 import NewEventForm from './NewEventForm';
 import RegisteredCustomers from './RegisteredCustomers';
+import CustomerProfile from '../Orders/CustomerProfile';
 import { updateSnackbarData } from '../../reducer/action-types';
 import { connect } from 'react-redux';
 import RegCustomerDetails from './RegCustomerDetails';
@@ -96,7 +97,7 @@ class EventList extends Component {
         console.log(response.data);
         let allEvents = response.data[0].map((event) => {
           return {
-            ID: event.EventID,
+            ID: event._id,
             Name: event.EventName,
             RestaurantName: event.RestaurantName,
             RestaurantID: event.RestaurantID,
@@ -128,7 +129,7 @@ class EventList extends Component {
 
   openRegisteredCustomers = (eventID,pageNo = '0') => {
     let popSeen = this.state.popSeen;
-    if(pageNo !== 0) {
+    if(pageNo !== '0') {
       popSeen = false;
       this.setState({
         popSeen: popSeen,
@@ -152,6 +153,8 @@ class EventList extends Component {
           // let allCustomer = response.data[0].RegisteredCustomers;
           let allCustomer = response.data[0].RegisteredCustomers.map((customer)=> {
             return {
+              CustomerID: customer.CustomerID,
+              Email: customer.Email,
               CustomerName: customer.CustomerName,
               Gender: customer.Gender,
               Contact: customer.Contact,
@@ -168,12 +171,14 @@ class EventList extends Component {
 
           this.props.updateRegCustData(payload);
           
-          this.setState({
-            popSeen: !this.state.popSeen,
-          });
+          // this.setState({
+          //   popSeen: !this.state.popSeen,
+          // });
         });
     }
-
+    this.setState({
+      popSeen: !this.state.popSeen,
+    });
     console.log('fetching customer details');
   };
 
@@ -266,7 +271,6 @@ class EventList extends Component {
     } else {
           const index = this.props.regCust.regCustDetails.findIndex((x) => x.CustomerID === CustomerID);
           let allItems = this.props.regCust.regCustDetails[index];
-          
           delete allItems.CustomerID;
           delete allItems.Email;
           let payload = {
@@ -274,6 +278,10 @@ class EventList extends Component {
           };
 
           this.props.updateRegCustData(payload);
+          payload = {
+            customer: CustomerID,
+          };
+          this.props.updateCustomerDetails(payload);
           this.setState({
             
             popSeen1: !this.state.popSeen1,
@@ -325,8 +333,8 @@ class EventList extends Component {
           />
         ) : null}
         {this.state.popSeen1 ? (
-          <RegCustomerDetails
-            customerDetails={this.props.regCust.CustDetails}
+          <CustomerProfile
+            // customerDetails={this.props.regCust.CustDetails}
             toggle={this.fetchCustomerProfile}
           />
         ) : null}
@@ -416,6 +424,12 @@ const mapDispatchToProps = (dispatch) => {
     updateNewEvents: (payload) => {
       dispatch({
         type: 'update-new-event',
+        payload,
+      });
+    },
+    updateCustomerDetails: (payload) => {
+      dispatch({
+        type: 'update-customer-details',
         payload,
       });
     },

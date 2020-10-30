@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Order from './Order';
 import OrderDetails from './OrderDetails';
 import CustomerDetails from './CustomerDetails';
+import CustomerProfile from './CustomerProfile';
 import './Orders.css';
 import axios from 'axios';
 import serverUrl from '../../config';
@@ -127,7 +128,7 @@ class ordersList extends Component {
   };
 
   // new
-  openCustomerDetails = (event,orderID) => {
+  openCustomerDetails = (event,orderID = 0) => {
     // event.preventDefault();
     if (this.props.customerDetails.popSeen) {
       let payload = {
@@ -135,16 +136,18 @@ class ordersList extends Component {
       }
       this.props.updateCustomerInfo(payload);
     } else {
-      const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
-      let allItems = {
-        name: this.props.orders.orderDetails[index].CustomerName,
-        gender: this.props.orders.orderDetails[index].Gender,
-        yelpingsince: this.props.orders.orderDetails[index].YelpingSince,
-        contact: this.props.orders.orderDetails[index].Contact,
+      // const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
+      // let allItems = {
+      //   name: this.props.orders.orderDetails[index].CustomerName,
+      //   gender: this.props.orders.orderDetails[index].Gender,
+      //   yelpingsince: this.props.orders.orderDetails[index].YelpingSince,
+      //   contact: this.props.orders.orderDetails[index].Contact,
 
-      };
+      // };
+      const index = this.props.orders.orderDetails.findIndex((x) => x.ID === orderID);
+
       let payload = {
-        customer: [allItems],
+        customer: this.props.orders.orderDetails[index].CustomerId,
         popSeen: !this.props.customerDetails.popSeen,
       }
       this.props.updateCustomerInfo(payload); 
@@ -270,8 +273,8 @@ class ordersList extends Component {
         </div>
 
         {this.props.customerDetails.popSeen ? (
-          <CustomerDetails
-            customerDetails={this.props.customerDetails.customer}
+          <CustomerProfile
+            // customerDetails={this.props.customerDetails.customer}
             toggle={(e) => {this.openCustomerDetails(e)}}
           />
         ) : null}

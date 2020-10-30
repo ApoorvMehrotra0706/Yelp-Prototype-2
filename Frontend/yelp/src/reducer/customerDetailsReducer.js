@@ -1,6 +1,6 @@
 const defaultState = {
     customerDetails: {
-      customer: [],
+      customer: '',
       popSeen: false,
     },
   };

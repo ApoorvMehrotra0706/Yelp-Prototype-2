@@ -1,22 +1,25 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router';
-import './AboutMe.css';
+import '../Customer/AboutMe.css';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import serverUrl from '../../config';
 import moment from 'moment';
+import { MDBTable, MDBTableBody, MDBTableHead } from 'mdbreact';
 
-class AboutMe extends Component {
+
+class CustomerProfile extends Component {
   constructor(props) {
     super(props);
   }
   componentDidMount() {
+    let CustomerID = this.props.customerDetails.customer;
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
         .get(
           serverUrl + 'customer/getCustomerCompleteProfile',
 
-          { params: { CustomerID: localStorage.getItem('user_id') }, withCredentials: true }
+          { params: { CustomerID }, withCredentials: true }
         )
         .then((response) => {
           console.log(response.data);
@@ -56,31 +59,33 @@ class AboutMe extends Component {
           console.log(er)
         });
   }
+
+  handleClick = (e) => {
+    this.props.toggle(e);
+  };
+
   render() {
     const defaultImage =
       'https://s3-media0.fl.yelpcdn.com/assets/srv0/yelp_styleguide/bf5ff8a79310/assets/img/default_avatars/user_medium_square.png';
 
-    let redirectVar = null;
-    if (!localStorage.getItem('token')) {
-      console.log('Token not found');
-      redirectVar = <Redirect to="/customerLogin" />;
-    } else {
-      if (localStorage.getItem('role') === 'Customer') {
-        redirectVar = null;
-      } else if (localStorage.getItem('role') === 'Restaurant') {
-        redirectVar = <Redirect to="/restaurantProfile" />;
-      } else {
-        redirectVar = <Redirect to="/customerLogin" />;
-      }
-    }
+    
     return (
       <div style={{ background: 'white' }}>
-        {redirectVar}
+        {/* {redirectVar} */}
         <span id="page-content" class="offscreen">
           &nbsp;
         </span>
         <div className="main-content-wrap main-content-wrap--full"></div>
-        <div
+          <div className="modal" style={{ top: '0', left: '0', width: '100%', height: '100%' }}>
+            <div
+              className="modal_content"
+              style={{ top: '10%', left: '20%', width: '60%', height: '70%' }}
+            >
+            <span className="close" onClick={this.handleClick}>
+            &times;{' '}
+          </span>
+          <MDBTable scrollY maxHeight="100%" striped></MDBTable>
+             <div
           className="super-container"
           style={{
             paddingTop: '15px',
@@ -91,7 +96,7 @@ class AboutMe extends Component {
           }}
         >
           <div
-            style={{ marginTop: '40px' }}
+            style={{ marginTop: '0px' }}
             className="clearfix layout-block layout-n user-details_container"
           >
             <div className="column column-beta ">
@@ -146,13 +151,8 @@ class AboutMe extends Component {
                         {(this.props.customerData.DOB != null && this.props.customerData.DOB.length) > 0 ? (
                           <p>{this.props.customerData.DOB}</p>
                         ) : (
-                          <p>Tell us to avail Birthday offers!</p>
+                          <p>Yey to say</p>
                         )}
-                      </li>
-
-                      <li>
-                        <h4>Yelping Since</h4>
-                        <p>{this.props.customerData.YelpingSince}</p>
                       </li>
 
                       <li>
@@ -160,25 +160,20 @@ class AboutMe extends Component {
                         {this.props.customerData.ILove != null && this.props.customerData.ILove.length > 0 ? (
                           <p>{this.props.customerData.ILove}</p>
                         ) : (
-                          <p>We love to hear about your love</p>
+                          <p>Yet to share</p>
                         )}
                       </li>
 
                       <li>
-                        <h4>Find Me In</h4>
-                        {this.props.customerData.Find_Me_In != null && this.props.customerData.Find_Me_In.length > 0 ? (
-                          <p>{this.props.customerData.Find_Me_In}</p>
-                        ) : (
-                          <p>Common, tell us</p>
-                        )}
-                      </li>
-                      <li>
-                        <h4>Follow My Website/Blog</h4>
-                        {this.props.customerData.Website != null && this.props.customerData.Website.length > 0 ? (
-                          <p>{this.props.customerData.Website}</p>
-                        ) : (
-                          <p>We would love to follow you, tell us</p>
-                        )}
+                        <button
+                            style={{ marginTop: '14px' }}
+                            onClick={(event) => this.getSearchedYelpUserList(
+                                                                this.state.searchString, 
+                                                                this.state.searchCriteria,
+                                                              )}
+                          >
+                            Message
+                          </button>
                       </li>
                     </ul>
                   </div>
@@ -187,35 +182,47 @@ class AboutMe extends Component {
             </div>
           </div>
         </div>
+        
+            </div>
+        </div>
       </div>
     );
   }
 }
 
+
 // export default AboutMe;
 const mapStateToProps = (state) => {
-  const { customerInfo } = state.customer;
-  const { customerData } = state.customerProfileReducer
-  return {
-    customerInfo: customerInfo,
-    customerData: customerData,
+    const { customerInfo } = state.customer;
+    const { customerData } = state.customerProfileReducer;
+    const { customerDetails } = state.customerDetailsReducer;
+    return {
+      customerInfo: customerInfo,
+      customerData: customerData,
+      customerDetails: customerDetails,
+    };
   };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateCustomerProfile: (payload) => {
-      dispatch({
-        type: 'update-customer-profile',
-        payload,
-      });
-    },
-    updateCustomerContactInfo: (payload) => {
-      dispatch({
-        type: 'customer-contact-info',
-        payload,
-      });
-    },
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      updateCustomerProfile: (payload) => {
+        dispatch({
+          type: 'update-customer-profile',
+          payload,
+        });
+      },
+      updateCustomerContactInfo: (payload) => {
+        dispatch({
+          type: 'customer-contact-info',
+          payload,
+        });
+      },
+      updateCustomerDetails: (payload) => {
+        dispatch({
+          type: 'update-customer-details',
+          payload,
+        });
+      },
+    };
   };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(AboutMe);
+  export default connect(mapStateToProps, mapDispatchToProps)(CustomerProfile);;

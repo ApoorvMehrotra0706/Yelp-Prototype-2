@@ -1,7 +1,7 @@
-/* eslint-disable no-use-before-define */
 /* eslint-disable func-names */
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
+/* eslint-disable no-use-before-define */
 const crypto = require('crypto');
 const conn = require('./connection');
 

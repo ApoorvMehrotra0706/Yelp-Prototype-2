@@ -135,7 +135,7 @@ class Events extends Component {
           }
           this.props.updateCustomerProfile(payload);
           alert('Registration Successful');
-          this.getEventList(-1,0);
+          this.getEventList('upcoming',-1,this.props.customerEvents.PageNo);
         }
       },
       (error) => {

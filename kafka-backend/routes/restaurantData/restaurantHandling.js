@@ -591,19 +591,26 @@ async function handle_request(msg, callback) {
       const { eventID, pageNo } = url.parse(msg.url, true).query;
       const results = [];
       let res = {};
-      const result = await Events.findOne(
-        { _id: eventID },
-        { RegisteredCustomers: { $slice: [pageNo * 4, 4] } }
-      );
+      try {
+        const result = await Events.findOne(
+          { _id: eventID },
+          { RegisteredCustomers: { $slice: [pageNo * 4, 4] } }
+        );
+          
+        const count = (await Events.findOne({ _id: eventID })).RegisteredCustomers.length;
+        const noOfPages = Math.ceil(count / 4);
+        results.push(result);
+        results.push(noOfPages);
+        results.push(count);
+        res.status = 200;
+        res.end = JSON.stringify(results);
+        callback(null, res);
+      } catch (error) {
+        res.status = 400;
+        res.end = 'No customers found';
+        callback(null, res);
+      }
 
-      const count = (await Events.findOne({ _id: eventID })).RegisteredCustomers.length;
-      const noOfPages = Math.ceil(count / 4);
-      results.push(result);
-      results.push(noOfPages);
-      results.push(count);
-      res.status = 200;
-      res.end = JSON.stringify(results);
-      callback(null, res);
       break;
     }
     default:
@@ -613,25 +620,5 @@ async function handle_request(msg, callback) {
 
 exports.handle_request = handle_request;
 
-// module.exports = {
-//   signupRestaurant,
-//   loginRestaurant,
-//   restaurantLogout,
-//   restaurantProfile,
-//   uploadRestaurantProfilePic,
-//   updateRestaurantProfile,
-//   cuisineFetch,
-//   foodImageUpload,
-//   menuInsert,
-//   menuFetch,
-//   menuDelete,
-//   updateMenu,
-//   fetchReview,
-//   fetchOrderandDetails,
-//   updateDeliveryStatus,
-//   fetchEvents,
-//   createNewEvent,
-//   fetchRegisteredCustomers,
-// };
 
-exports.handle_request = handle_request;
+// exports.handle_request = handle_request;
