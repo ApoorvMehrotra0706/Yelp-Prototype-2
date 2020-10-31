@@ -25,6 +25,7 @@ import foodOrderMenuReducer from './foodOrderMenuReducer';
 import orderHistoryReduer from './orderHistoryReducer';
 import customerEventsReducer from './customerEventsReducer';
 import yelpUsersReducer from './yelpUsersReducer';
+import firstMessageReducer from './firstMessageReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -53,6 +54,7 @@ const combReducer = combineReducers({
   orderHistoryReducer: orderHistoryReduer,
   customerEventsReducer: customerEventsReducer,
   yelpUsersReducer: yelpUsersReducer,
+  firstMessageReducer: firstMessageReducer,
 });
 
 export default combReducer;

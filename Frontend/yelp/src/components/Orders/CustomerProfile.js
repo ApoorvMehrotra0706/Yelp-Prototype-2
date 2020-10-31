@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router';
+import Message from '../Events/Message';
 import '../Customer/AboutMe.css';
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -11,6 +11,9 @@ import { MDBTable, MDBTableBody, MDBTableHead } from 'mdbreact';
 class CustomerProfile extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      showMessageBox: false,
+    };
   }
   componentDidMount() {
     let CustomerID = this.props.customerDetails.customer;
@@ -63,6 +66,50 @@ class CustomerProfile extends Component {
   handleClick = (e) => {
     this.props.toggle(e);
   };
+
+  sendMessage = (e) => {
+    this.setState({
+      showMessageBox: !this.state.showMessageBox,
+    });
+  }
+
+  submitMessage = (e) => {
+    console.log("Submitting message");
+    const Messages = {
+      Date: new Date(),
+      Name: localStorage.getItem('Name'),
+      Message: this.props.firstMessage.message ,
+    }
+    const data = {
+      CustomerID: this.props.firstMessage.CustomerID,
+      RestaurantID: this.props.firstMessage.RestaurantID,
+      CustomerName: this.props.customerData.Name,
+      RestaurantName: localStorage.getItem('Name'),
+      Messages: Messages,
+      CustomerImg: this.props.customerData.ImageURL,
+      RestaurantImg: localStorage.getItem('Image'), 
+    };
+    axios.defaults.withCredentials = true;
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    //make a post request with the user data
+    axios.post(serverUrl + 'restaurant/sendMessage', data).then(
+      (response) => {
+        console.log('Status Code : ', response.status);
+        if (response.status === 200) {
+          console.log(response.data);
+          let payload = {
+            message: '',
+            RestaurantID: '',
+            CustomerID: '',
+          };
+          this.props.updateRestMessage(payload);
+        }
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
 
   render() {
     const defaultImage =
@@ -167,15 +214,20 @@ class CustomerProfile extends Component {
                       <li>
                         <button
                             style={{ marginTop: '14px' }}
-                            onClick={(event) => this.getSearchedYelpUserList(
-                                                                this.state.searchString, 
-                                                                this.state.searchCriteria,
-                                                              )}
+                            onClick={(event) => this.sendMessage(event)}                                        
                           >
                             Message
                           </button>
                       </li>
                     </ul>
+                    {this.state.showMessageBox ? (
+                    <Message
+                      // customerDetails={this.props.regCust.CustDetails}
+                      CustomerID={this.props.customerDetails.customer}
+                      toggle={this.sendMessage}
+                      submitMessage= {(e)=> {this.submitMessage(e)}}
+                    />
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -196,10 +248,12 @@ const mapStateToProps = (state) => {
     const { customerInfo } = state.customer;
     const { customerData } = state.customerProfileReducer;
     const { customerDetails } = state.customerDetailsReducer;
+    const { firstMessage } = state.firstMessageReducer;
     return {
       customerInfo: customerInfo,
       customerData: customerData,
       customerDetails: customerDetails,
+      firstMessage: firstMessage,
     };
   };
   
@@ -220,6 +274,12 @@ const mapStateToProps = (state) => {
       updateCustomerDetails: (payload) => {
         dispatch({
           type: 'update-customer-details',
+          payload,
+        });
+      },
+      updateRestMessage: (payload) => {
+        dispatch({
+          type: 'update-message',
           payload,
         });
       },

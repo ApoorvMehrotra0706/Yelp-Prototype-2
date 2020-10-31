@@ -12,7 +12,6 @@ const Login = require('../models/LoginModel');
 const Restaurant = require('../models/RestaurantModel');
 const { secret } = require('../../config');
 const { auth } = require('../../../Backend/passport');
-// const FoodMenu = require('../models/FoodMenuOrder');
 const Cuisine = require('../models/CuisineModel');
 const Appetizer = require('../models/Appetizer');
 const Beverage = require('../models/Beverages');
@@ -22,6 +21,7 @@ const Desserts = require('../models/Desserts');
 const Review = require('../models/ReviewsModel');
 const Order = require('../models/OrdersModel');
 const Events = require('../models/EventsModel');
+const Messages = require('../models/MessagesModel');
 
 auth();
 
@@ -612,6 +612,53 @@ async function handle_request(msg, callback) {
       }
 
       break;
+    }
+    case 'sendMessage': {
+      let res = {};
+      const RestaurantImg = null;
+      const result = await Messages.findOne(
+        { RestaurantID: msg.body.RestaurantID, CustomerID: msg.body.CustomerID }, (error, result) => {
+          if (error) {
+            res.status = 500;
+            res.end = 'Network error';
+            callback(null, res);
+          } 
+          if(result) {
+            Messages.updateOne(
+              { RestaurantID: msg.body.RestaurantID, CustomerID: msg.body.CustomerID },
+              { $push: { Messages: msg.body.Messages } },
+              // eslint-disable-next-line no-unused-vars
+              (er1, data2) => {
+                if (er1) {
+                  res.status = 500;
+                  res.end = 'Network Error';
+                  callback(null, res);es.end();
+                } else {
+                  res.status = 200;
+                  res.end = 'Updated the message';
+                  callback(null, res);
+                }
+              }
+            );
+          } else {
+            const messages = new Messages({
+              ...msg.body,
+            });
+            // eslint-disable-next-line no-unused-vars
+            messages.save((e, data) => {
+              if (e) {
+                res.status = 500;
+                res.end = 'Network Error';
+                callback(null, res);
+              } else {
+                res.status = 200;
+                res.end = 'New event created';
+                callback(null, res);
+              }
+            });
+          }
+        });           
+      break
     }
     default:
       break;

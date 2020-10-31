@@ -8,13 +8,19 @@ const messagesSchema = new Schema(
     RestaurantName: { type: String, required: true },
     CustomerID: { type: String, required: true },
     CustomerName: { type: String, required: true },
-    Messages: { type: String, required: true },
-    Date: { type: Date, required: true },
+    RestaurantImg: { type: String },
+    CustomerImg: { type: String },
+    Messages: [
+        { Date: { type: Date },
+          Name: { type: String },
+          Message: { type: String },
+        },
+    ],
   },
   {
     versionKey: false,
   }
 );
 
-const messagesModel = mongoose.model('login', messagesSchema);
+const messagesModel = mongoose.model('message', messagesSchema);
 module.exports = messagesModel;

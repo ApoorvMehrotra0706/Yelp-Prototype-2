@@ -54,6 +54,8 @@ class Profile extends Component {
     ).then(
       (response) => {
         if (response.status === 200) {
+          localStorage.setItem('Name', response.data.name);
+          localStorage.setItem('Image', response.data.ImageURL);
           let payload = {
             Name: response.data.name,
             Email: response.data.emailID,
@@ -399,6 +401,8 @@ class Profile extends Component {
         (response) => {
           console.log('Status Code : ', response.status);
           if (response.status === 200) {
+            localStorage.setItem('Name', this.props.restaurantData.Name);
+            localStorage.setItem('Image', this.props.restaurantData.ImageURL);
             console.log('Profile Updated');
             this.setState({
               isFormDisable: true,

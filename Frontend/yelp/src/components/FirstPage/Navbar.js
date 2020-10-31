@@ -226,6 +226,9 @@ class Navbar extends Component {
           <li class={this.props.location.pathname === '/restaurantEvents' && 'active'}>
             <Link to="/restaurantEvents">Events</Link>
           </li>
+          <li class={this.props.location.pathname === '/restaurantEvents' && 'active'}>
+            <Link to="/restaurantEvents">Message</Link>
+          </li>
         </ul>
       );
     } else if (localStorage.getItem('token') && localStorage.getItem('role') === 'Customer') {
@@ -251,6 +254,9 @@ class Navbar extends Component {
           </li>
           <li class={this.props.location.pathname === '/users' && 'active'}>
             <Link to="/users">Yelp Users</Link>
+          </li>
+          <li class={this.props.location.pathname === '/users' && 'active'}>
+            <Link to="/users">Message</Link>
           </li>
         </ul>
       );
