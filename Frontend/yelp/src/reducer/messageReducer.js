@@ -1,19 +1,20 @@
 const defaultState = {
     MessageContent: {
-      CustomerID: '',
-      CustomerName: '',
-      CustomerImg: '',
-      RestaurantImg: '',
       Message: [],
+      NoOfPages: '',
+      TotalCount: '',
+      PageNo: '',
+      MessageBody: [],
+      category: 'Messages',
     },
   };
   
-  const firstMessageReducer = (state = defaultState, action) => {
+  const messageReducer = (state = defaultState, action) => {
     switch (action.type) {
-      case 'update-message': {
+      case 'update-message-flow': {
         return {
           ...state,
-          firstMessage: { ...state.firstMessage, ...action.payload },
+          MessageContent: { ...state.MessageContent, ...action.payload },
         };
       }
       default: {
@@ -22,5 +23,5 @@ const defaultState = {
     }
   };
   
-  export default firstMessageReducer;
+  export default messageReducer;
   

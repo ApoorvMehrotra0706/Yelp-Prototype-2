@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-class WriteAReview extends Component {
+class Message extends Component {
   constructor(props) {
     super(props);
   }
@@ -81,4 +81,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(WriteAReview);
+export default connect(mapStateToProps, mapDispatchToProps)(Message);

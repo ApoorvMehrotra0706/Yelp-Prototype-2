@@ -26,6 +26,8 @@ import orderHistoryReduer from './orderHistoryReducer';
 import customerEventsReducer from './customerEventsReducer';
 import yelpUsersReducer from './yelpUsersReducer';
 import firstMessageReducer from './firstMessageReducer';
+import messageReducer from './messageReducer';
+import messageReplyReducer from './messageReplyReducer';
 
 const combReducer = combineReducers({
   signup: signupReducer,
@@ -55,6 +57,8 @@ const combReducer = combineReducers({
   customerEventsReducer: customerEventsReducer,
   yelpUsersReducer: yelpUsersReducer,
   firstMessageReducer: firstMessageReducer,
+  messageReducer: messageReducer,
+  messageReplyReducer: messageReplyReducer,
 });
 
 export default combReducer;

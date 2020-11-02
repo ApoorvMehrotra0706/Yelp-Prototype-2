@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-class EventForCustomer extends Component {
+class UserDisplay extends Component {
   constructor(props) {
     super(props);
     this.state = { DeliveryStatuses: [] };
@@ -100,4 +100,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, null)(EventForCustomer);
+export default connect(mapStateToProps, null)(UserDisplay);

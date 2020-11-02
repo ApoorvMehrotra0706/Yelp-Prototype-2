@@ -1,4 +1,5 @@
 import Review from './Review';
+import CustomerProfile from '../Orders/CustomerProfile';
 import React, { Component } from 'react';
 import axios from 'axios';
 import serverUrl from '../../config';
@@ -17,60 +18,83 @@ class ReviewList extends Component {
   componentDidMount() {
     console.log('inside Reviews');
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
-    axios.get(serverUrl + 'restaurant/fetchReview', 
-    {  params: { RestaurantID: localStorage.getItem('user_id'), pageNo: this.state.pageNo }, withCredentials: true }).then((response) => {
-      console.log('Review  Fetched', response.data);
-      let allReviews = response.data[0].map((Review) => {
-        return {
-          ID: Review._id,
-          Rating: Review.Ratings,
-          Date: new Date(Review.Date),
-          Description: Review.Review,
-          CustomerId: Review.CustomerID,
-          CustomerName: Review.CustomerName,
-          ImageUrl: Review.ImageUrl,
+    axios
+      .get(serverUrl + 'restaurant/fetchReview', {
+        params: { RestaurantID: localStorage.getItem('user_id'), pageNo: this.state.pageNo },
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log('Review  Fetched', response.data);
+        let allReviews = response.data[0].map((Review) => {
+          return {
+            ID: Review._id,
+            Rating: Review.Ratings,
+            Date: new Date(Review.Date),
+            Description: Review.Review,
+            CustomerId: Review.CustomerID,
+            CustomerName: Review.CustomerName,
+            ImageUrl: Review.ImageUrl,
+          };
+        });
 
+        // this.setState({
+        //   REVIEWS: this.state.REVIEWS.concat(allReviews),
+        // });
+        let payload = {
+          reviews: allReviews,
+          PageCount: response.data[1],
         };
+        this.props.updateReviews(payload);
       });
-
-      // this.setState({
-      //   REVIEWS: this.state.REVIEWS.concat(allReviews),
-      // });
-      let payload = {
-        reviews: allReviews,
-        PageCount: response.data[1]
-      };
-      this.props.updateReviews(payload);
-    });
   }
 
   handlePageClick = (e) => {
     this.setState({
       pageNo: e.selected,
-    })
-    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
-    axios.get(serverUrl + 'restaurant/fetchReview', 
-    {  params: { RestaurantID: localStorage.getItem('user_id'), pageNo: e.selected }, withCredentials: true }).then((response) => {
-      console.log('Review  Fetched', response.data);
-      let allReviews = response.data[0].map((Review) => {
-        return {
-          ID: Review._id,
-          Rating: Review.Ratings,
-          Date: new Date(Review.Date),
-          Description: Review.Review,
-          CustomerId: Review.CustomerID,
-          CustomerName: Review.CustomerName,
-          ImageUrl: Review.ImageUrl,
-        };
-      });
-      let payload = {
-        reviews: allReviews,
-        PageCount: response.data[1]
-      };
-      this.props.updateReviews(payload);
     });
+    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
+    axios
+      .get(serverUrl + 'restaurant/fetchReview', {
+        params: { RestaurantID: localStorage.getItem('user_id'), pageNo: e.selected },
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log('Review  Fetched', response.data);
+        let allReviews = response.data[0].map((Review) => {
+          return {
+            ID: Review._id,
+            Rating: Review.Ratings,
+            Date: new Date(Review.Date),
+            Description: Review.Review,
+            CustomerId: Review.CustomerID,
+            CustomerName: Review.CustomerName,
+            ImageUrl: Review.ImageUrl,
+          };
+        });
+        let payload = {
+          reviews: allReviews,
+          PageCount: response.data[1],
+        };
+        this.props.updateReviews(payload);
+      });
+  };
 
-  }
+  openCustomerDetails = (event, reviewID = 0) => {
+    // event.preventDefault();
+    if (this.props.customerDetails.popSeen) {
+      let payload = {
+        popSeen: !this.props.customerDetails.popSeen,
+      };
+      this.props.updateCustomerInfo(payload);
+    } else {
+      const index = this.props.review.reviews.findIndex((x) => x.ID === reviewID);
+      let payload = {
+        customer: this.props.review.reviews[index].CustomerId,
+        popSeen: !this.props.customerDetails.popSeen,
+      };
+      this.props.updateCustomerInfo(payload);
+    }
+  };
   render() {
     return (
       <div>
@@ -78,24 +102,33 @@ class ReviewList extends Component {
           {this.props.review.reviews.map((review) => (
             <Review
               review={review}
-
+              openCustomerDetails={(e) => this.openCustomerDetails(e, review.ID)}
               //   }
             />
           ))}
         </ul>
         <ReactPaginate
-            previousLabel={'prev'}
-            nextLabel={'next'}
-            breakLabel={'...'}
-            breakClassName={'break-me'}
-            pageCount={this.props.review.PageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={2}
-            onPageChange={this.handlePageClick}
-            containerClassName={'pagination'}
-            subContainerClassName={'pages pagination'}
-            activeClassName={'active'}
-          />
+          previousLabel={'prev'}
+          nextLabel={'next'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={this.props.review.PageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={2}
+          onPageChange={this.handlePageClick}
+          containerClassName={'pagination'}
+          subContainerClassName={'pages pagination'}
+          activeClassName={'active'}
+        />
+        <div>
+          {this.props.customerDetails.popSeen ? (
+            <CustomerProfile
+              toggle={(e) => {
+                this.openCustomerDetails(e);
+              }}
+            />
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -109,15 +142,22 @@ const mapDispatchToProps = (dispatch) => {
         payload,
       });
     },
+    updateCustomerInfo: (payload) => {
+      dispatch({
+        type: 'update-customer-details',
+        payload,
+      });
+    },
   };
 };
 
 const mapStateToProps = (state) => {
   const { review } = state.reviewReducer;
-  return { 
+  const { customerDetails } = state.customerDetailsReducer;
+  return {
     review: review,
-   };
+    customerDetails: customerDetails,
+  };
 };
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(ReviewList);

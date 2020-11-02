@@ -482,4 +482,25 @@ Router.post('/sendMessage', checkAuth, async (req, res) => {
   });
 });
 
+// Fetching messages
+Router.get('/fetchMessages', checkAuth, async (req, res) => {
+  const data = {
+    api: 'fetchMessages',
+    url: req.url,
+  };
+  kafka.make_request('restRoutes', data, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      console.log('Inside err');
+      res.status(500);
+      res.end('Network Error');
+    } else {
+      console.log('Inside else');
+      res.status(results.status);
+      res.end(results.end);
+    }
+  });
+});
+
 module.exports = Router;

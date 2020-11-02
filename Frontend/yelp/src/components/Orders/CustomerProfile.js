@@ -74,18 +74,25 @@ class CustomerProfile extends Component {
   }
 
   submitMessage = (e) => {
+    e.preventDefault();
+    this.setState({
+      showMessageBox: !this.state.showMessageBox,
+    });
     console.log("Submitting message");
     const Messages = {
       Date: new Date(),
       Name: localStorage.getItem('Name'),
-      Message: this.props.firstMessage.message ,
-    }
+      Message: this.props.firstMessage.message,
+      CustomerID: this.props.firstMessage.CustomerID,
+      RestaurantID: this.props.firstMessage.RestaurantID,
+    };
     const data = {
       CustomerID: this.props.firstMessage.CustomerID,
       RestaurantID: this.props.firstMessage.RestaurantID,
       CustomerName: this.props.customerData.Name,
       RestaurantName: localStorage.getItem('Name'),
       Messages: Messages,
+      Date: new Date(),
       CustomerImg: this.props.customerData.ImageURL,
       RestaurantImg: localStorage.getItem('Image'), 
     };

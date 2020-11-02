@@ -1,60 +1,85 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router';
-import UserDisplay from './UserDisplay';
-import CustomerDetails from './CustomerDetails';
+import MessageDisplay from './MessageDisplay';
+import MessageContent from './MessageContent';
 import axios from 'axios';
 import serverUrl from '../../config';
 import { connect } from 'react-redux';
 import ReactPaginate from 'react-paginate';
+// import WallTime from 'walltime-js';
 
-class Users extends Component {
+class MessageList extends Component {
   constructor(props) {
     super(props);
     this.state = { 
       followedCustomerIDs: [], 
-      searchString: '',
+      userID: '',
       popSeen: false,
       searchCriteria: '',
     };
   }
   componentDidMount() {
-    const category = 'All';
-    let payload = {
-      category, 
-    };
-    this.props.updateYelpUsers(payload);
-    
-    this.getYelpUserList(category);
-     
+         this.getMessages();
   }
 
-  getYelpUserList = async (category, pageNo = 0) => {
-    
+  getMessages = async ( pageNo = 0) => { 
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
-    axios
-      .get(
-        serverUrl + 'restaurant/fetchMessages',
-        { params: { RestaurantID: localStorage.getItem('user_id'), pageNo }, withCredentials: true }
-        )
-        .then((response) => {
-          console.log(response.data);
-          let allMessages = response.data[0].map((message) => {
-            return {
-              CustomerID: message.CustomerID,
-              CustomerName: user.name,
-              CustomerImg: user.CustomerImg,
-              RestaurantImg: user.RestaurantImg,
-              Message: user.Message,
-            };
-          });
-          let payload = {
-            yelpCustomers: allUsers,
-            PageCount: response.data[1],
-            TotalCount: response.data[2],
-          }
-          this.props.updateYelpUsers(payload);
-      });
+    if (localStorage.getItem('role') === 'Restaurant') {
+      axios
+        .get(
+          serverUrl + 'restaurant/fetchMessages',
+          { params: { RestaurantID: localStorage.getItem('user_id'), pageNo }, withCredentials: true }
+          )
+          .then((response) => {
+            console.log(response.data);
+            let allMessages = response.data[0].map((message) => {
+              return {
+                CustomerID: message.CustomerID,
+                CustomerName: message.CustomerName,
+                Image: message.CustomerImg,
+                RestaurantID: message.RestaurantID,
+                RestaurantName: message.RestaurantName,
+                Date: message.Date,
+                Message: message.Messages,
+              };
+            });
+            let payload = {
+              Message: allMessages,
+              NoOfPages: response.data[1],
+              TotalCount: response.data[2],
+              PageNo: pageNo,
+            }
+            this.props.updateMessages(payload);
+        });
+      } else {
+        axios
+        .get(
+          serverUrl + 'customer/fetchMessages',
+          { params: { CustomerID: localStorage.getItem('user_id'), pageNo }, withCredentials: true }
+          )
+          .then((response) => {
+            console.log(response.data);
+            let allMessages = response.data[0].map((message) => {
+              return {
+                CustomerID: message.CustomerID,
+                CustomerName: message.CustomerName,
+                Image: message.RestaurantImg,
+                RestaurantID: message.RestaurantID,
+                RestaurantName: message.RestaurantName,
+                Date: message.Date,
+                Message: message.Messages,
+              };
+            });
+            let payload = {
+              Message: allMessages,
+              NoOfPages: response.data[1],
+              TotalCount: response.data[2],
+              PageNo: pageNo,
+            }
+            this.props.updateMessages(payload);
+        });
+      }
   }
   
   handlePageClick = async (e) =>{
@@ -72,134 +97,37 @@ class Users extends Component {
     }
   };
 
-  getSearchedYelpUserList = (searchString, searchCriteria, pageNo = 0) => {
-    let payload = {
-      category: '',
-      pageNo,
-    };
-    this.props.updateYelpUsers(payload); 
-    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
-    axios
-      .get(
-        serverUrl + 'customer/fetchSearchedYelpUser',
-
-        { params: { CustomerID: localStorage.getItem('user_id'), searchString, searchCriteria, pageNo }, withCredentials: true }
-      )
-      .then((response) => {
-        console.log(response.data);
-        let allUsers = response.data[0].map((user) => {
-          return {
-            ID: user.CustomerID,
-              Name: user.name,
-              ImageURL: user.ImageURL,
-              YelpingSince: user.YelpingSince,
-              DOB: user.DOB,
-              Gender: user.gender,
-              Contact: user.Contact,
-              Address: (((user.streetAddress.concat(',')).concat(user.City)).concat(',')).concat(user.zip),           
-            };
-          });
-          let payload = {
-            yelpCustomers: allUsers,
-            PageCount: response.data[1],
-            TotalCount: response.data[2],
-          }
-          this.props.updateYelpUsers(payload);
-    });
-  };
-
-  onChangeSearchStringHandler = (event) => {
-    this.setState({
-      searchString: event.target.value,
-    });
-  };
-
-  onChangeselectedFilter = (event) => {
-    this.setState({
-      searchCriteria: event.target.value,
-    });
-  };
-
-
-  openCustomerDetails = (event,userID) => {
+  openMessagesDetails = (event, RestaurantID, CustomerID) => {
+    let payload = null;
     if(this.state.popSeen) {
       this.setState({
         popSeen: !this.state.popSeen,
       });
     } else {
-      const index = this.props.yelpUsers.yelpCustomers.findIndex((x) => x.ID === userID);
-      let allItems = {
-        name: this.props.yelpUsers.yelpCustomers[index].Name,
-        gender: this.props.yelpUsers.yelpCustomers[index].Gender,
-        DOB: this.props.yelpUsers.yelpCustomers[index].DOB.split('T')[0],
-        contact: this.props.yelpUsers.yelpCustomers[index].Contact,
-      };
-      let payload = {
-        customer: [allItems],
-      };
-      this.props.updateYelpUsers(payload); 
+      if(localStorage.getItem('role') === 'Customer') {
+        const index = this.props.MessageContent.Message.findIndex((x) => x.RestaurantID === RestaurantID);
+        payload = {
+          MessageBody: [this.props.MessageContent.Message[index].Message],
+        };
+      } else {
+        const index = this.props.MessageContent.Message.findIndex((x) => x.CustomerID === CustomerID);
+        payload = {
+          MessageBody: [this.props.MessageContent.Message[index].Message],
+        };
+      }
+      this.props.updateMessages(payload); 
       this.setState({
         popSeen: !this.state.popSeen,
       });
     }
   }
 
-  followUser = (userID)  => {
-    const index = this.props.yelpUsers.yelpCustomers.findIndex((x) => x.ID === userID);
-    const Following = {
-      CustomerID: this.props.yelpUsers.yelpCustomers[index].ID,
-      CustomerName: this.props.yelpUsers.yelpCustomers[index].Name,
-      DOB: this.props.yelpUsers.yelpCustomers[index].DOB,
-      Gender: this.props.yelpUsers.yelpCustomers[index].Gender,
-      Contact: this.props.yelpUsers.yelpCustomers[index].Contact,
-      ImageURL: this.props.yelpUsers.yelpCustomers[index].ImageURL,
-      YelpingSince: this.props.yelpUsers.yelpCustomers[index].YelpingSince,
-      Address: this.props.yelpUsers.yelpCustomers[index].Address,
-    };
-    const FollowingCustomerIDs = {
-      CustomerID: userID,
-    };
-    const data = {
-      CustomerID: localStorage.getItem('user_id'),
-      Following,
-      FollowingCustomerIDs,
-    }
-    axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
-    axios.post(serverUrl + 'customer/followUser', data).then(
-      (response) => {
-        console.log('Status Code : ', response.status);
-        if (response.status === 200) {
-          const tmp = { CustomerID: userID };
-          let followingIDs = this.props.customerData.FollowingIDs;
-          followingIDs.push(tmp);
-          let payload = {
-            FollowingIDs: followingIDs,
-          }
-          this.props.updateCustomerProfile(payload);
-          alert('Added to your following list');
-          // this.getEventList(-1,0);
-        }
-      },
-      (error) => {
-        console.log(error);
-      }
-    );  
-  }
-  
   render() {
     let redirectVar = null;
     if (!localStorage.getItem('token')) {
       console.log('token not found');
-      redirectVar = <Redirect to="/customerLogin" />;
-    } else {
-      if (localStorage.getItem('role') === 'Customer') {
-        redirectVar = null;
-      } else if (localStorage.getItem('role') === 'Restaurant') {
-        redirectVar = <Redirect to="/restaurantProfile" />;
-      } else {
-        redirectVar = <Redirect to="/customerLogin" />;
-      }
-    }
+      redirectVar = <Redirect to="/webPage" />;
+    } 
     return (
       <div style={{ background: 'white' }}>
         {redirectVar}
@@ -228,101 +156,27 @@ class Users extends Component {
                   <nav class="navbar navbar-inverse">
                     <div class="container-fluid">
                       <div class="navbar-header">
-                        <a class="navbar-brand">Yelp Users</a>
+                        <a class="navbar-brand">User Connect</a>
                       </div>
                       <ul class="nav navbar-nav">
-                        <li className={this.props.yelpUsers.category === 'All' && 'active'}>
-                          <Link to="#" onClick={(event) => this.getYelpUserList('All')}>
-                            Users
+                        <li className={this.props.MessageContent.category === 'Messages' && 'active'}>
+                          <Link to="#" onClick={(event) => this.getMessages()}>
+                            Messages
                           </Link>
                         </li>
-                        <li className={this.props.yelpUsers.cateogry === 'Following' && 'active'}>
-                          <Link to="#" onClick={(event) => this.getYelpUserList('Following')}>
-                            Following
-                          </Link>
-                        </li>  
+                          
                       </ul>
-                      <ul class="nav navbar-nav navbar-right">
-                        <li>
-                          <select
-                              style={{
-                                width: '100%',
-                                position: 'inherit',
-                                fontWeight: '700',
-                                marginTop: '14px',
-                                marginBottom: '25px',
-                                color: '#666',
-                              }}
-                              placeholder="searchFilter"
-                              className="form-control"
-                              onChange={this.onChangeselectedFilter}
-                              required
-                            >
-                              <option
-                                className="Dropdown-menu"
-                                key=""
-                                value={null}
-                                style={{
-                                  fontWeight: '700',
-                                  color: '#666',
-                                }}
-                              >
-                                -Filter-
-                              </option>
-                              {this.state.SearchFilters.map((searchFilter) => (
-                                <option
-                                  style={{
-                                    fontWeight: '700',
-                                    color: '#666',
-                                  }}
-                                  className="Dropdown-menu"
-                                  key={searchFilter.ID}
-                                  value={searchFilter.value}
-                                >
-                                  {searchFilter.Value}
-                                </option>
-                              ))}
-                            </select>
-                          </li>
-                          <li
-                            className={
-                              this.props.yelpUsers.cateogry !== 'All' &&
-                              this.props.yelpUsers.cateogry !== 'Following' &&
-                              'active'
-                            }
-                          >
-                            <input
-                              style={{ marginTop: '14px', width: '100px' }}
-                              type="text"
-                              value={this.state.searchString}
-                              onChange={this.onChangeSearchStringHandler}
-                            ></input>
-                        </li>
-                        <li className={this.props.yelpUsers.category === 'search' && 'active'}>
-                          <button
-                            style={{ marginTop: '14px' }}
-                            onClick={(event) => this.getSearchedYelpUserList(
-                                                                this.state.searchString, 
-                                                                this.state.searchCriteria,
-                                                              )}
-                          >
-                            Search
-                          </button>
-                        </li>
-                      </ul>
+                      
                       {/*navLogin*/}
                     </div>
                   </nav>
                   <div>
                     <ul className="lemon--ul__373c0__1_cxs undefined list__373c0__2G8oH">
-                      {this.props.yelpUsers.yelpCustomers.map((user) => (
-                        <UserDisplay
-                          user={user}
-                          followedCustomerIDs={this.props.customerData.FollowingIDs}
-                          openCustomerDetails={(e) => this.openCustomerDetails(e,user.ID)}
-                          followUser={() => {
-                            this.followUser(user.ID);
-                          }}
+                      {this.props.MessageContent.Message.map((message) => (
+                        <MessageDisplay
+                          message={message}
+                          userID={this.state.userID}
+                          openMessagesDetails={(e) => this.openMessagesDetails(e,message.RestaurantID,message.CustomerID)}
                         />
                       ))}
                     </ul>
@@ -331,20 +185,20 @@ class Users extends Component {
                       nextLabel={'next'}
                       breakLabel={'...'}
                       breakClassName={'break-me'}
-                      pageCount={this.props.yelpUsers.PageCount}
+                      pageCount={this.props.MessageContent.TotalCount}
                       marginPagesDisplayed={2}
                       pageRangeDisplayed={2}
                       onPageChange={this.handlePageClick}
                       containerClassName={'pagination'}
                       subContainerClassName={'pages pagination'}
-                      forcePage={this.props.yelpUsers.pageNo}
+                      forcePage={this.props.MessageContent.PageNo}
                       activeClassName={'active'}
                   />
                   </div>
                   {this.state.popSeen ? (
-                    <CustomerDetails
-                      customerDetails={this.props.yelpUsers.customer}
-                      toggle={(e) => {this.openCustomerDetails(e)}}
+                    <MessageContent
+                      messageDetails={this.props.MessageContent.MessageBody}
+                      openMessagesDetails={(e) => {this.openMessagesDetails(e)}}
                     />
                   ) : null}
                 </div>
@@ -358,19 +212,17 @@ class Users extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { yelpUsers } = state.yelpUsersReducer;
-  const { customerData } = state.customerProfileReducer;
+  const { MessageContent } = state.messageReducer;
   return {
-    yelpUsers: yelpUsers,
-    customerData: customerData,
+    MessageContent: MessageContent,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateYelpUsers: (payload) => {
+    updateMessages: (payload) => {
       dispatch({
-        type: 'update-yelp-users',
+        type: 'update-message-flow',
         payload,
       });
     },
@@ -383,4 +235,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Users);
+export default connect(mapStateToProps, mapDispatchToProps)(MessageList);

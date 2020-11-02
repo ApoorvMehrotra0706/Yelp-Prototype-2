@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
@@ -10,11 +10,15 @@ const messagesSchema = new Schema(
     CustomerName: { type: String, required: true },
     RestaurantImg: { type: String },
     CustomerImg: { type: String },
+    Date: { type: Date },
     Messages: [
-        { Date: { type: Date },
-          Name: { type: String },
-          Message: { type: String },
-        },
+      {
+        Date: { type: Date },
+        Name: { type: String },
+        Message: { type: String },
+        CustomerID: { type: String },
+        RestaurantID: { type: String },
+      },
     ],
   },
   {
@@ -22,5 +26,5 @@ const messagesSchema = new Schema(
   }
 );
 
-const messagesModel = mongoose.model('message', messagesSchema);
+const messagesModel = mongoose.model("message", messagesSchema);
 module.exports = messagesModel;

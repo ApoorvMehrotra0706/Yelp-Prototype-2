@@ -13,48 +13,50 @@ class AboutMe extends Component {
   componentDidMount() {
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     axios
-        .get(
-          serverUrl + 'customer/getCustomerCompleteProfile',
+      .get(
+        serverUrl + 'customer/getCustomerCompleteProfile',
 
-          { params: { CustomerID: localStorage.getItem('user_id') }, withCredentials: true }
-        )
-        .then((response) => {
-          console.log(response.data);
-        
-          let DOB = moment.utc(response.data.DOB);
-          DOB= DOB.format('YYYY-MM-DD');
-          let payload = {
-            Name: response.data.name,
-            NickName: response.data.NickName,
-            DOB: DOB,
-            City: response.data.City,
-            State: response.data.state, 
-            Address: (response.data.City.concat(', ')).concat(response.data.state), 
-            Gender: response.data.gender,         
-            streetAddress: response.data.streetAddress,
-            Country: response.data.country,
-            zip: response.data.zip,
-            Headline: response.data.Headline,
-            Contact: response.data.contact,
-            ILove: response.data.Things_Customer_Love,
-            Find_Me_In: response.data.Find_Me_In,
-            YelpingSince: response.data.YelpingSince,
-            Website: response.data.Website,
-            ImageURL: response.data.ImageURL,
-            Events: response.data.Events,
-            FollowingIDs: response.data.FollowingCustomerIDs,
-          };
-          this.props.updateCustomerProfile(payload);
-          payload = {
-            Contact: response.data.contact,
-            EmailID: localStorage.getItem('username'),
-            NewEmailID: localStorage.getItem('username'),
-            NewContact: response.data.contact,
-          };
-          this.props.updateCustomerContactInfo(payload);
-        }).catch((er) => {
-          console.log(er)
-        });
+        { params: { CustomerID: localStorage.getItem('user_id') }, withCredentials: true }
+      )
+      .then((response) => {
+        console.log(response.data);
+
+        let DOB = moment.utc(response.data.DOB);
+        DOB = DOB.format('YYYY-MM-DD');
+        localStorage.setItem('Name', response.data.name);
+        let payload = {
+          Name: response.data.name,
+          NickName: response.data.NickName,
+          DOB: DOB,
+          City: response.data.City,
+          State: response.data.state,
+          Address: response.data.City.concat(', ').concat(response.data.state),
+          Gender: response.data.gender,
+          streetAddress: response.data.streetAddress,
+          Country: response.data.country,
+          zip: response.data.zip,
+          Headline: response.data.Headline,
+          Contact: response.data.contact,
+          ILove: response.data.Things_Customer_Love,
+          Find_Me_In: response.data.Find_Me_In,
+          YelpingSince: response.data.YelpingSince,
+          Website: response.data.Website,
+          ImageURL: response.data.ImageURL,
+          Events: response.data.Events,
+          FollowingIDs: response.data.FollowingCustomerIDs,
+        };
+        this.props.updateCustomerProfile(payload);
+        payload = {
+          Contact: response.data.contact,
+          EmailID: localStorage.getItem('username'),
+          NewEmailID: localStorage.getItem('username'),
+          NewContact: response.data.contact,
+        };
+        this.props.updateCustomerContactInfo(payload);
+      })
+      .catch((er) => {
+        console.log(er);
+      });
   }
   render() {
     const defaultImage =
@@ -97,12 +99,14 @@ class AboutMe extends Component {
             <div className="column column-beta ">
               <div className="user-details-overview">
                 <div class="user-details-overview_sidebar">
-                  {this.props.customerData.NickName != null && this.props.customerData.NickName.length > 0 ? (
+                  {this.props.customerData.NickName != null &&
+                  this.props.customerData.NickName.length > 0 ? (
                     <h3>About {this.props.customerData.NickName}</h3>
                   ) : (
                     <h3>About {this.props.customerData.Name}</h3>
                   )}
-                  {this.props.customerData.Headline != null && this.props.customerData.Headline.length > 0 ? (
+                  {this.props.customerData.Headline != null &&
+                  this.props.customerData.Headline.length > 0 ? (
                     <h3 style={{ color: 'black' }}> {this.props.customerData.Headline}</h3>
                   ) : (
                     <h3>Please Update Heading!!!</h3>
@@ -133,7 +137,8 @@ class AboutMe extends Component {
                     <ul class="ylist">
                       <li>
                         <h4>Location</h4>
-                        {this.props.customerData.Address != null && this.props.customerData.Address.length > 0 ? (
+                        {this.props.customerData.Address != null &&
+                        this.props.customerData.Address.length > 0 ? (
                           <p>{this.props.customerData.Address}</p>
                         ) : (
                           <p>No idea, :(</p>
@@ -143,7 +148,8 @@ class AboutMe extends Component {
 
                       <li>
                         <h4>Date Of Birth</h4>
-                        {(this.props.customerData.DOB != null && this.props.customerData.DOB.length) > 0 ? (
+                        {(this.props.customerData.DOB != null &&
+                          this.props.customerData.DOB.length) > 0 ? (
                           <p>{this.props.customerData.DOB}</p>
                         ) : (
                           <p>Tell us to avail Birthday offers!</p>
@@ -157,7 +163,8 @@ class AboutMe extends Component {
 
                       <li>
                         <h4>Things I Love</h4>
-                        {this.props.customerData.ILove != null && this.props.customerData.ILove.length > 0 ? (
+                        {this.props.customerData.ILove != null &&
+                        this.props.customerData.ILove.length > 0 ? (
                           <p>{this.props.customerData.ILove}</p>
                         ) : (
                           <p>We love to hear about your love</p>
@@ -166,7 +173,8 @@ class AboutMe extends Component {
 
                       <li>
                         <h4>Find Me In</h4>
-                        {this.props.customerData.Find_Me_In != null && this.props.customerData.Find_Me_In.length > 0 ? (
+                        {this.props.customerData.Find_Me_In != null &&
+                        this.props.customerData.Find_Me_In.length > 0 ? (
                           <p>{this.props.customerData.Find_Me_In}</p>
                         ) : (
                           <p>Common, tell us</p>
@@ -174,7 +182,8 @@ class AboutMe extends Component {
                       </li>
                       <li>
                         <h4>Follow My Website/Blog</h4>
-                        {this.props.customerData.Website != null && this.props.customerData.Website.length > 0 ? (
+                        {this.props.customerData.Website != null &&
+                        this.props.customerData.Website.length > 0 ? (
                           <p>{this.props.customerData.Website}</p>
                         ) : (
                           <p>We would love to follow you, tell us</p>
@@ -195,7 +204,7 @@ class AboutMe extends Component {
 // export default AboutMe;
 const mapStateToProps = (state) => {
   const { customerInfo } = state.customer;
-  const { customerData } = state.customerProfileReducer
+  const { customerData } = state.customerProfileReducer;
   return {
     customerInfo: customerInfo,
     customerData: customerData,
