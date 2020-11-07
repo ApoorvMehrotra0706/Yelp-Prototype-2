@@ -12,122 +12,120 @@ import ReactPaginate from 'react-paginate';
 class MessageList extends Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      followedCustomerIDs: [], 
+    this.state = {
+      followedCustomerIDs: [],
       userID: '',
       popSeen: false,
       searchCriteria: '',
     };
   }
   componentDidMount() {
-         this.getMessages();
+    this.getMessages();
   }
 
-  getMessages = async ( pageNo = 0) => { 
+  getMessages = async (pageNo = 0) => {
     axios.defaults.headers.common['authorization'] = localStorage.getItem('token');
     if (localStorage.getItem('role') === 'Restaurant') {
       axios
-        .get(
-          serverUrl + 'restaurant/fetchMessages',
-          { params: { RestaurantID: localStorage.getItem('user_id'), pageNo }, withCredentials: true }
-          )
-          .then((response) => {
-            console.log(response.data);
-            let allMessages = response.data[0].map((message) => {
-              return {
-                CustomerID: message.CustomerID,
-                CustomerName: message.CustomerName,
-                Image: message.CustomerImg,
-                RestaurantID: message.RestaurantID,
-                RestaurantName: message.RestaurantName,
-                Date: message.Date,
-                Message: message.Messages,
-              };
-            });
-            let payload = {
-              Message: allMessages,
-              NoOfPages: response.data[1],
-              TotalCount: response.data[2],
-              PageNo: pageNo,
-            }
-            this.props.updateMessages(payload);
+        .get(serverUrl + 'restaurant/fetchMessages', {
+          params: { RestaurantID: localStorage.getItem('user_id'), pageNo },
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log(response.data);
+          let allMessages = response.data[0].map((message) => {
+            return {
+              CustomerID: message.CustomerID,
+              CustomerName: message.CustomerName,
+              Image: message.CustomerImg,
+              RestaurantID: message.RestaurantID,
+              RestaurantName: message.RestaurantName,
+              Date: message.Date,
+              Message: message.Messages,
+            };
+          });
+          let payload = {
+            Message: allMessages,
+            NoOfPages: response.data[1],
+            TotalCount: response.data[2],
+            PageNo: pageNo,
+          };
+          this.props.updateMessages(payload);
         });
-      } else {
-        axios
-        .get(
-          serverUrl + 'customer/fetchMessages',
-          { params: { CustomerID: localStorage.getItem('user_id'), pageNo }, withCredentials: true }
-          )
-          .then((response) => {
-            console.log(response.data);
-            let allMessages = response.data[0].map((message) => {
-              return {
-                CustomerID: message.CustomerID,
-                CustomerName: message.CustomerName,
-                Image: message.RestaurantImg,
-                RestaurantID: message.RestaurantID,
-                RestaurantName: message.RestaurantName,
-                Date: message.Date,
-                Message: message.Messages,
-              };
-            });
-            let payload = {
-              Message: allMessages,
-              NoOfPages: response.data[1],
-              TotalCount: response.data[2],
-              PageNo: pageNo,
-            }
-            this.props.updateMessages(payload);
-        });
-      }
-  }
-  
-  handlePageClick = async (e) =>{
-    let payload = {
-      pageNo: e.selected
-    };
-    await this.props.updateYelpUsers(payload);
-
-    if(this.props.yelpUsers.category === 'All') {
-      this.getYelpUserList(this.props.yelpUsers.category, e.selected);
-    } else if(this.props.yelpUsers.category === 'Following'){
-      this.getYelpUserList('Following', e.selected);
     } else {
-      this.getSearchedYelpUserList(this.state.searchString, this.state.searchCriteria, e.selected);
+      axios
+        .get(serverUrl + 'customer/fetchMessages', {
+          params: { CustomerID: localStorage.getItem('user_id'), pageNo },
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log(response.data);
+          let allMessages = response.data[0].map((message) => {
+            return {
+              CustomerID: message.CustomerID,
+              CustomerName: message.CustomerName,
+              Image: message.RestaurantImg,
+              RestaurantID: message.RestaurantID,
+              RestaurantName: message.RestaurantName,
+              Date: message.Date,
+              Message: message.Messages,
+            };
+          });
+          let payload = {
+            Message: allMessages,
+            NoOfPages: response.data[1],
+            TotalCount: response.data[2],
+            PageNo: pageNo,
+          };
+          this.props.updateMessages(payload);
+        });
     }
+  };
+
+  handlePageClick = async (e) => {
+    let payload = {
+      PageNo: e.selected,
+    };
+    await this.props.updateMessages(payload);
+
+    this.getMessages(e.selected);
   };
 
   openMessagesDetails = (event, RestaurantID, CustomerID) => {
     let payload = null;
-    if(this.state.popSeen) {
+    if (this.state.popSeen) {
       this.setState({
         popSeen: !this.state.popSeen,
       });
     } else {
-      if(localStorage.getItem('role') === 'Customer') {
-        const index = this.props.MessageContent.Message.findIndex((x) => x.RestaurantID === RestaurantID);
+      if (localStorage.getItem('role') === 'Customer') {
+        const index = this.props.MessageContent.Message.findIndex(
+          (x) => x.RestaurantID === RestaurantID
+        );
         payload = {
           MessageBody: [this.props.MessageContent.Message[index].Message],
         };
       } else {
-        const index = this.props.MessageContent.Message.findIndex((x) => x.CustomerID === CustomerID);
+        const index = this.props.MessageContent.Message.findIndex(
+          (x) => x.CustomerID === CustomerID
+        );
         payload = {
           MessageBody: [this.props.MessageContent.Message[index].Message],
         };
       }
-      this.props.updateMessages(payload); 
+      this.props.updateMessages(payload);
       this.setState({
         popSeen: !this.state.popSeen,
       });
     }
-  }
+  };
 
   render() {
     let redirectVar = null;
     if (!localStorage.getItem('token')) {
       console.log('token not found');
       redirectVar = <Redirect to="/webPage" />;
-    } 
+    }
     return (
       <div style={{ background: 'white' }}>
         {redirectVar}
@@ -159,14 +157,15 @@ class MessageList extends Component {
                         <a class="navbar-brand">User Connect</a>
                       </div>
                       <ul class="nav navbar-nav">
-                        <li className={this.props.MessageContent.category === 'Messages' && 'active'}>
+                        <li
+                          className={this.props.MessageContent.category === 'Messages' && 'active'}
+                        >
                           <Link to="#" onClick={(event) => this.getMessages()}>
                             Messages
                           </Link>
                         </li>
-                          
                       </ul>
-                      
+
                       {/*navLogin*/}
                     </div>
                   </nav>
@@ -176,7 +175,9 @@ class MessageList extends Component {
                         <MessageDisplay
                           message={message}
                           userID={this.state.userID}
-                          openMessagesDetails={(e) => this.openMessagesDetails(e,message.RestaurantID,message.CustomerID)}
+                          openMessagesDetails={(e) =>
+                            this.openMessagesDetails(e, message.RestaurantID, message.CustomerID)
+                          }
                         />
                       ))}
                     </ul>
@@ -185,7 +186,7 @@ class MessageList extends Component {
                       nextLabel={'next'}
                       breakLabel={'...'}
                       breakClassName={'break-me'}
-                      pageCount={this.props.MessageContent.TotalCount}
+                      pageCount={this.props.MessageContent.NoOfPages}
                       marginPagesDisplayed={2}
                       pageRangeDisplayed={2}
                       onPageChange={this.handlePageClick}
@@ -193,12 +194,14 @@ class MessageList extends Component {
                       subContainerClassName={'pages pagination'}
                       forcePage={this.props.MessageContent.PageNo}
                       activeClassName={'active'}
-                  />
+                    />
                   </div>
                   {this.state.popSeen ? (
                     <MessageContent
                       messageDetails={this.props.MessageContent.MessageBody}
-                      openMessagesDetails={(e) => {this.openMessagesDetails(e)}}
+                      openMessagesDetails={(e) => {
+                        this.openMessagesDetails(e);
+                      }}
                     />
                   ) : null}
                 </div>

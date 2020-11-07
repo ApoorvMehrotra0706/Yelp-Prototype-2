@@ -1108,27 +1108,4 @@ async function handle_request(msg, callback) {
   }
 }
 
-// module.exports = {
-//   signupCustomer,
-//   loginCustomer,
-//   logoutCustomer,
-//   getCustomerCompleteProfile,
-//   uploadCustomerProfilePic,
-//   updateProfile,
-//   updateContactInfo,
-//   fetchSearchStrings,
-//   fetchRestaurantResults,
-//   fetchRestaurantProfileForCustomer,
-//   submitReview,
-//   generateOrder,
-//   menuFetch,
-//   fetchAllOrders,
-//   fetchEventList,
-//   eventRegistration,
-//   getCustRegisteredEvents,
-//   fetchSearchedEventList,
-//   fetchYelpUserList,
-//   followUser,
-//   fetchSearchedYelpUser,
-// };
 exports.handle_request = handle_request;

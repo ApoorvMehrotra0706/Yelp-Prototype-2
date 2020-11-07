@@ -11,8 +11,6 @@ const Router = express.Router();
 
 // Login for the customer
 Router.post('/loginCustomer', async (req, res) => {
-  // const value = await loginCustomer(req, res);
-  // return value;
   const data = {
     api: 'loginCustomer',
     body: req.body,
@@ -34,8 +32,6 @@ Router.post('/loginCustomer', async (req, res) => {
 
 // Signup for the customer
 Router.post('/signupCustomer', async (req, res) => {
-  // const value = await signupCustomer(req, res);
-  // return value;
   const data = {
     api: 'signupCustomer',
     body: req.body,
@@ -62,8 +58,6 @@ Router.post('/logoutCustomer', async (req) => {
 
 // Fetching customer profile
 Router.get('/getCustomerCompleteProfile', checkAuth, async (req, res) => {
-  // const value = await getCustomerCompleteProfile(req, res);
-  // return value;
   const data = {
     api: 'getCustomerCompleteProfile',
     url: req.url,
@@ -109,8 +103,6 @@ const imageUpload = multer({
 
 // Uploading customer profile picture
 Router.post('/uploadCustomerProfilePic', checkAuth, async (req, res) => {
-  // const value = await uploadCustomerProfilePic(req, res);
-  // return value;
   try {
     imageUpload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
@@ -137,8 +129,6 @@ Router.post('/uploadCustomerProfilePic', checkAuth, async (req, res) => {
 
 // Updating customer profile
 Router.put('/updateProfile', checkAuth, async (req, res) => {
-  // const value = await updateProfile(req, res);
-  // return value;
   const data = {
     api: 'updateProfile',
     body: req.body,
@@ -160,8 +150,6 @@ Router.put('/updateProfile', checkAuth, async (req, res) => {
 
 // Updating customer contact info
 Router.put('/updateContactInfo', checkAuth, async (req, res) => {
-  // const value = await updateContactInfo(req, res);
-  // return value;
   const data = {
     api: 'updateContactInfo',
     body: req.body,
@@ -183,8 +171,6 @@ Router.put('/updateContactInfo', checkAuth, async (req, res) => {
 
 // Fetching search strings
 Router.get('/fetchSearchStrings', async (req, res) => {
-  // const value = await fetchSearchStrings(req, res);
-  // return value;
   const data = {
     api: 'fetchSearchStrings',
     url: req.url,
