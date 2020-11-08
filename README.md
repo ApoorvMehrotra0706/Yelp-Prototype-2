@@ -10,15 +10,55 @@ Created a prototype of yelp using MERN stack and Kafka Messaging Queue.
 
 # Provide below folders in the below location
 ## Backend folder
-1. config file with frontend URL in the Backend folder.
-2. .env file with SESSION_YELP
+1. config file with frontend URL and secret in the Backend folder as below
+
+const config = {
+  secret: 'cmpe273_secret_key',
+  frontendURL: 'http://localhost:3000',
+  
+};
+
+module.exports = config;
+
+2. .env file with SESSION_YELP as below
+
+SESSION_YELP= <value>
 
 ## kafka-backend folder
-1. .env file with GOOGLEAPIKEY, BUCKET_NAME, ACCESS_KEY_ID, SECRET_ACCESS_KEY
-2  config file with MongoDB connection information
+1. .env file with GOOGLEAPIKEY, BUCKET_NAME, ACCESS_KEY_ID, SECRET_ACCESS_KEY as below
+
+SESSION_YELP= <value>
+GOOGLEAPIKEY= <value>
+
+BUCKET_NAME= <AWS S3 bucket>
+ACCESS_KEY_ID= <AWS access key>
+SECRET_ACCESS_KEY= <AWS secret access key>
+  
+2. Create below topics in the kafka server
+* staticRoutes
+* custRoutes
+* restRoutes
+* response_topic
+
+3. config file with MongoDB connection information as below
+
+const config = {
+  secret: <value>,
+  frontendURL: <url:port>,
+  mongoDB:
+    <connection url>,
+};
+
+module.exports = config;
+
 
 ## Frontend folder
-1. Config file in Frontend/yelp/src with the backedn URL information.
+1. Config file in Frontend/yelp/src with the backedn URL information as below.
+
+const serverUrl = <url:port>;
+
+export default serverUrl;
+
 
 
 # Follow the below steps to run the project
