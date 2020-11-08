@@ -13,8 +13,8 @@ Created a prototype of yelp using MERN stack and Kafka Messaging Queue.
 1. config file with frontend URL and secret in the Backend folder as below
 
 const config = {
-  secret: 'cmpe273_secret_key',
-  frontendURL: 'http://localhost:3000',
+  secret: <value>,
+  frontendURL: <url:port>,
   
 };
 
