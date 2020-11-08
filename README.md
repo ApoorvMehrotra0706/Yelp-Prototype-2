@@ -13,8 +13,8 @@ Created a prototype of yelp using MERN stack and Kafka Messaging Queue.
 1. config file with frontend URL and secret in the Backend folder as below
 
 const config = {
-  secret: <value>,
-  frontendURL: <url:port>,
+  secret: < value >,
+  frontendURL: < url:port >,
   
 };
 
@@ -22,17 +22,17 @@ module.exports = config;
 
 2. .env file with SESSION_YELP as below
 
-SESSION_YELP= <value>
+SESSION_YELP= < value >
 
 ## kafka-backend folder
 1. .env file with GOOGLEAPIKEY, BUCKET_NAME, ACCESS_KEY_ID, SECRET_ACCESS_KEY as below
 
-SESSION_YELP= <value>
-GOOGLEAPIKEY= <value>
+SESSION_YELP= < value >
+GOOGLEAPIKEY= < value >
 
-BUCKET_NAME= <AWS S3 bucket>
-ACCESS_KEY_ID= <AWS access key>
-SECRET_ACCESS_KEY= <AWS secret access key>
+BUCKET_NAME= < AWS S3 bucket >
+ACCESS_KEY_ID= < AWS access key >
+SECRET_ACCESS_KEY= < AWS secret access key >
   
 2. Create below topics in the kafka server
 * staticRoutes
@@ -43,10 +43,10 @@ SECRET_ACCESS_KEY= <AWS secret access key>
 3. config file with MongoDB connection information as below
 
 const config = {
-  secret: <value>,
-  frontendURL: <url:port>,
+  secret: < value >,
+  frontendURL: < url:port >,
   mongoDB:
-    <connection url>,
+    < connection url >,
 };
 
 module.exports = config;
@@ -55,7 +55,7 @@ module.exports = config;
 ## Frontend folder
 1. Config file in Frontend/yelp/src with the backedn URL information as below.
 
-const serverUrl = <url:port>;
+const serverUrl = < url:port >;
 
 export default serverUrl;
 
