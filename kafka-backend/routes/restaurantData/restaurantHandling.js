@@ -27,7 +27,6 @@ auth();
 
 const geofinder = geocoder({
   // key: `'${process.env.GOOGLEAPIKEY}'`,
-  key: "AIzaSyDHRJvSWfXNenjs51fuPKCvOODQKm2AhQY",
 });
 
 async function handle_request(msg, callback) {
