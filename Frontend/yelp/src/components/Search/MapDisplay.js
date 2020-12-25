@@ -31,5 +31,4 @@ export class MapDisplay extends Component {
 
 export default GoogleApiWrapper({
   // apiKey: process.env.APIKEY,
-  apiKey: 'AIzaSyDHRJvSWfXNenjs51fuPKCvOODQKm2AhQY',
 })(MapDisplay);
