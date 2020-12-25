@@ -2,10 +2,10 @@ const mysql = require('mysql2/promise');
 
 const mysqlConnection = async () =>
   mysql.createConnection({
-    host: 'yelp.ccqrmksnmmm6.us-east-2.rds.amazonaws.com',
-    user: 'root',
+    host: '',
+    user: '',
     port: '3306',
-    password: 'Abhijeet0512',
+    password: '',
     database: 'YELP',
     multipleStatements: true,
   });
